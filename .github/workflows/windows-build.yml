@@ -88,21 +88,34 @@ jobs:
           cl /c /MD /O2 /W3 $luaSources
           lib /OUT:lua.lib *.obj
 
-      - name: Configure (CMake, Visual Studio 2022, x64)
+      # No -G here on purpose: windows-latest now ships Visual Studio 18,
+      # not 17, so hard-coding 'Visual Studio 17 2022' fails with
+      # "could not find any instance of Visual Studio". Letting CMake pick
+      # the runner's default Visual Studio generator works on any runner.
+      # Note install-qt-action sets Qt5_DIR to ...\msvc2019_64\lib\cmake
+      # (not ...\lib\cmake\Qt5), so the Qt prefix is two levels up from it
+      # and the Qt5 CMake config dir is Qt5_DIR\Qt5.
+      - name: Configure (CMake, default Visual Studio, x64)
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           $qtDir = $env:Qt5_DIR
           if ($qtDir -match 'lib\\cmake\\Qt5$') {
             $qtPrefix = (Split-Path (Split-Path (Split-Path $qtDir -Parent) -Parent) -Parent)
+            $qt5cmake = $qtDir
+          } elseif ($qtDir -match 'lib\\cmake$') {
+            $qtPrefix = (Split-Path (Split-Path $qtDir -Parent) -Parent)
+            $qt5cmake = "$qtDir\Qt5"
           } else {
             $qtPrefix = $qtDir
+            $qt5cmake = $qtDir
           }
           Write-Host "Qt5_DIR=$qtDir"
           Write-Host "Qt prefix=$qtPrefix"
-          cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 `
+          Write-Host "Qt5 CMake dir=$qt5cmake"
+          cmake -S . -B build -A x64 `
             -DCMAKE_PREFIX_PATH="$qtPrefix" `
-            -DQt5_DIR="$qtDir" `
+            -DQt5_DIR="$qt5cmake" `
             -DLUA_INCLUDE_DIR="$env:GITHUB_WORKSPACE\lua-5.4.7\src" `
             -DLUA_LIBRARY="$env:GITHUB_WORKSPACE\lua-5.4.7\src\lua.lib"
 
