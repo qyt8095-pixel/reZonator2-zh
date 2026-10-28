@@ -53,6 +53,12 @@ jobs:
             }
           }
 
+      # No 'modules' here on purpose: for Qt 5.15.2 / win64_msvc2019_64,
+      # aqt's available add-on modules do NOT include qtsvg or qttools
+      # (verified with 'aqt list-qt windows desktop --modules 5.15.2
+      # win64_msvc2019_64'), and passing them makes aqt fail with
+      # "The packages ['qtsvg', 'qttools'] were not found". QtSvg and
+      # QtHelp (from qttools) are already part of the base Qt install.
       - name: Install Qt 5.15.2 (MSVC 2019 64-bit)
         uses: jurplel/install-qt-action@v4
         with:
@@ -60,7 +66,6 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2019_64
-          modules: 'qtsvg qttools'
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
