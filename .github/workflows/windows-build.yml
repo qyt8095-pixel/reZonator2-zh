@@ -53,6 +53,30 @@ jobs:
             }
           }
 
+      # Fetch submodule sources explicitly. The repository index does NOT
+      # contain the libs/orion and libs/custom-plot-lab gitlink entries:
+      # the GitHub App push used for this repo can only push text files,
+      # so the gitlinks were never pushed, and 'checkout with submodules'
+      # therefore creates neither directory. Without this step CMake fails
+      # with: add_subdirectory given source "libs/orion" which is not an
+      # existing directory. The commits below are the ones recorded in
+      # the upstream checkout (git ls-files --stage libs/).
+      - name: Fetch submodule sources explicitly
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path libs/orion/.git)) {
+            Remove-Item libs/orion -Recurse -Force -ErrorAction SilentlyContinue
+            git clone https://github.com/orion-project/orion-qt libs/orion
+          }
+          git -C libs/orion checkout 7dd992de2b28509b1d34ff6293a8f7213e6ca8cb
+          if (-not (Test-Path libs/custom-plot-lab/.git)) {
+            Remove-Item libs/custom-plot-lab -Recurse -Force -ErrorAction SilentlyContinue
+            git clone https://github.com/orion-project/custom-plot-lab libs/custom-plot-lab
+          }
+          git -C libs/custom-plot-lab checkout 60f24590ed481a6515ab07f47d97b522d5f9404b
+          Get-ChildItem libs/orion, libs/custom-plot-lab | Select-Object FullName
+
       # No 'modules' here on purpose: for Qt 5.15.2 / win64_msvc2019_64,
       # aqt's available add-on modules do NOT include qtsvg or qttools
       # (verified with 'aqt list-qt windows desktop --modules 5.15.2
