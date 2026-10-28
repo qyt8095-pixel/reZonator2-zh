@@ -1,0 +1,124 @@
+# Build the Chinese-localized reZonator2 on Windows and upload a portable exe package.
+#
+# Why this workflow exists:
+# - This repository contains the localized source code, but the GitHub App
+#   integration used to push it can only push UTF-8 text files. Binary assets
+#   (program icons in img/, help screenshots, example images, ...) therefore
+#   live only in the upstream repository, not here.
+# - The "Restore binary assets" step below downloads the upstream master
+#   tarball and copies ONLY files that are missing here. Localized text files
+#   are never overwritten, and the binary assets are unlocalized anyway, so
+#   they are identical to upstream.
+# - Submodules (libs/orion, libs/custom-plot-lab) are fetched by checkout.
+#
+# Trigger: pushing this file to main starts a run automatically.
+# You can also start it manually from the repository's Actions tab
+# ("Build Windows exe" -> Run workflow).
+
+name: Build Windows exe
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/windows-build.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore binary assets missing from this repo
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Invoke-WebRequest -Uri 'https://github.com/orion-project/rezonator2/archive/refs/heads/master.tar.gz' -OutFile "$env:RUNNER_TEMP\upstream.tar.gz"
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\upstream" | Out-Null
+          tar -xzf "$env:RUNNER_TEMP\upstream.tar.gz" -C "$env:RUNNER_TEMP\upstream"
+          $src = "$env:RUNNER_TEMP\upstream\rezonator2-master"
+          Get-ChildItem -Recurse -File $src | ForEach-Object {
+            $rel = $_.FullName.Substring($src.Length + 1)
+            $dest = Join-Path $env:GITHUB_WORKSPACE $rel
+            if (-not (Test-Path $dest)) {
+              New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
+              Copy-Item $_.FullName $dest
+            }
+          }
+
+      - name: Install Qt 5.15.2 (MSVC 2019 64-bit)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          modules: 'qtsvg qttools'
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build Lua 5.4.7 static library
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Invoke-WebRequest -Uri 'https://www.lua.org/ftp/lua-5.4.7.tar.gz' -OutFile "$env:RUNNER_TEMP\lua.tar.gz"
+          tar -xzf "$env:RUNNER_TEMP\lua.tar.gz" -C $env:GITHUB_WORKSPACE
+          Set-Location "$env:GITHUB_WORKSPACE\lua-5.4.7\src"
+          $luaSources = @('lapi.c','lauxlib.c','lbaselib.c','lcode.c','lcorolib.c','lctype.c','ldblib.c','ldebug.c','ldo.c','ldump.c','lfunc.c','lgc.c','linit.c','liolib.c','llex.c','lmathlib.c','lmem.c','loadlib.c','lobject.c','lopcodes.c','loslib.c','lparser.c','lstate.c','lstring.c','lstrlib.c','ltable.c','ltablib.c','ltm.c','lundump.c','lutf8lib.c','lvm.c','lzio.c')
+          cl /c /MD /O2 /W3 $luaSources
+          lib /OUT:lua.lib *.obj
+
+      - name: Configure (CMake, Visual Studio 2022, x64)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $qtDir = $env:Qt5_DIR
+          if ($qtDir -match 'lib\\cmake\\Qt5$') {
+            $qtPrefix = (Split-Path (Split-Path (Split-Path $qtDir -Parent) -Parent) -Parent)
+          } else {
+            $qtPrefix = $qtDir
+          }
+          Write-Host "Qt5_DIR=$qtDir"
+          Write-Host "Qt prefix=$qtPrefix"
+          cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 `
+            -DCMAKE_PREFIX_PATH="$qtPrefix" `
+            -DQt5_DIR="$qtDir" `
+            -DLUA_INCLUDE_DIR="$env:GITHUB_WORKSPACE\lua-5.4.7\src" `
+            -DLUA_LIBRARY="$env:GITHUB_WORKSPACE\lua-5.4.7\src\lua.lib"
+
+      - name: Build (Release)
+        shell: powershell
+        run: cmake --build build --config Release --parallel
+
+      - name: Package portable folder with Qt DLLs
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path deploy | Out-Null
+          Copy-Item bin\rezonator.exe deploy\
+          if (Test-Path bin\examples) { Copy-Item bin\examples deploy\examples -Recurse }
+          if (Test-Path bin\templates) { Copy-Item bin\templates deploy\templates -Recurse }
+          windeployqt --release --compiler-runtime --no-translations --no-system-d3d-compiler --no-opengl-sw deploy\rezonator.exe
+          Get-ChildItem deploy | Select-Object Name, Length
+
+      - name: Upload exe package
+        uses: actions/upload-artifact@v4
+        with:
+          name: rezonator2-zh-windows
+          path: deploy
+          if-no-files-found: error
