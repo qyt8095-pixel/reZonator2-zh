@@ -97,6 +97,9 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2019_64
+          # Cache the Qt install in GitHub's cache so later runs do not
+          # re-download hundreds of MB of Qt on every clean runner.
+          cache: true
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -118,6 +121,31 @@ jobs:
           $luaSources = @('lapi.c','lauxlib.c','lbaselib.c','lcode.c','lcorolib.c','lctype.c','ldblib.c','ldebug.c','ldo.c','ldump.c','lfunc.c','lgc.c','linit.c','liolib.c','llex.c','lmathlib.c','lmem.c','loadlib.c','lobject.c','lopcodes.c','loslib.c','lparser.c','lstate.c','lstring.c','lstrlib.c','ltable.c','ltablib.c','ltm.c','lundump.c','lutf8lib.c','lvm.c','lzio.c')
           cl /c /MD /O2 /W3 $luaSources
           lib /OUT:lua.lib *.obj
+
+      # sccache + GitHub cache: every run starts on a clean runner, so
+      # without this the whole C++ build (about 14 minutes) is redone
+      # from scratch even when only this workflow file changed. sccache
+      # wraps cl.exe and reuses object files whose inputs did not
+      # change; the cache key is based on the source tree, and the
+      # restore-keys fallback reuses the previous cache when sources
+      # did change, so only changed files recompile. The first run
+      # with this step still takes full time (it populates the cache);
+      # later runs, especially workflow-only changes, should be much
+      # faster. Qt itself is cached separately by install-qt-action.
+      - name: Set up sccache
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          choco install sccache -y --no-progress
+          sccache --version
+
+      - name: Restore sccache cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/sccache
+          key: sccache-${{ runner.os }}-${{ hashFiles('src/**', 'libs/**', 'CMakeLists.txt') }}
+          restore-keys: |
+            sccache-${{ runner.os }}-
 
       # Generator is pinned to VS 2022 because the runner is pinned to
       # windows-2022 (see above: VS18 removed stdext used by Qt 5.15).
@@ -151,13 +179,22 @@ jobs:
             -DQt5_DIR="$qt5cmake" `
             -DLUA_INCLUDE_DIR="$env:GITHUB_WORKSPACE\lua-5.4.7\src" `
             -DLUA_LIBRARY="$env:GITHUB_WORKSPACE\lua-5.4.7\src\lua.lib" `
-            -DCMAKE_EXE_LINKER_FLAGS="/LIBPATH:$env:GITHUB_WORKSPACE\lua-5.4.7\src"
+            -DCMAKE_EXE_LINKER_FLAGS="/LIBPATH:$env:GITHUB_WORKSPACE\lua-5.4.7\src" `
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+        env:
+          SCCACHE_DIR: ${{ runner.temp }}/sccache
+          SCCACHE_CACHE_SIZE: 5G
 
       - name: Build (Release)
         shell: powershell
         run: |
           $env:LIB = "$env:LIB;$env:GITHUB_WORKSPACE\lua-5.4.7\src"
           cmake --build build --config Release --parallel
+          sccache --show-stats
+        env:
+          SCCACHE_DIR: ${{ runner.temp }}/sccache
+          SCCACHE_CACHE_SIZE: 5G
 
       - name: Package portable folder with Qt DLLs
         shell: powershell
