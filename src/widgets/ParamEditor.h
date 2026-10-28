@@ -1,0 +1,229 @@
+#ifndef PARAM_EDITOR_H
+#define PARAM_EDITOR_H
+
+#include <QLineEdit>
+#include <QToolButton>
+#include <QPushButton>
+
+#include "../core/Parameters.h"
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLabel;
+QT_END_NAMESPACE
+
+class ValueEdit;
+class UnitComboBox;
+class DimComboBox;
+
+// QPushButton looks ugly on "macintosh" style, it looses its standard view
+// and can't calcutale its size propely (even fixed size).
+// QToolButton can't be focused by tab but looks the same on all styles so use it.
+// TODO: add Ctrl+= shortcut to invoke the button, it will be even more usable than tabbing it.
+class LinkButton : public QToolButton
+{
+    Q_OBJECT
+
+public:
+    LinkButton();
+    QSize sizeHint() const override;
+    void showLinkSource(Z::Parameter *param);
+
+signals:
+    void focused(bool focus);
+
+protected:
+    void focusInEvent(QFocusEvent *e) override;
+    void focusOutEvent(QFocusEvent *e) override;
+};
+
+
+class MenuButton : public QPushButton
+{
+    Q_OBJECT
+
+public:
+    MenuButton(QList<QAction*> actions);
+
+    QMenu* menu() { return _menu; }
+
+signals:
+    void focused(bool focus);
+
+protected:
+    void focusInEvent(QFocusEvent *e) override;
+    void focusOutEvent(QFocusEvent *e) override;
+
+private:
+    QMenu* _menu;
+    bool _isMenuOpened = false;
+};
+
+
+class ParamEditor : public QWidget, public Z::ParameterListener
+{
+    Q_OBJECT
+
+public:
+    struct Options {
+        /// Target editing parameter.
+        Z::Parameter* param;
+
+        /// Global params are used to link target parameter to.
+        /// Must be set when @a allowLinking is enabled.
+        const Z::Parameters* globalParams = nullptr;
+
+        /// Container for links to global parameters.
+        /// Must be set when @a allowLinking is enabled.
+        Z::ParamLinks* paramLinks = nullptr;
+
+        /// Show full parameter name before its alias.
+        bool showName = false;
+
+        /// Enable linking target param to global params.
+        bool allowLinking = false;
+
+        /// If this list is not empty, the "Menu" button is added after the editor
+        QList<QAction*> menuButtonActions;
+
+        /// Auxilary control to be put after unit selector.
+        QWidget* auxControl = nullptr;
+
+        /// Should editor take ownership on the parameter.
+        /// If yes, the parameter is deleted when the editor gets deleted.
+        bool ownParam = false;
+
+        /// When `Apply` is called, check if parameter value is really changed.
+        /// Used to avoid unnecessary `parameterChanged` events.
+        bool checkChanges = false;
+        
+        /// Use expression parser.
+        /// If not set, only numeric value can be edited.
+        bool useExpression = false;
+
+        /// Use only these units for unit selector
+        /// instead of all those available for the parameter dimension.
+        QVector<Z::Unit> units = {};
+
+        Options(Z::Parameter* p) : param(p) {}
+    };
+
+    explicit ParamEditor(Options opts);
+    ~ParamEditor() override;
+
+    Z::Parameter* parameter() const { return _param; }
+
+    /// Returns value of the editor.
+    /// This is NOT a value of the edited parameter, at least till `apply()` is called.
+    Z::Value getValue() const;
+
+    QString verify() const;
+
+    QWidget* labelName() const;
+    QWidget* labelLabel() const;
+    QWidget* valueEditor() const;
+    QWidget* unitsSelector() const;
+
+    // Implements Z::ParameterListener
+    void parameterChanged(Z::ParameterBase*) override;
+    void parameterFailed(Z::ParameterBase*) override;
+
+    void editorFocused(bool focus);
+
+    void setReadonly(bool valueOn, bool unitOn);
+
+    /// Recalculate value to different unit when user changes the unit selector, e.g. 1000mm -> 1m
+    /// Currently it only works with applied parameter value, not with a value in the editor.
+    bool rescaleOnUnitChange = false;
+
+signals:
+    void focused();
+    void unfocused();
+    void goingFocusNext();
+    void goingFocusPrev();
+    void editorInfoChanged();
+    void valueEdited(double value);
+    void unitChanged(Z::Unit unit);
+    void enterPressed();
+
+public slots:
+    void populate();
+    void apply();
+    void focus();
+
+protected:
+    void mousePressEvent(QMouseEvent*) override;
+
+private:
+    Z::Parameter* _param;
+    Z::Parameter* _linkSource = nullptr;
+    const Z::Parameters* _globalParams;
+    Z::ParamLinks* _paramLinks;
+    ValueEdit* _valueEditor;
+    UnitComboBox* _unitsSelector;
+    QLabel* _labelName = nullptr;
+    QLabel* _labelLabel = nullptr;
+    LinkButton* _linkButton = nullptr;
+    QString _editorInfo;
+    bool _paramChangedHandlerEnabled = true;
+    bool _ownParam;
+    bool _checkChanges;
+    bool _useExpression;
+    QString _oldError;
+
+    void linkToGlobalParameter();
+    void showValue(Z::Parameter *param, bool ignoreExpr);
+    void setIsLinked(bool on);
+    void editorKeyPressed(int key);
+    void unitChangedRaw(Z::Unit unit);
+};
+
+
+class ParamSpecEditor : public QWidget
+{
+    Q_OBJECT
+    
+public:
+    struct Options
+    {
+        QString recentKeyPrefix;
+        Z::Parameters existedParams;
+        bool allowNameEditor = false;
+        bool allowSavePreset = false;
+    };
+
+public:
+    ParamSpecEditor(Z::Parameter *param, const Options &opts);
+    
+    bool exec(const QString &title);
+    
+    QString alias() const;
+    QString label() const;
+    QString name() const;
+    QString descr() const;
+    Z::Dim dim() const;
+    bool needSavePreset() const;
+   
+private:
+    Options _opts;
+    Z::Parameter *_param;
+    QLineEdit *_aliasEditor;
+    QLineEdit *_nameEditor = nullptr;
+    DimComboBox *_dimEditor;
+    QLineEdit *_descrEditor;
+    QCheckBox *_needSavePreset = nullptr;
+    Z::Dim _recentDim = nullptr;
+};
+
+namespace ParamPresets
+{
+    const Z::Parameters& getBuiltin();
+    Z::Parameters getAll();
+    void save(Z::Parameter*);
+    void remove(Z::Parameter*);
+    void update(Z::Parameter*, Z::Parameter*);
+    void restore();
+    Z::Parameter* makeParam(Z::Parameter*);
+}
+
+#endif // PARAM_EDITOR_H
