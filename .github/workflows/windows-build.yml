@@ -182,9 +182,57 @@ jobs:
           Copy-Item "$pyDir\python312.zip" deploy\
           Get-ChildItem deploy | Select-Object Name, Length
 
+      - name: Build installer with Inno Setup
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # The upstream install/win/rezonator.iss expects out/redist and
+          # parses version.txt with a dash suffix, neither of which holds
+          # here (version is plain 2.3.0), so generate a dedicated script
+          # for the Chinese build instead of reusing it verbatim.
+          @'
+          #define AppName "reZonator2"
+          #define AppVer "2.3.0"
+          [Setup]
+          AppId={{53C38934-A255-44E2-9BE8-84A81E245082}
+          AppName={#AppName}
+          AppVerName={#AppName} {#AppVer} 汉化版
+          AppVersion={#AppVer}
+          AppPublisher=qyt8095-pixel
+          DefaultDirName={localappdata}\Programs\{#AppName}
+          DefaultGroupName={#AppName}
+          AllowNoIcons=yes
+          LicenseFile=LICENSE
+          OutputDir=installer
+          OutputBaseFilename=reZonator2-zh-{#AppVer}-setup
+          Compression=lzma2
+          SolidCompression=yes
+          PrivilegesRequired=lowest
+          ArchitecturesAllowed=x64
+          ArchitecturesInstallIn64BitMode=x64
+          [Languages]
+          Name: "chinesesimp"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+          Name: "english"; MessagesFile: "compiler:Default.isl"
+          [Tasks]
+          Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
+          [Files]
+          Source: "deploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+          [Icons]
+          Name: "{group}\{#AppName}"; Filename: "{app}\rezonator.exe"
+          Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
+          Name: "{commondesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
+          [Run]
+          Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+          '@ | Out-File -Encoding utf8 installer.iss
+          choco install innosetup -y --no-progress
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss
+          Get-ChildItem installer | Select-Object Name, Length
+
       - name: Upload exe package
         uses: actions/upload-artifact@v4
         with:
           name: rezonator2-zh-windows
-          path: deploy
+          path: |
+            deploy
+            installer/reZonator2-zh-2.3.0-setup.exe
           if-no-files-found: error
