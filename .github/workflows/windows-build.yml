@@ -216,6 +216,13 @@ jobs:
           LicenseFile=LICENSE
           OutputDir=installer
           OutputBaseFilename=reZonator2-zh-{#AppVer}-setup
+          ; Installer file icon = the application's own icon, the same
+          ; img/icon/main_2.ico that rezonator.exe itself uses (see
+          ; src/app.rc). That file is a binary asset missing from the
+          ; repo, but the workflow's restore step copies it from the
+          ; upstream tarball before this step runs.
+          SetupIconFile=img\icon\main_2.ico
+          UninstallDisplayIcon={app}\rezonator.exe
           Compression=lzma2
           SolidCompression=yes
           PrivilegesRequired=lowest
