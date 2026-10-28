@@ -168,6 +168,18 @@ jobs:
           if (Test-Path bin\examples) { Copy-Item bin\examples deploy\examples -Recurse }
           if (Test-Path bin\templates) { Copy-Item bin\templates deploy\templates -Recurse }
           windeployqt --release --compiler-runtime --no-translations --no-system-d3d-compiler --no-opengl-sw deploy\rezonator.exe
+          # windeployqt does NOT deploy Python, but rezonator links
+          # python312.lib, so the exe fails at startup with
+          # "cannot find python312.dll" on a machine without Python.
+          # PyRunner on Windows also expects the stdlib next to the exe
+          # as {binDir}/python312.zip (see src/core/PyRunner.cpp and
+          # release/prepare_python.py). Both files ship with the
+          # python.org installation used by setup-python, next to
+          # python.exe, so copy them into the package.
+          $pyDir = Split-Path (Get-Command python).Source -Parent
+          Write-Host "Python dir=$pyDir"
+          Copy-Item "$pyDir\python312.dll" deploy\
+          Copy-Item "$pyDir\python312.zip" deploy\
           Get-ChildItem deploy | Select-Object Name, Length
 
       - name: Upload exe package
