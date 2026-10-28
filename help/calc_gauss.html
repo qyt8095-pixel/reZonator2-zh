@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script> 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+</head>
+<body>
+
+<h1>改变束腰 $w_0$</h1>
+
+<h2>锁定束腰</h2>
+
+计算给定距离 $z$ 处的光束半径 $w$ 和波前曲率半径 $R$。
+
+$$ z_0 = \frac{\pi w_0^2}{M^2 \lambda}  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+对于给定的束腰半径 $w_0$，求出使波前曲率半径保持先前计算值的距离 $z$ 和光束质量 $M^2$。
+
+求解方法：分别从 $w(z)$ 和 $R(z)$ 中表示出 $z_0$，令两式相等，并对 $z$ 求解。
+
+$$ z = R \Bigg[ 1 - \bigg( \frac{w_0}{w} \bigg)^2 \Bigg] $$
+
+$$ z_0 = \sqrt{ \frac{ z^2 w_0^2 }{ w^2 - w_0^2 } } $$
+
+$$ z_0 = \sqrt{ z (R - z) }  $$
+
+$$ M^2 = \frac{ \pi w_0^2 }{ \lambda z_0 }  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+
+<h1>改变瑞利长度 $z_0$</h1>
+
+<h2>锁定束腰</h2>
+
+在束腰半径 $w_0$ 固定的情况下，求出能得到指定 $z_0$ 的光束质量参数 $M^2$ 的值。
+
+$$ M^2 = \frac{ \pi w_0^2 }{ \lambda z_0 }  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+For specified $z_0$, find such a distance $z$ and beam quality $M^2$ at which the wavefront ROC keeps its previously calculated value. $+$ sign is for the far zone, $-$ is for the near zone.
+
+$$ z = \frac R 2 \pm \frac{\sqrt{ R^2 - 4 z_0^2 }}2  $$
+
+$$ w_0 = \sqrt{ \frac{w^2}{1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{ \pi w_0^2 }{ \lambda z_0 }  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+
+<h1>Change divergence angle $V_s$</h1>
+
+<h2>锁定束腰</h2>
+
+With fixed waist radius $w_0$, find such a value of beam quality parameter $M^2$ that yields to the specified angle.
+
+$$ M^2 = \frac{ \pi w_0 V_s } \lambda $$
+
+$$ z_0 = \frac{\pi w_0^2}{M^2 \lambda}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+For specified $V_s$, find such a distance $z$ and beam quality $M^2$ at which the wavefront ROC keeps its previously calculated value.
+
+How to find $z$: substitute $z_0$ as $w_0/V_s$ into formulas for $w(z)$ and $R(z)$, express $w_0$ from both, equate them and solve against $z$.
+
+$$ z = \frac{w^2}{R V_s^2} $$
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+
+<h1>Change axial distance $z$</h1>
+
+<h2>锁定束腰</h2>
+
+$$ z_0 = \frac{\pi w_0^2}{M^2 \lambda}  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+
+<h1>Change beam quality $M^2$</h1>
+
+<h2>锁定束腰</h2>
+
+The same as when the waist is changed.
+
+$$ z_0 = \frac{\pi w_0^2}{M^2 \lambda}  $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+Taking a new value of $M^2$, find such a distance $z$ and waist radius $w_0$ preserving constant wavefront.
+
+How to find $z$: express $w_0^2$ from formula for $R(z)$, substitute the expression into formula for $w(z)$ and solve it against $z$.
+
+$$ z = \frac{w^4 \pi^2 R}{\big(M^2 \lambda R\big)^2 + w^4 \pi^2} $$
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+
+<h1>Change beam radius $w$</h1>
+
+<h2>锁定束腰</h2>
+
+Find beam quality parameter $M^2$ giving specified beam radius at the same axial distance $z$ and with the same waist radius $w_0$.
+
+$$ z_0 = \frac{z w_0}{\sqrt{w^2 - w_0^2}} $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ R = z \Bigg[ 1 + \bigg( \frac{z_0}{z} \bigg)^2 \Bigg] $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+Find a waist radius $w_0$ and beam quality parameter $M^2$ giving specified beam radius at the same axial distance $z$.
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+
+<h1>Change wavefront ROC $R$</h1>
+
+<h2>锁定束腰</h2>
+
+Find beam quality parameter $M^2$ giving specified ROC at the same axial distance $z$ and with the same waist radius $w_0$.
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ w = w_0 \sqrt{ 1 + \bigg( \frac{z}{z_0} \bigg)^2 } $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+<h2>锁定波前</h2>
+
+Find a waist radius $w_0$ and beam quality parameter $M^2$ giving specified ROC at the same axial distance $z$.
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+$$ q^{-1} = \frac 1 R + i \frac{\lambda}{\pi w^2} $$
+
+
+<h1>Change complex beam parameter $q$</h1>
+
+Assigning either real or imaginary part of complex beam parameter, we define both the beam radius $w$ and the wavefront ROC $R$ at the same time.
+
+$$ R = \frac{1}{Re\big(q^{-1}\big)} $$
+
+$$ w = \sqrt{\frac{\lambda}{\pi Im\big(q^{-1}\big)}} $$
+
+<h2>锁定束腰</h2>
+
+Having fixed waist radius $w_0$, find axial distance $z$ and beam quality $M^2$ at which specified front is achieved.
+
+$$ z = R \Bigg[ 1 - \bigg( \frac{w_0}{w} \bigg)^2 \Bigg] $$
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+<h2>锁定波前</h2>
+
+$$ z_0 = \sqrt{z (R - z)}  $$
+
+$$ w_0 = \frac{w}{\sqrt{ 1 + \big( z/z_0 \big)^2} } $$
+
+$$ M^2 = \frac{\pi w_0^2}{z_0 \lambda} $$
+
+$$ V_s = \frac{M^2 \lambda}{\pi w_0}  $$
+
+</body>
+</html>
