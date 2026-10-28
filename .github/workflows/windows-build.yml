@@ -179,7 +179,15 @@ jobs:
           $pyDir = Split-Path (Get-Command python).Source -Parent
           Write-Host "Python dir=$pyDir"
           Copy-Item "$pyDir\python312.dll" deploy\
-          Copy-Item "$pyDir\python312.zip" deploy\
+          # setup-python's hostedtoolcache Python has NO python312.zip
+          # (run 7 failed here with PathNotFound), even though it has
+          # Lib/. Build the zip from Lib/ the same way upstream's
+          # release/prepare_python.py does: a zip of the Lib contents.
+          if (Test-Path "$pyDir\python312.zip") {
+            Copy-Item "$pyDir\python312.zip" deploy\
+          } else {
+            Compress-Archive -Path "$pyDir\Lib\*" -DestinationPath deploy\python312.zip -Force
+          }
           Get-ChildItem deploy | Select-Object Name, Length
 
       - name: Build installer with Inno Setup
