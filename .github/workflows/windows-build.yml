@@ -204,7 +204,10 @@ jobs:
           [Setup]
           AppId={{53C38934-A255-44E2-9BE8-84A81E245082}
           AppName={#AppName}
-          AppVerName={#AppName} {#AppVer} 汉化版
+          ; Use ASCII-only AppVerName: non-ASCII in the generated script
+          ; came out garbled in the installer title bar (script written
+          ; without a BOM is read as ANSI by ISCC).
+          AppVerName={#AppName} {#AppVer} Chinese Edition
           AppVersion={#AppVer}
           AppPublisher=qyt8095-pixel
           DefaultDirName={localappdata}\Programs\{#AppName}
@@ -232,7 +235,11 @@ jobs:
           [Icons]
           Name: "{group}\{#AppName}"; Filename: "{app}\rezonator.exe"
           Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
-          Name: "{commondesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
+          ; userdesktop, not commondesktop: the installer runs per-user
+          ; (PrivilegesRequired=lowest, no elevation), so it cannot write
+          ; to C:\Users\Public\Desktop and shortcut creation fails with
+          ; IPersistFile::Save 0x80070005 (access denied).
+          Name: "{userdesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
           [Run]
           Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
           '@ | Out-File -Encoding utf8 installer.iss
