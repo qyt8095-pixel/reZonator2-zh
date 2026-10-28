@@ -1,0 +1,53 @@
+.. _py_api:
+.. index:: single: python api
+
+Python API
+==========
+
+|rezonator| provides a Python API that allows you to write custom calculation and plotting functions. These functions can access schema elements, perform calculations, and generate custom tables and plots. The API provides two main modules: :doc:`rezonator <py_global>` (aliased as ``Z`` for brevity) and :doc:`schema <py_schema>`.
+
+.. tocTree::
+   :maxDepth: 1
+   :caption: API Modules and Classes:
+
+   py_global
+   py_schema
+   py_element
+   py_matrix
+   py_matrix3
+   py_param_ref
+   py_ray_vector
+   py_round_trip
+   py_examples
+
+Important Notes
+---------------
+
+Element Indexing
+~~~~~~~~~~~~~~~~
+
+Unlike regular Python lists, elements in schema are indexed starting from 1 to be consistent with how they are numbered in the :doc:`schema_elems`.
+
+Measurement Units
+~~~~~~~~~~~~~~~~~
+
+All values are in SI units (meters, radians, etc.). Convert them as needed for display in text output. There is no need to convert for :doc:`table <custom_table>` and :doc:`plotting <custom_plot>` functions because both the :doc:`table <table_window>` and :doc:`plot <plot_window>` windows allow for choosing suitable measurement units to display values.
+
+Temporary Changes
+~~~~~~~~~~~~~~~~~
+
+Use :ref:`Element.lock() <py_method_elem_lock>` and :ref:`Element.unlock() <py_method_elem_unlock>` methods (or respective :ref:`schema.param_lock() <py_method_schema_lock_param>` and :ref:`schema.param_unlock() <py_method_schema_unlock_param>` working with global parameters) when making temporary parameter :ref:`changes <py_method_elem_set_param>` (e.g., during :doc:`plot function <custom_plot>` calculation) to ensure proper restoration and also to prevent the UI from unnecessary updates.
+
+A more convenient way is the usage of Python's ``with`` block and the intended :ref:`Element.param_ref() <py_method_elem_param_ref>` or :ref:`schema.param_ref() <py_method_schema_param_ref>` methods returning the :doc:`ParamRef <py_param_ref>` object, which allows for automatically locking/unlocking and parameter value restoring.
+
+Performance
+~~~~~~~~~~~
+
+:ref:`Round-trip matrix <round_trip>` computation is automatically performed before each beam property calculation (e.g., :ref:`RoundTrip.beam_radius() <py_method_rt_beam_radius>`). This guaranties that the actual elements' parameters are taken into account. For multiple queries on the same property, store the result into a local variable rather than recalculating.
+
+.. seeAlso::
+
+  - :doc:`functions`
+  - :doc:`custom_script`
+  - :doc:`custom_table`
+  - :doc:`custom_plot`

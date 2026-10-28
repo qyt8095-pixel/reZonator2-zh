@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <link rel="stylesheet" href="matrix_formula.css" type="text/css"></link> 
+  </head>
+  <body>
+    <div class="paper">
+      <div class="frames">
+        <div class="frame" style="height: 570px"></div>
+        <div class="frame" style="height: 270px; margin-top: 20px;"></div>
+        <div class="frame" style="height: 260px; margin-top: 10px;"></div>
+      </div>
+      <div>
+        \[ n(r) = n_0 - \frac { n_2 \; r^2 } 2
+          \;\;\;\;\;\;\;\;\;\;\;\;
+          r^2 = x^2 + y^2
+          \;\;\;\;\;\;\;\;\;\;\;\;
+        \]
+      </div>
+      <div class="drawing-and-formula">
+        <div>
+          <img class="drawing" src="ElemGrinLens.svg"/>
+        </div>
+        <div class="formulas-column">
+          <div style="margin-top:40px">
+            \[ n_2 > 0  \;\;\;\;\;\;\;\; \gamma = \sqrt \frac {n_2} {n_0} \]
+            \[
+            M\bigg\rvert_{n_2 > 0} = \begin{bmatrix}
+                \cos(\gamma L) & \cfrac {\sin(\gamma L)} {n_0 \gamma} \\
+                -n_0 \gamma \: \sin(\gamma L) & \cos(\gamma L) 
+                \end{bmatrix}
+            \]
+          </div>
+          <div style="margin-top:60px">
+            \[ n_2 < 0 \;\;\;\;\;\;\;\; \gamma = \sqrt \frac {|n_2|} {n_0} \]
+            \[
+            M\bigg\rvert_{n_2 < 0} = \begin{bmatrix}
+                \cosh(\gamma L) & \cfrac {\sinh(\gamma L)} {n_0 \gamma} \\
+                n_0 \gamma \: \sinh(\gamma L) & \cosh(\gamma L) 
+                \end{bmatrix}
+            \]
+          </div>
+          
+          <div style="margin-top:135px">
+            \[
+            M_{LF}\bigg\rvert_{n_2 > 0} = \begin{bmatrix}
+                \cos(\gamma h) & \cfrac {\sin(\gamma h)} {n_0 \gamma} \\
+                -\gamma \: \sin(\gamma h) & \cfrac {\cos(\gamma h)} {n_0} 
+                \end{bmatrix}
+            \]
+          </div>
+          <div style="margin-top:40px">
+            \[
+            M_{LF}\bigg\rvert_{n_2 < 0} = \begin{bmatrix}
+                \cosh(\gamma h) & \cfrac { \sinh(\gamma h) } {n_0 \gamma} \\
+                \gamma \: \sinh(\gamma h) & \cfrac {\cosh(\gamma h)} {n_0}
+                \end{bmatrix}
+            \]
+          </div>
+
+          <div style="margin-top:85px">
+            \[
+            M_{RT}\bigg\rvert_{n_2 > 0} = \begin{bmatrix}
+                \cos(\gamma h) & \cfrac {\sin(\gamma h)} {\gamma} \\
+                -n_0 \gamma \: \sin(\gamma h) & n_0 \cos(\gamma h) 
+                \end{bmatrix}
+            \]
+          </div>
+          <div style="margin-top:40px">
+            \[
+            M_{RT}\bigg\rvert_{n_2 < 0} = \begin{bmatrix}
+                \cosh(\gamma h) & \cfrac {\sinh(\gamma h)} {\gamma} \\
+                n_0 \gamma \: \sinh(\gamma h) & n_0 \cosh(\gamma h) 
+                \end{bmatrix}
+            \]
+          </div>
+        </div>
+      </div>
+    </div> <!-- end paper -->
+    <div class="stretch"></div>
+  </body>
+</html>
