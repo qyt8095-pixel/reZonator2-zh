@@ -1,0 +1,15 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="10.271187" x2="10.474575" y1="4.5" y2="23.567797">
+    <stop offset="0" stop-color="#00acff" stop-opacity=".559211"/>
+    <stop offset="1" stop-color="#00acff" stop-opacity=".138158"/>
+  </linearGradient>
+  <g fill-rule="evenodd">
+    <path d="m-.0254237 8 24.0254237-8v24l-23.9745763-8z" fill="url(#a)"/>
+    <path d="m-.0254237 16 24.0254237 8v-12h-23.9745763z" fill="#fff" fill-opacity=".559211"/>
+    <path d="m24 0h-7.38299l1.657281 4.4882723z" fill="#c30000"/>
+    <path d="m24 24h-7.38299l1.657281-4.488272z" fill="#c30000"/>
+  </g>
+  <path d="m0 15.95666 20.675061 7.002468" fill="none" stroke="#c30000" stroke-opacity=".625" stroke-width="1.5"/>
+  <path d="m0 8.1875 20.130447-6.8721944" fill="none" stroke="#c30000" stroke-opacity=".623529" stroke-width="1.5"/>
+  <ellipse cx="7.707257" cy="12" fill="#fff" fill-opacity=".427632" rx="2.943678" ry="5.929345" stroke="#008fd3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

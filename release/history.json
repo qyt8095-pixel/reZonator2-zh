@@ -1,0 +1,617 @@
+{
+  "history": [
+    {
+      "version": "2.3.0",
+      "date": "2026-03-01",
+      "changes": [
+        {
+          "text": "New class and functions in Python API: Z.ParamRef, schema.param_ref(), Element.param_ref()"
+        },
+        {
+          "text": "New functions in Python API: schema.set_param(), schema.lock_param(), schema.unlock_param() (https://github.com/orion-project/rezonator2/issues/100)"
+        },
+        {
+          "text": "Can create simple formula elements with matrices given by user Python code"
+        },
+        {
+          "text": "Fix: multi-beam caustic calculates only active pump (https://github.com/orion-project/rezonator2/issues/99)"
+        }
+      ]
+    },
+    {
+      "version": "2.2.2",
+      "date": "2026-02-12",
+      "changes": [
+        {
+          "text": "Added a doc about misalignments calculation"
+        },
+        {
+          "text": "Alternate element coloring in data tables"
+        },
+        {
+          "text": "Can create custom functions in Python on Linux and macOS"
+        },
+        {
+          "text": "New Element.matrix() function in Python API"
+        },
+        {
+          "text": "Fix: incorrect formulas in the misalign.rez example "
+        },
+        {
+          "text": "Fix: unable to pass positional arguments to Schema.round_trip (https://github.com/orion-project/rezonator2/issues/98)"
+        },
+        {
+          "text": "Fix: PYTHONHOME is not properly zero-terminated (https://github.com/orion-project/rezonator2/issues/96)"
+        },
+        {
+          "text": "Fix: editing of custom function text does not set the Modified flag on schema"
+        },
+        {
+          "text": "Fix: wrong printing of RoundTrip.matrix() method in the custom_func_simple example"
+        },
+        {
+          "text": "Fix: missed icon for Save to Custom Library command"
+        }
+      ]
+    },
+    {
+      "version": "2.2.1",
+      "date": "2025-12-20",
+      "changes": [
+        {
+          "text": "Fix: can not change units of parameter driven by formula (https://github.com/orion-project/rezonator2/issues/95)"
+        },
+        {
+          "text": "Fix: inf value of global param is not fully saved (https://github.com/orion-project/rezonator2/issues/94)"
+        },
+        {
+          "text": "Fix: caustic is not recalculated when another pump gets activated"
+        }
+      ]
+    },
+    {
+      "version": "2.2.0",
+      "date": "2025-11-24",
+      "changes": [
+        {
+          "text": "Can create custom functions in Python: generic code, table function, plot function (Windows only)"
+        },
+        {
+          "text": "Can add custom parameters for any element"
+        },
+        {
+          "text": "Advanced examples window; examples descriptions"
+        },
+        {
+          "text": "Fix: can create global parameter with duplicated name"
+        },
+        {
+          "text": "Fix: crash when element is deleted that is a plot position of Beamsize Variation"
+        },
+        {
+          "text": "Fix: crash when global parameter is deleted that is an argument of stability function"
+        },
+        {
+          "text": "Fix: texts entered by user (labels, etc.) can produce unparsable json file"
+        }
+      ]
+    },
+    {
+      "version": "2.1.1",
+      "date": "2025-10-06",
+      "changes": [
+        {
+          "text": "Can use global parameter as an argument for stability functions"
+        },
+        {
+          "text": "Can use negative and percent offset in Beamsize Variation"
+        },
+        {
+          "text": "New commands for elements: Insert Into, Split, Merge, Slide"
+        },
+        {
+          "text": "New command for memo editor: Paste Without Formatting"
+        },
+        {
+          "text": "Flip elements when flipping schema"
+        },
+        {
+          "text": "Show new version changelog, automatically check for updates"
+        },
+        {
+          "text": "Fix: file opens in a new window even if it's already opened in the current window"
+        },
+        {
+          "text": "Fix: user settings directory is not automatically created on a clean system"
+        },
+        {
+          "text": "Fix: stored memo content can produce unparsable json file"
+        },
+        {
+          "text": "Fix: text format is accidentally changed when selecting text in memo editor"
+        },
+        {
+          "text": "Fix: in 2D Stability Map, stability values in cursor line are rescaled to Y-axis units"
+        },
+        {
+          "text": "Fix: in 2D Stability Map, autolimits commands account cursor lines as regular graph"
+        },
+        {
+          "text": "Fix: in 2D Stability Map, bottom margin can not be decreased after is was increased"
+        },
+        {
+          "text": "Fix: crash after changing a global parameter if parameter window was closed before"
+        }
+      ]
+    },
+    {
+      "version": "2.1.0",
+      "date": "2025-08-11",
+      "changes": [
+        {
+          "text": "Automatically find dependent parameters for formulas"
+        },
+        {
+          "text": "Can rename global parameter (https://github.com/orion-project/rezonator2/issues/79)"
+        },
+        {
+          "text": "Show formula errors in global parameters and elements tables"
+        },
+        {
+          "text": "Standard sign convention for ROC of Thick Lens and Spherical Interface elements (https://github.com/orion-project/rezonator2/issues/76)"
+        },
+        {
+          "text": "Advanced parameter editor with expression evaluator"
+        },
+        {
+          "text": "Use Inf instead of zero for flat surfaces for thick lens element (https://github.com/orion-project/rezonator2/issues/75)"
+        },
+        {
+          "text": "Don't show beam parameters before and after the point, only at (https://github.com/orion-project/rezonator2/issues/77)"
+        },
+        {
+          "text": "Ignore disabled elements and respect order in Multiply Selected functions"
+        },
+        {
+          "text": "Finished all help topics"
+        },
+        {
+          "text": "Fix: after parameter creation, the previous parameter is edited (https://github.com/orion-project/rezonator2/issues/78)"
+        },
+        {
+          "text": "Fix: crash when deleting a pump that is selected in Multibeam Caustic window"
+        },
+        {
+          "text": "Switch to CMake, switch to MSVC for Windows, switch to 22 for Ubuntu"
+        }
+      ]
+    },
+    {
+      "version": "2.0.15-rc2",
+      "date": "2025-06-17",
+      "changes": [
+        {
+          "text": "Can use global parameters as arguments for the Beamsize Variation function"
+        },
+        {
+          "text": "Can set flat surfaces for thick lens element (https://github.com/orion-project/rezonator2/issues/64)"
+        },
+        {
+          "text": "Can select units for the Beam Parameters at Elements function (https://github.com/orion-project/rezonator2/issues/65)"
+        },
+        {
+          "text": "Fix: special points for SP-schemas show T waist size for S plane (https://github.com/orion-project/rezonator2/issues/67)"
+        },
+        {
+          "text": "Fix: apply adjuster value by Enter (https://github.com/orion-project/rezonator2/issues/63)"
+        }
+      ]
+    },
+    {
+      "version": "2.0.14-rc1",
+      "date": "2024-06-09",
+      "changes": [
+        {
+          "text": "New custom theme for UI"
+        },
+        {
+          "text": "Interactive Layout: can select and edit elements on graphical view"
+        },
+        {
+          "text": "Watch config files for sharing settings between running instances"
+        },
+        {
+          "text": "Configure default formats for graphs, cursor, and boundary lines"
+        },
+        {
+          "text": "New command: Replace Element"
+        },
+        {
+          "text": "Added scheme drawings for some example files"
+        },
+        {
+          "text": "Can use drag-and-drop for pasting image files into memo window"
+        },
+        {
+          "text": "Fix: schema modification flag was not updated after opening non empty memo window and editing; undo-redo actions were not updated too"
+        },
+        {
+          "text": "Fix: wrong Beam Variation results when plotting in the same range as being variated (https://github.com/orion-project/rezonator2/issues/54)"
+        },
+        {
+          "text": "Fix: typos in help file"
+        }
+      ]
+    },
+    {
+      "version": "2.0.13-beta9",
+      "date": "2023-11-30",
+      "changes": [
+        {
+          "text": "Switch Windows x64 flavour to Qt 6 for its better HiDPI support"
+        },
+        {
+          "text": "Can change visual settings of plot elements (axes, title, legend) and save them in schema files"
+        },
+        {
+          "text": "Cursor panel can show and set offset inside element under cursor in Multirange caustic window"
+        },
+        {
+          "text": "An option added to the Point element to draw it as plane"
+        },
+        {
+          "text": "Table windows can be stored in schema file"
+        },
+        {
+          "text": "Calculate waist size and position in Caustic, MR-Caustic, MB-Caustic functions"
+        },
+        {
+          "text": "Calculate bounds of stability regions in Stability Map function"
+        },
+        {
+          "text": "Fix: 'Draw narrow version' checkbox was shown for elements which do not provide narrow view"
+        },
+        {
+          "text": "Fix: saved window geometry could make window shown out of screen bounds"
+        },
+        {
+          "text": "Fix: wrong context menu on the last element in elements table"
+        },
+        {
+          "text": "Fix: Beamsize Variation: axicon matrices were not recalculated during variaton"
+        }
+      ]
+    },
+    {
+      "version": "2.0.12-beta8",
+      "date": "2023-05-03",
+      "changes": [
+        {
+          "text": "Calculate beam parameters in resonators with complex matrices (https://github.com/orion-project/rezonator2/issues/31)"
+        },
+        {
+          "text": "Added configuration options for displaying of imaginary unit"
+        },
+        {
+          "text": "Show both normal and squared stability parameters in round-trip window as complex numbers"
+        },
+        {
+          "text": "'Multiply selected *' functions renamed and documented (https://github.com/orion-project/rezonator2/issues/30)"
+        },
+        {
+          "text": "Can choose between forward and backward matrices in the 'Multiply selected *' functions"
+        },
+        {
+          "text": "Can copy graph data for T and S planes simultaneously via command 'Plot -> Copy Graph Data' (https://github.com/orion-project/rezonator2/issues/29)"
+        },
+        {
+          "text": "Fix: 2D-Stability graph data incorrectly copied as one column."
+        },
+        {
+          "text": "Fix: incorrect filename display in window title (https://github.com/orion-project/rezonator2/issues/34)"
+        }
+      ]
+    },
+    {
+      "version": "2.0.11-beta7",
+      "date": "2022-12-09",
+      "changes": [
+        {
+          "text": "Added support for negative focuses in Thermal lens and Thermal medium elements and in the GRIN Lens Assessment tool (https://github.com/orion-project/rezonator2/issues/23)."
+        },
+        {
+          "text": "Added a tool for drawing simple lenses - Lensmaker."
+        },
+        {
+          "text": "Can set custom offset inside range element for Round-trip Matrix function."
+        },
+        {
+          "text": "Round-trip Matrix function can show matrices of all elements (optionally)."
+        },
+        {
+          "text": "New help topics in the manual: Round-trip Matrix function, Function freezing, Caustic function."
+        },
+        {
+          "text": "Enabled HIDPI mode and fixed various related small issues (https://github.com/orion-project/rezonator2/issues/15)"
+        },
+        {
+          "text": "Can use online documentation instead of local one (https://github.com/orion-project/rezonator2/issues/9)."
+        },
+        {
+          "text": "Fix: schema table not properly updated after element deletion."
+        },
+        {
+          "text": "Fix: there are no axis titles stored in example files."
+        },
+        {
+          "text": "Fix: caustic window opens without axis titles."
+        }
+      ]
+    },
+    {
+      "version": "2.0.10-beta6",
+      "tag": "2.0.10-beta6",
+      "date": "2022-02-10",
+      "changes": [
+        {
+          "text": "New commands for Gaussian Beam Calculator window: copy image, copy data, change axis titles."
+        },
+        {
+          "text": "Added commands for changing axes titles for function plots."
+        },
+        {
+          "text": "Added beam shape tool for caustic windows."
+        },
+        {
+          "text": "Added a command for exporting all graph segments (https://github.com/orion-project/rezonator2/issues/17)."
+        },
+        {
+          "text": "Fixed typos (https://github.com/orion-project/rezonator2/issues/16)."
+        },
+        {
+          "text": "Fixed file opening on Ubuntu and macOS."
+        }
+      ]
+    },
+    {
+      "version": "2.0.9-beta5",
+      "date": "2021-11-27",
+      "changes": [
+        {
+          "text": "Can disable some elements (instead of to delete them)."
+        },
+        {
+          "text": "Added schema memo - rich formatted text document that can be stored within project."
+        },
+        {
+          "text": "New help topics in the manual: Parameters Window, Adjuster Tool."
+        },
+        {
+          "text": "Several new tips added."
+        },
+        {
+          "text": "Fixed that incorrect matrices were displayed in the help file for some elements."
+        },
+        {
+          "text": "Fixed incorrect elements table repainting after several elements deleted."
+        }
+      ]
+    },
+    {
+      "version": "2.0.8-beta4",
+      "date": "2021-04-13",
+      "changes": [
+        {
+          "text": "Adjust and build with Qt 5.15.2 which is the latest LTS in 5.* series."
+        }
+      ]
+    },
+    {
+      "version": "2.0.7-beta3",
+      "date": "2021-04-13",
+      "changes": [
+        {
+          "text": "Fix: mirrors at ends of resonator respect IOR of attached media (https://github.com/orion-project/rezonator2/issues/4)."
+        },
+        {
+          "text": "Fix: back-propagation matrices for GRIN elements were not calculated (https://github.com/orion-project/rezonator2/issues/5)."
+        }
+      ]
+    },
+    {
+      "version": "2.0.6-beta2",
+      "date": "2020-06-02",
+      "changes": [
+        {
+          "text": "Can calculate complex matrices and beam parameters from them (not supported yet for stability calculation)."
+        },
+        {
+          "text": "Can calculate function values under cursor."
+        },
+        {
+          "text": "Can link parameters of Matrix element to global parameters."
+        },
+        {
+          "text": "New element: Matrix element with single matrix (T=S)."
+        },
+        {
+          "text": "New elements: GRIN medium, Thermal lens, Thermal medium."
+        },
+        {
+          "text": "New elements: Gaussian aperture, Gaussian aperture with thin lens, Gaussian duct (medium), Gaussian duct (slab)."
+        },
+        {
+          "text": "GRIN lens can accept negative gradient constants n2."
+        },
+        {
+          "text": "Copy/Paste commands in the Pumps window."
+        },
+        {
+          "text": "Added Custom Elements Library. Copy of any element can be saved to the library."
+        },
+        {
+          "text": "Added an option allowing for output the Python code for matrices in info function windows."
+        },
+        {
+          "text": "Added settings for number formatting and data exporting."
+        },
+        {
+          "text": "Added menu commands for exporting graph data and plot image (copy to Clipboard)."
+        },
+        {
+          "text": "Added options for controlling how element is displayed on the layout - show label, draw narrow."
+        },
+        {
+          "text": "New tool: GRIN lens assessment."
+        },
+        {
+          "text": "Can set different colors for pumps for using in MB-Caustic plot."
+        }
+      ]
+    },
+    {
+      "version": "2.0.5-beta1",
+      "date": "2019-10-21",
+      "changes": [
+        {
+          "text": "TS-flipped mode added for plot functions."
+        },
+        {
+          "text": "Multicaustic function renamed to Multirange Caustic."
+        },
+        {
+          "text": "New function: Multibeam Caustic."
+        },
+        {
+          "text": "New function: Beam Parameters at Elements."
+        },
+        {
+          "text": "New function: Show Round-trip (can be called from plot window)."
+        },
+        {
+          "text": "New elements: Axicon Mirror, Axicon Lens."
+        },
+        {
+          "text": "Copy/Paste actions for pumps."
+        },
+        {
+          "text": "Parameter adjuster can be created via element's context menu."
+        },
+        {
+          "text": "Default units for function results can be chosen via app settings dialog."
+        },
+        {
+          "text": "Fixed: Multicaustic doesn't save the mode (beam radius/front radius)."
+        },
+        {
+          "text": "Fixed: Invalid autolimits when graph is constant line."
+        },
+        {
+          "text": "Fixed: Unable to set adjusting parameter via typing in adjuster input box."
+        },
+        {
+          "text": "Fixed: Wrong autolimits on 2D Stability Map plots."
+        }
+      ]
+    },
+    {
+      "version": "2.0.4-alpha4",
+      "date": "2019-07-03",
+      "changes": [
+        {
+          "text": "2D Stability Map function."
+        },
+        {
+          "text": "Integration with Qt Assistant and initial help pages."
+        },
+        {
+          "text": "Formula Calculator tool."
+        },
+        {
+          "text": "New element: GRIN Lens."
+        },
+        {
+          "text": "Adjustment tool added."
+        }
+      ]
+    },
+    {
+      "version": "2.0.3-alpha3",
+      "date": "2019-02-11",
+      "changes": [
+        {
+          "text": "The start window with MRU, actions, tools and tips panels."
+        },
+        {
+          "text": "Schema properties dialog."
+        },
+        {
+          "text": "Can read Title and Notes fields from schema files of version 1."
+        },
+        {
+          "text": "Copy/paste commands for elements, Clone command for pumps."
+        },
+        {
+          "text": "Move Up/Move Down commands for elements."
+        },
+        {
+          "text": "Can select different units for plot axes."
+        },
+        {
+          "text": "Can make default titles for plots and plots' axes."
+        },
+        {
+          "text": "Beam Variation function."
+        }
+      ]
+    },
+    {
+      "version": "2.0.2-alpha2",
+      "date": "2018-09-27",
+      "changes": [
+        {
+          "text": "Multicaustic function."
+        },
+        {
+          "text": "New element: Thick Lens."
+        },
+        {
+          "text": "Interface elements (surfaces): Normal, Brewster, Tilted, Spherical."
+        }
+      ]
+    },
+    {
+      "version": "2.0.1-alpha1",
+      "date": "2018-06-05",
+      "changes": [
+        {
+          "text": "Gaussian Beam Calculator tool with beam plotting ability."
+        },
+        {
+          "text": "It is able to append several pumps and activate them in course."
+        },
+        {
+          "text": "Global schema parameters driven by custom Lua formulas."
+        },
+        {
+          "text": "It's able to link elements' parameters to global schema parameters to change them in a complex way."
+        }
+      ]
+    },
+    {
+      "version": "2.0.0-alpha0",
+      "date": "2017-12-27",
+      "changes": [
+        {
+          "text": "The first preview release having Caustic and Stability Map functions."
+        },
+        {
+          "text": "New json-based format of schema files."
+        },
+        {
+          "text": "Can read schema files of version 1 (only elements, no function windows)."
+        }
+      ]
+    }
+  ]
+}

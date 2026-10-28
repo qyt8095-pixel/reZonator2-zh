@@ -1,0 +1,20 @@
+<svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="21.055714" x2="231.333026" y1="-216.726681" y2="-4.263913">
+    <stop offset="0" stop-color="#a4c8f0"/>
+    <stop offset="1" stop-color="#737ba6"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="40" x2="215" y1="-224" y2="-4">
+    <stop offset="0" stop-color="#fdffff"/>
+    <stop offset="1" stop-color="#cfcfff"/>
+  </linearGradient>
+  <g transform="translate(0 240)">
+    <rect fill="url(#b)" height="250.99998" ry="26.829721" stroke="url(#a)" stroke-width="5" width="250.99998" x="2.5" y="-237.49998"/>
+    <g transform="matrix(8.9801747 0 0 8.4915926 10.107893 -212.82085)">
+      <path d="m-.66813845 12.5h27.56340545" fill="none" stroke="#182e6d"/>
+      <g fill-opacity=".233831" stroke-linecap="round" stroke-width=".75">
+        <path d="m0 12c5.3898306-8.338983 10.779661-8.338983 16.169492 0s10.779661 8.338983 16.169492 0" fill="#005281" stroke="#0069a7"/>
+        <path d="m0 12c4-15.3220339 8-15.3220339 12 0 4 15.322034 8 15.322034 12 0" fill="#ff4401" stroke="#ff6027"/>
+      </g>
+    </g>
+  </g>
+</svg>

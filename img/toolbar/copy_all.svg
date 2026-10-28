@@ -1,0 +1,25 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#92b1de"/>
+    <stop offset="1" stop-color="#525f96"/>
+  </linearGradient>
+  <linearGradient id="b">
+    <stop offset="0" stop-color="#fdffff"/>
+    <stop offset="1" stop-color="#b2d3fa"/>
+  </linearGradient>
+  <linearGradient id="c" gradientTransform="matrix(.84496598 0 0 .84496594 2.948944 8.461773)" gradientUnits="userSpaceOnUse" x1="18.1" x2="15.1" xlink:href="#a" y1="3.900001" y2="6.900001"/>
+  <linearGradient id="d" gradientTransform="matrix(.85148261 0 0 .84555973 3.048836 8.224439)" gradientUnits="userSpaceOnUse" x1="13" x2="18" xlink:href="#b" y1="9.000202" y2="4"/>
+  <linearGradient id="e" gradientTransform="matrix(.87452759 0 0 .7858112 6.142267 7.123154)" gradientUnits="userSpaceOnUse" x1="4.593023" x2="16.453487" xlink:href="#b" y1="2.660808" y2="16.978306"/>
+  <linearGradient id="f" gradientTransform="matrix(.87452759 0 0 .7858112 6.142267 7.123154)" gradientUnits="userSpaceOnUse" x1="16.453487" x2="4.593023" xlink:href="#a" y1="2.660808" y2="16.978306"/>
+  <linearGradient id="g" gradientTransform="matrix(.8745276 0 0 .78581124 .001087 1.062121)" gradientUnits="userSpaceOnUse" x1="4.593023" x2="16.453487" xlink:href="#b" y1="2.660808" y2="16.978306"/>
+  <linearGradient id="h" gradientTransform="matrix(.8745276 0 0 .78581124 .001087 1.062121)" gradientUnits="userSpaceOnUse" x1="16.453487" x2="4.593023" xlink:href="#a" y1="2.660808" y2="16.978306"/>
+  <g fill-rule="evenodd">
+    <path d="m14.5 3.5v11h-11v-11z" fill="url(#g)" stroke="url(#h)" stroke-dashoffset="21.443998" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m20.5 14.509366v5.981268l-11 .0094v-11h6.012912" fill="url(#e)" stroke="url(#f)" stroke-dashoffset="21.443998" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m20.974934 14h-4.974934v-4.9300016" fill="url(#d)"/>
+  </g>
+  <g fill="none" stroke-linejoin="round">
+    <path d="m20.5 14.5-5-.000114v-4.999886" stroke="url(#c)" stroke-linecap="square"/>
+    <path d="m1.5100926 1.4924316h20.9974764v20.9974764h-20.9974764z" stroke="#ca2727" stroke-dasharray="1 2" stroke-linecap="round"/>
+  </g>
+</svg>

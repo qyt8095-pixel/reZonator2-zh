@@ -1,0 +1,18 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none">
+    <path d="m10.498706 24v-24" stroke="#b50000" stroke-linecap="round"/>
+    <path d="m5 0c.3889246 8.1174473 2.2925999 18.035955 5.510092 18.035955 5 0 12.489908-10.035955 12.489908-10.035955" stroke="#00a529" stroke-linecap="round" stroke-width="1.5"/>
+    <g stroke="#182e6d">
+      <g transform="translate(0 1)">
+        <path d="m0 19.5h23"/>
+        <path d="m20 17 3 2.5-3 2.5" stroke-linecap="round"/>
+      </g>
+      <g transform="matrix(0 -1 1 0 -16 24)">
+        <path d="m0 19.5h23"/>
+        <path d="m20 17 3 2.5-3 2.5" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+  <path d="m11.948225 9.0102698v-.6305018l5.391196-6.3783299h-3.863655l-.501558 1.3489802h-.453539l.177967-2.1334414h6.683415v.6305016l-5.391196 6.3856613h3.932472l.287637-1.4149629h.496824v2.1920929z" transform="translate(.830508)"/>
+  <circle cx="20.811974" cy="8.123316" fill="none" r="1.691127" stroke="#000" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

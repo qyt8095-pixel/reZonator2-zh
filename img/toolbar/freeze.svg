@@ -1,0 +1,23 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#09f" stroke-linecap="round">
+    <path d="m12 1v22" stroke-width="1.5"/>
+    <path d="m8 2.961039 4 3.038961 4-3"/>
+    <path d="m8 21 4-3 4 3"/>
+    <path d="m8 5.961039 4 3.038961 4-3"/>
+    <path d="m8 18 4-3 4 3"/>
+    <g transform="matrix(.5 .8660253 -.8660253 .5 16.388739 -4.392775)">
+      <path d="m12 1v22" stroke-width="1.5"/>
+      <path d="m8 2.961039 4 3.038961 4-3"/>
+      <path d="m8 21 4-3 4 3"/>
+      <path d="m8 5.961039 4 3.038961 4-3"/>
+      <path d="m8 18 4-3 4 3"/>
+    </g>
+    <g transform="matrix(-.4999999 .8660254 -.8660254 -.4999999 28.384913 7.606719)">
+      <path d="m12 1v22" stroke-width="1.5"/>
+      <path d="m8 2.961039 4 3.038961 4-3"/>
+      <path d="m8 21 4-3 4 3"/>
+      <path d="m8 5.961039 4 3.038961 4-3"/>
+      <path d="m8 18 4-3 4 3"/>
+    </g>
+  </g>
+</svg>

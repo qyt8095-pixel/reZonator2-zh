@@ -1,0 +1,26 @@
+<svg height="32" width="32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#a4c8f0"/>
+    <stop offset="1" stop-color="#737ba6"/>
+  </linearGradient>
+  <linearGradient id="b" gradientTransform="matrix(.06944661 0 0 .06315146 -20.306865 2.635385)" gradientUnits="userSpaceOnUse" x1="326.68332" x2="721.24884" y1="-5.248622" y2="429.62204">
+    <stop offset="0" stop-color="#fdffff"/>
+    <stop offset="1" stop-color="#cfcfff"/>
+  </linearGradient>
+  <linearGradient id="c" gradientTransform="matrix(.06944661 0 0 .06315146 -20.306865 2.635385)" gradientUnits="userSpaceOnUse" x1="376.13055" x2="644.93158" xlink:href="#a" y1="-15.148117" y2="440.22864"/>
+  <linearGradient id="d" gradientTransform="matrix(.44633232 0 0 .44630355 25.255046 4.876096)" gradientUnits="userSpaceOnUse" x1="40.649776" x2="37.074421" xlink:href="#a" y1="-1.236028" y2="22.319952"/>
+  <path d="m3.7865048.4999992h20.9936592l6.719836 6.7465245v20.9936593c0 1.812885-1.410226 3.259817-3.22311 3.259817h-24.4903852c-1.8128847 0-3.2865048-1.47362-3.2865048-3.286505v-24.490385c0-1.8128859 1.4736201-3.2231108 3.2865048-3.2231108z" fill="url(#b)" stroke="url(#c)"/>
+  <path d="m14.859036 16.045556 5.839154-8.0226126-16.19819-.0458867v-2.9770567h21.5v4l-10.311474 7.87499-6.0137826 7.12501h17.8252566l-.000136 3h-23.499932l.000136-3.587763z" fill="#f00" fill-opacity=".822222" fill-rule="evenodd"/>
+  <path d="m7.8023122 10.5h5.2674898l9.697247 11h-5.267489z" fill="#49b7ff" fill-opacity=".65" fill-rule="evenodd" stroke="#49b7ff" stroke-linecap="square"/>
+  <g transform="matrix(1.3130705 0 0 1.3130705 -28.534149 -7.632499)">
+    <path d="m45.935113 10.954324a4.888402 4.8880869 0 0 1 -9.776804 0 4.888402 4.8880869 0 1 1 9.776804 0z" fill-opacity=".392157" fill-rule="evenodd"/>
+    <path d="m45.786334 10.678042a4.4633232 4.4630355 0 0 1 -8.926646 0 4.4633232 4.4630355 0 1 1 8.926646 0z" fill="#fff" fill-rule="evenodd" stroke="url(#d)" stroke-width=".761574"/>
+    <text font-family="Sans" font-size="7.416594" letter-spacing="0" transform="scale(.97415479 1.0265309)" word-spacing="0" x="40.347225" y="12.74812"><tspan x="40.347225" y="12.74812">2</tspan></text>
+  </g>
+  <g fill-rule="evenodd">
+    <path d="m3 3h3v7h-3z" fill-opacity=".327778"/>
+    <path d="m3 3h1.5v7h-1.5z" fill-opacity=".716667"/>
+    <path d="m26 22h3v7h-3z" fill-opacity=".327778"/>
+    <path d="m27.5 22h1.5v7h-1.5z" fill-opacity=".716667"/>
+  </g>
+</svg>

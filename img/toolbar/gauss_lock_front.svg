@@ -1,0 +1,26 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#c6b5a5"/>
+    <stop offset="1" stop-color="#735a42"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="16" x2="22" y1="11" y2="15">
+    <stop offset="0" stop-color="#ffde73"/>
+    <stop offset="1" stop-color="#d69c31"/>
+  </linearGradient>
+  <linearGradient id="c" gradientUnits="userSpaceOnUse" x1="15" x2="23" xlink:href="#a" y1="9" y2="17"/>
+  <linearGradient id="d" gradientUnits="userSpaceOnUse" x1="15.5" x2="22.5" xlink:href="#a" y1="7" y2="7"/>
+  <linearGradient id="e" gradientUnits="userSpaceOnUse" x1="10" x2="21" y1="12" y2="12">
+    <stop offset="0" stop-color="#00acff" stop-opacity=".2"/>
+    <stop offset="1" stop-color="#00acff" stop-opacity="0"/>
+  </linearGradient>
+  <path d="m-.5 8.1538459v7.6923081c7.6923078 0 19.730769 7.692309 25.5 11.538461v-30.7692302c-5.769231 3.84615395-17.8076922 11.5384611-25.5 11.5384611z" fill="url(#e)" stroke="#00acff" stroke-linecap="round" stroke-opacity=".680365" stroke-width=".5"/>
+  <path d="m25.775835 8.4559126a19.5 19.5 0 0 1 -.717957 19.3439254" fill="none" stroke="#00acff" stroke-opacity=".853881" stroke-width="1.5" transform="matrix(.98765432 0 0 .98765432 -9.645062 -6.058954)"/>
+  <rect fill="url(#b)" height="7" ry="1" stroke="url(#c)" stroke-linejoin="round" width="9" x="14.5" y="9.5"/>
+  <path d="m15.5 14.5v-4h6" fill="none" stroke="#fff7c6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m16 9c0-2 0-4 3-4s3 2 3 4" fill="none" stroke="url(#d)"/>
+  <path d="m18 12.559322.5-1h1l.5 1-.5.79661v1.644068h-1v-1.644068z" fill-opacity=".611872"/>
+  <g fill="none" stroke="#00acff" stroke-opacity=".854902" stroke-width="1.5">
+    <path d="m25.205135 7.4407521a19.5 19.5 0 0 1 .0096 20.1025589" transform="matrix(.66666667 0 0 .66666667 -6.916667 .333333)"/>
+    <path d="m23.413683 4.9368766a19.5 19.5 0 0 1 -.103707 25.2483354" transform="matrix(.35897436 0 0 .35897436 -4.301282 5.717949)"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#a4c8f0"/>
+    <stop offset="1" stop-color="#737ba6"/>
+  </linearGradient>
+  <linearGradient id="b" gradientTransform="matrix(.56229356 0 0 .51132301 -165.96851 19.789748)" gradientUnits="userSpaceOnUse" x1="326.68332" x2="721.24884" y1="-5.248622" y2="429.62204">
+    <stop offset="0" stop-color="#fdffff"/>
+    <stop offset="1" stop-color="#cfcfff"/>
+  </linearGradient>
+  <linearGradient id="c" gradientTransform="matrix(.56229356 0 0 .51132301 -165.96851 19.789748)" gradientUnits="userSpaceOnUse" x1="376.13055" x2="644.93158" xlink:href="#a" y1="-15.148117" y2="440.22864"/>
+  <linearGradient id="d" gradientTransform="matrix(5.1313425 0 0 5.1318636 14.634185 -10.046704)" gradientUnits="userSpaceOnUse" x1="40.649776" x2="37.074421" xlink:href="#a" y1="-1.236028" y2="22.319952"/>
+  <path d="m29.110092 2.5000097h179.980918l44.409 40.6250793v183.980901c0 14.67853-11.41828 26.39401-26.0968 26.39401h-198.293118c-14.678529 0-26.610092-11.93156-26.610092-26.61009v-198.293103c0-14.678523 11.931563-26.0967973 26.610092-26.0967973z" fill="url(#b)" stroke="url(#c)" stroke-width="5"/>
+  <g fill-rule="evenodd">
+    <path d="m125.68476 127.37872 46.98901-63.37872h-127.67377v-24h172.81835v28.614535l-85.45851 65.439935-48.394297 57.94553h127.210117l-.35132 24h-177.82434v-29.33006z" fill="#f00" fill-opacity=".822222"/>
+    <path d="m33 24h24v56h-24z" fill-opacity=".327778"/>
+    <path d="m33 24h12v56h-12z" fill-opacity=".716667"/>
+    <path d="m-223 176h24v56h-24z" fill-opacity=".327778" transform="scale(-1 1)"/>
+    <path d="m-223 176h12v56h-12z" fill-opacity=".716667" transform="scale(-1 1)"/>
+    <path d="m68.897674 83h42.388716l78.03599 90h-42.38871z" fill="#49b7ff" fill-opacity=".65" stroke="#49b7ff" stroke-linecap="square" stroke-width="6"/>
+  </g>
+  <g transform="matrix(.76822714 0 0 .76822714 61.099497 -1.693574)">
+    <path d="m252.3864 59.844395a56.20042 56.206127 0 0 1 -112.40084 0 56.20042 56.206127 0 1 1 112.40084 0z" fill-opacity=".392157" fill-rule="evenodd"/>
+    <path d="m250.67595 56.667532a51.313425 51.318636 0 0 1 -102.62685 0 51.313425 51.318636 0 1 1 102.62685 0z" fill="#fff" fill-rule="evenodd" stroke="url(#d)" stroke-width="6.508492"/>
+    <text font-family="Sans" font-size="85.273323" letter-spacing="0" transform="scale(.97407394 1.0266161)" word-spacing="0" x="180.84425" y="82.172478"><tspan x="180.84425" y="82.172478">2</tspan></text>
+  </g>
+</svg>

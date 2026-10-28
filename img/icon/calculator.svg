@@ -1,0 +1,31 @@
+<svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="21.055714" x2="231.333026" y1="23.273319" y2="235.736087">
+    <stop offset="0" stop-color="#b5c9df"/>
+    <stop offset="1" stop-color="#808499"/>
+  </linearGradient>
+  <linearGradient id="b" gradientTransform="matrix(.71977852 0 0 .97951444 34.478517 35.829178)" gradientUnits="userSpaceOnUse" x1="237.19275" x2="21.887543" xlink:href="#a" y1="132.34557" y2="7.554267"/>
+  <radialGradient id="c" cx="144.05484" cy="11.693751" gradientTransform="matrix(1.4119413 0 0 1.0841473 -6.948524 45.408197)" gradientUnits="userSpaceOnUse" r="105.72203">
+    <stop offset="0" stop-color="#1bd53d"/>
+    <stop offset="1" stop-color="#247b26"/>
+  </radialGradient>
+  <linearGradient id="d" gradientUnits="userSpaceOnUse" x1="23.18608" x2="233.613587" xlink:href="#a" y1="25.359493" y2="228.708585"/>
+  <linearGradient id="e" gradientUnits="userSpaceOnUse" x1="37.101761" x2="213.58252" y1="29.128234" y2="238.03471">
+    <stop offset="0" stop-color="#eef2f8"/>
+    <stop offset="1" stop-color="#cfd2e3"/>
+  </linearGradient>
+  <path d="m334.05217-233.10887v157.30237h129.88456" fill="none"/>
+  <rect fill="url(#e)" height="246" ry="29.91901" stroke="url(#d)" stroke-width="10" width="246" x="5" y="5"/>
+  <rect fill="url(#c)" height="125.85828" ry="15.589797" stroke="url(#b)" stroke-width="10" width="180.6644" x="36.277962" y="38.277977"/>
+  <g stroke-linecap="round">
+    <g fill="none" stroke="#ffeb00" stroke-width="10">
+      <path d="m67.525423 71.152542h86.779667"/>
+      <path d="m67.525423 101.15254h108.779667"/>
+      <path d="m67.525423 135.15254h68.779667"/>
+    </g>
+    <g stroke-linejoin="round" stroke-width="8">
+      <circle cx="62.644066" cy="208.1356" fill="#1bd53d" r="22.508474" stroke="#247c25"/>
+      <circle cx="128.64407" cy="208.1356" fill="#b5c9df" r="22.508474" stroke="#808499"/>
+      <circle cx="192.64407" cy="208.1356" fill="#e53d3c" fill-opacity=".25098" r="22.508474" stroke="#e53d3c"/>
+    </g>
+  </g>
+</svg>

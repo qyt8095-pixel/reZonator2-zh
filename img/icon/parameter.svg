@@ -1,0 +1,30 @@
+<svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#463221"/>
+    <stop offset="1" stop-color="#684d36"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="21.055714" x2="231.333026" y1="23.273319" y2="235.736087">
+    <stop offset="0" stop-color="#a4c8f0"/>
+    <stop offset="1" stop-color="#737ba6"/>
+  </linearGradient>
+  <linearGradient id="c" gradientUnits="userSpaceOnUse" x1="40" x2="215" y1="16" y2="236">
+    <stop offset="0" stop-color="#fdffff"/>
+    <stop offset="1" stop-color="#cfcfff"/>
+  </linearGradient>
+  <linearGradient id="d" gradientUnits="userSpaceOnUse" x1="179.71999" x2="76.673965" xlink:href="#a" y1="195.67673" y2="138.55418"/>
+  <linearGradient id="e" gradientUnits="userSpaceOnUse" x1="118.4671" x2="73.175217" xlink:href="#a" y1="99.13351" y2="85.345306"/>
+  <linearGradient id="f" gradientUnits="userSpaceOnUse" x1="196.33908" x2="164.53514" y1="56.01561" y2="41.087971">
+    <stop offset="0" stop-color="#f00" stop-opacity=".708861"/>
+    <stop offset="1" stop-color="#036e00" stop-opacity=".4"/>
+  </linearGradient>
+  <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="90.798637" x2="120.50613" y1="166.2258" y2="166.2258">
+    <stop offset="0" stop-color="#fff"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <rect fill="url(#c)" height="250.99998" ry="26.829721" stroke="url(#b)" stroke-width="5" width="250.99998" x="2.5" y="2.500015"/>
+  <path d="m24.570741 101.26369c51.932718-44.691787 126.168819-67.491245 182.347209-7.660177l28.70468-31.323126c-76.0775-61.4865571-178.818821-33.9443-211.051889 38.983303z" fill="url(#f)"/>
+  <path d="m269.95912 105.87482c.66334 36.20546-32.42991 65.55462-72.43422 65.55462s-84.12106-93.62941-102.243708-128.44302l67.907618.620491c58.93116-21.989554 105.80143 9.386167 106.77031 62.267909z" fill="#6e6257" fill-opacity=".392405" transform="matrix(.9269465 .37519354 -.38456616 .92309743 0 0)"/>
+  <path d="m75.244164 140.90652-2.363691-63.425707 53.576997 29.940077z" fill="#a07959" fill-rule="evenodd" stroke="url(#e)" stroke-width="3"/>
+  <circle cx="128" cy="166.13058" fill="#a07959" r="58.949295" stroke="url(#d)" stroke-width="4"/>
+  <path d="m121.25778 209.32039c-52.105662-9.02392-47.916313-73.80669-8.26938-85.06404" fill="none" stroke="url(#g)" stroke-linecap="round" stroke-opacity=".278481" stroke-width="15"/>
+</svg>

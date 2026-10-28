@@ -1,0 +1,17 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="3.084746" x2="22.830509" y1="11.847458" y2="11.745763">
+    <stop offset="0" stop-color="#00acff" stop-opacity=".559211"/>
+    <stop offset="1" stop-color="#00acff" stop-opacity=".138158"/>
+  </linearGradient>
+  <path d="m0 8.1538459v7.6923081c7.6923078 0 25.332464 7.692309 31.101695 11.538461v-30.7692302c-5.769231 3.84615395-23.4093872 11.5384611-31.101695 11.5384611z" fill="url(#a)" stroke="#00acff" stroke-linecap="round" stroke-opacity=".680365" stroke-width=".5"/>
+  <g fill="none">
+    <path d="m19.477155 2.4513601c2.954733 6.3189665 2.020472 13.2325069-.595102 18.8348549" stroke="#00acff" stroke-opacity=".853881" stroke-width="3"/>
+    <path d="m11.561901 5.5600764c1.581956 4.0015395 1.51093 8.9084846-.08283 12.8161976" stroke="#009eeb" stroke-opacity=".854902" stroke-width="2"/>
+    <path d="m23.272037 5.5034626c2.418026 8.3253804 2.674909 15.2172984.356644 24.0797514" stroke="#008fd3" stroke-opacity=".854902" stroke-width="2.785714" transform="matrix(.35897436 0 0 .35897436 -4.301282 5.717949)"/>
+  </g>
+  <circle cx="21.160154" cy="12.000001" fill="#c30000" r="2.491525"/>
+  <g transform="matrix(0 1 1 0 -3.65168 -.5)">
+    <path d="m12.5 18v-14.3483205" fill="none" stroke="#c30000"/>
+    <path d="m8.5 16 4 6 4-6" fill="#c30000" fill-rule="evenodd"/>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientTransform="matrix(6.2851287 6.2851287 -6.3537759 6.3537759 165.57891 -20.00192)" gradientUnits="userSpaceOnUse" x1="22.384937" x2="7.652146" y1="12.892776" y2="14.944254">
+    <stop offset="0" stop-color="#3f9725"/>
+    <stop offset="1" stop-color="#8dda76"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="35.319117" x2="35.319117" y1="12.374676" y2="129.397346">
+    <stop offset="0" stop-color="#418af9"/>
+    <stop offset=".2" stop-color="#fdfdfd"/>
+    <stop offset=".40000001" stop-color="#418af9"/>
+    <stop offset="1" stop-color="#aecbf8"/>
+  </linearGradient>
+  <g fill-rule="evenodd">
+    <path d="m79 48.651786h117.55549v-46.809079l58.51133 70.587386-58.51133 69.839817v-46.80906h-117.55549z" fill="#f00" opacity=".358"/>
+    <g stroke-linejoin="round">
+      <path d="m0 8.864073h63.404658l15.595342 16.383182v93.618115l-15.595342 16.38319h-63.404658" fill="url(#b)" opacity=".697" stroke="#2d77e6" stroke-width="5"/>
+      <path d="m183.38946 183.51382 64.71842.10262v-46.22744h-64.71842v-64.71841h-46.22744v64.71841h-64.615423l-.20618 46.22735h64.821413v64.71842h46.22744z" fill="url(#a)" stroke="#2d4e24" stroke-width="7"/>
+    </g>
+  </g>
+</svg>

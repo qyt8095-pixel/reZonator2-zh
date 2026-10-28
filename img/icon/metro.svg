@@ -1,0 +1,10 @@
+<svg height="512" width="512" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0 -540.36218)">
+    <rect fill="#0bd0ff" height="511.5" ry="81.75" stroke="#fff" stroke-linecap="round" stroke-width=".5" width="511.5" x=".25" y="540.61218"/>
+    <g fill="#fff">
+      <path d="m55 595.36218h50v150h-50z"/>
+      <path d="m407 861.09442h47.000553v136.26778h-47.000553z"/>
+      <path d="m130 105v50h182l-232 252h302v-50h-182l232-252z" transform="translate(0 540.36218)"/>
+    </g>
+  </g>
+</svg>

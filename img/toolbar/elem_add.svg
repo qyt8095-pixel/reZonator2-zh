@@ -1,0 +1,20 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="3.417697" x2="23.230306" y1="12.191525" y2="12.191525">
+    <stop offset="0" stop-color="#0e0f55"/>
+    <stop offset="1" stop-color="#a5a6f1"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="2.21273" x2="18.562609" y1="9.886662" y2="9.886662">
+    <stop offset="0" stop-color="#0e0f55"/>
+    <stop offset="1" stop-color="#6a6de8"/>
+  </linearGradient>
+  <filter id="c" height="1.247969" width="1.23089" x="-.115445" y="-.123985">
+    <feGaussianBlur stdDeviation=".33319131"/>
+  </filter>
+  <path d="m22.480306 12.191525a9.1563044 9.1563044 0 1 1 -18.312609 0 9.1563044 9.1563044 0 1 1 18.312609 0z" fill="#7fe1ff" stroke="url(#a)" stroke-width="1.5" transform="matrix(1.110404 0 0 1.110404 -2.795024 -1.537519)"/>
+  <path d="m20.207017 13.864919a7.356617 7.356617 0 1 1 -14.713234 0 7.356617 7.356617 0 1 1 14.713234 0z" fill="#42a5c9" transform="matrix(1.0182088 0 0 1.044442 -.20559 -1.797543)"/>
+  <path d="m10.725712 6.1170263a5.0549564 1.7865229 0 1 1 -10.10991257 0 5.0549564 1.7865229 0 1 1 10.10991257 0z" fill="#fff" transform="matrix(.5413208 -.5785258 .5572619 .5619764 .517077 7.098696)"/>
+  <path d="m21.331295 14.259586a7.1390228 5.9515977 0 1 1 -14.2780456 0 7.1390228 5.9515977 0 1 1 14.2780456 0z" fill="#7fe1ff" transform="matrix(.7889849 -.7702394 .7249026 .796233 -7.691594 13.225856)"/>
+  <path d="m18.312609 9.8866615a7.9249392 7.9249392 0 1 1 -15.8498786 0 7.9249392 7.9249392 0 1 1 15.8498786 0z" fill="none" opacity=".657407" stroke="url(#b)" stroke-width=".499962" transform="matrix(1.1620882 0 0 1.1620882 -.071388 .510827)"/>
+  <path d="m18.681998 15.595762a2.9268398 3.6230018 0 1 1 -5.853679 0 2.9268398 3.6230018 0 1 1 5.853679 0z" fill="#d2edf7" filter="url(#c)" transform="matrix(1.4916638 .8992936 -1.1348114 1.4858618 8.533637 -23.368698)"/>
+  <path d="m10.725712 6.1170263a5.0549564 1.7865229 0 1 1 -10.10991257 0 5.0549564 1.7865229 0 1 1 10.10991257 0z" fill="#fff" transform="matrix(.4417302 -.4156451 .4547385 .4037551 10.901008 15.916927)"/>
+</svg>

@@ -1,0 +1,22 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a" gradientTransform="matrix(.99949234 0 0 .99949283 .006088 .006084)" gradientUnits="userSpaceOnUse" x1="11.026465" x2="20.822304" y1="19.060492" y2="9.776938">
+    <stop offset="0" stop-color="#c7c7c7"/>
+    <stop offset="1" stop-color="#fff"/>
+  </linearGradient>
+  <linearGradient id="b" gradientTransform="matrix(.99943042 0 0 1.1227059 .006835 -.177684)" gradientUnits="userSpaceOnUse" x1="1" x2="22.999998" y1="3.49841" y2="3.49841">
+    <stop offset="0" stop-color="#4c407b"/>
+    <stop offset="1" stop-color="#6ccdf6"/>
+  </linearGradient>
+  <linearGradient id="c" gradientTransform="matrix(.99943042 0 0 1.1227059 .006835 -.177684)" gradientUnits="userSpaceOnUse" x1=".99982" x2="23.000179" y1="3.49841" y2="3.49841">
+    <stop offset="0" stop-color="#443289"/>
+    <stop offset="1" stop-color="#4aa7cf"/>
+  </linearGradient>
+  <g stroke-linecap="round">
+    <rect fill="url(#a)" height="20.995705" rx="2.497852" ry="2.497853" stroke="#6b6868" stroke-linejoin="round" stroke-width="1.004296" width="20.995705" x="1.502148" y="1.502147"/>
+    <path d="m3.0782883 1.5028016h17.8434247c.872819 0 1.575485.8030877 1.575485 1.8006439v2.6937528h-20.9943963v-2.6937528c0-.9975562.702667-1.8006439 1.5754866-1.8006439z" fill="url(#b)" stroke="url(#c)" stroke-width="1.005603"/>
+    <g fill="#fcfdff" stroke="#f1fcff" stroke-linejoin="round" stroke-width="1.103741">
+      <ellipse cx="16.224869" cy="3.631774" rx=".697049" ry=".650324"/>
+      <ellipse cx="19.618835" cy="3.631774" rx=".697049" ry=".650324"/>
+    </g>
+  </g>
+</svg>

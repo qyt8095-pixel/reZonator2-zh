@@ -1,0 +1,10 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="m24 2h-15l-3 4 18 12-14-13h14z" fill="#f00"/>
+<path d="m24 22h-15l-3-4 18-12-14 13h14z" fill="#f00"/>
+<path d="m10.5 25-9.28-13.44 9.28-12.56" fill="none" stroke="#000" stroke-linecap="square" stroke-width="2"/>
+<path d="m5 11.5h23" stroke="#000" stroke-dasharray="4 2" transform="translate(-3.28 -.01)"/>
+<g fill="none" stroke="#060606" stroke-linecap="square" transform="translate(-2 2)">
+<path d="m4 7-2-2m4 0-4-4m6 2-6-6m8 4-3-3"/>
+<path d="m7 22 2-2m-7 3 6-6m-6 2 4-4m-4 0 2.96-2.96"/>
+</g>
+</svg>
