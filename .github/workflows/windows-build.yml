@@ -219,7 +219,11 @@ jobs:
           ArchitecturesAllowed=x64
           ArchitecturesInstallIn64BitMode=x64
           [Languages]
-          Name: "chinesesimp"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+          ; Inno Setup's runner install only ships Default.isl; the
+          ; official ChineseSimplified.isl is a separate download and
+          ; is NOT present, so run 9 failed here with "couldn't open
+          ; include file". Keep English installer UI for now; the
+          ; application itself is Chinese.
           Name: "english"; MessagesFile: "compiler:Default.isl"
           [Tasks]
           Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
