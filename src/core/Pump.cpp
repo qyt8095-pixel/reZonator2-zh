@@ -1,0 +1,201 @@
+#include "Pump.h"
+
+#include <QDebug>
+
+using namespace Z;
+using namespace Units;
+
+//--------------------------------------------------------------------------------
+//                                     PumpMode
+//--------------------------------------------------------------------------------
+
+PumpMode::~PumpMode() {}
+
+// To skip static analyzer warnings "class has no out-of-line definitions"
+PumpMode_Waist::~PumpMode_Waist() {}
+PumpMode_Front::~PumpMode_Front() {}
+PumpMode_RayVector::~PumpMode_RayVector() {}
+PumpMode_TwoSections::~PumpMode_TwoSections() {}
+PumpMode_Complex::~PumpMode_Complex() {}
+PumpMode_InvComplex::~PumpMode_InvComplex() {}
+
+//--------------------------------------------------------------------------------
+//                                   PumpParams
+//--------------------------------------------------------------------------------
+
+PumpParams::~PumpParams()
+{
+    qDeleteAll(_params);
+}
+
+void PumpParams::addParam(ParameterTS *param, double value, Unit unit)
+{
+    param->setValue(ValueTS(value, value, unit));
+    _params.append(param);
+}
+
+//--------------------------------------------------------------------------------
+//                                PumpParams_Waist
+//--------------------------------------------------------------------------------
+
+PumpParams_Waist::PumpParams_Waist()
+{
+    _waist = new ParameterTS(Dims::linear(),
+                             QStringLiteral("w_0"),
+                             QStringLiteral("w<sub>0</sub>"),
+                             qApp->translate("Pump param", "束腰半径"));
+    _distance = new ParameterTS(Dims::linear(),
+                                QStringLiteral("z_w"),
+                                QStringLiteral("z<sub>w</sub>"),
+                                qApp->translate("Pump param", "到束腰的距离"));
+    _MI = new ParameterTS(Dims::none(),
+                          QStringLiteral("MI"),
+                          QStringLiteral("M<sup>2</sup>"),
+                          qApp->translate("Pump param", "光束质量"));
+    addParam(_waist, 100, mkm());
+    addParam(_distance, 100, mm());
+    addParam(_MI, 1);
+}
+
+//--------------------------------------------------------------------------------
+//                               PumpParams_Front
+//--------------------------------------------------------------------------------
+
+PumpParams_Front::PumpParams_Front()
+{
+    _beamRadius = new ParameterTS(Dims::linear(),
+                                  QStringLiteral("w"),
+                                  QStringLiteral("w"),
+                                  qApp->translate("Pump param", "光束半径"));
+    _frontRadius = new ParameterTS(Dims::linear(),
+                                   QStringLiteral("R"),
+                                   QStringLiteral("R"),
+                                   qApp->translate("Pump param", "波前曲率半径"));
+    _MI = new ParameterTS(Dims::none(),
+                          QStringLiteral("MI"),
+                          QStringLiteral("M<sup>2</sup>"),
+                          qApp->translate("Pump param", "光束质量"));
+    addParam(_beamRadius, 1000, mkm());
+    addParam(_frontRadius, 100, mm());
+    addParam(_MI, 1);
+}
+
+//--------------------------------------------------------------------------------
+//                                PumpParams_RayVector
+//--------------------------------------------------------------------------------
+
+PumpParams_RayVector::PumpParams_RayVector()
+{
+    _radius = new ParameterTS(Dims::linear(),
+                              QStringLiteral("y"),
+                              QStringLiteral("y"),
+                              qApp->translate("Pump param", "光束半径"));
+    _angle = new ParameterTS(Dims::angular(),
+                             QStringLiteral("V"),
+                             QStringLiteral("V"),
+                             qApp->translate("Pump param", "发散半角"));
+    _distance = new ParameterTS(Dims::linear(),
+                                QStringLiteral("z_y"),
+                                QStringLiteral("z<sub>y</sub>"),
+                                qApp->translate("Pump param", "到半径的距离"));
+    addParam(_radius, 100, mkm());
+    addParam(_angle, 10, deg());
+    addParam(_distance, 100, mm());
+}
+
+//--------------------------------------------------------------------------------
+//                               PumpParams_TwoSections
+//--------------------------------------------------------------------------------
+
+PumpParams_TwoSections::PumpParams_TwoSections()
+{
+    _radius1 = new ParameterTS(Dims::linear(),
+                               QStringLiteral("y_1"),
+                               QStringLiteral("y<sub>1</sub>"),
+                               qApp->translate("Pump param", "光束半径 1"));
+    _radius2 = new ParameterTS(Dims::linear(),
+                               QStringLiteral("y_2"),
+                               QStringLiteral("y<sub>2</sub>"),
+                               qApp->translate("Pump param", "光束半径 2"));
+    _distance = new ParameterTS(Dims::linear(),
+                                QStringLiteral("z_y"),
+                                QStringLiteral("z<sub>y</sub>"),
+                                qApp->translate("Pump param", "距离"));
+    addParam(_radius1, 100, mkm());
+    addParam(_radius2, 1000, mkm());
+    addParam(_distance, 100, mm());
+}
+
+//--------------------------------------------------------------------------------
+//                                PumpParams_Complex
+//--------------------------------------------------------------------------------
+
+PumpParams_Complex::PumpParams_Complex()
+{
+    _real = new ParameterTS(Dims::linear(),
+                            QStringLiteral("Re"),
+                            QStringLiteral("Re"),
+                            qApp->translate("Pump param", "实部"));
+    _imag = new ParameterTS(Dims::linear(),
+                            QStringLiteral("Im"),
+                            QStringLiteral("Im"),
+                            qApp->translate("Pump param", "虚部"));
+    _MI = new ParameterTS(Dims::none(),
+                          QStringLiteral("MI"),
+                          QStringLiteral("M<sup>2</sup>"),
+                          qApp->translate("Pump param", "光束质量"));
+
+    // q = [100um - i*32.057um] corresponds to
+    // a beam having waist=100um and lambda=980nm at distance=100mm
+    addParam(_real, 100, mkm());
+    addParam(_imag, -32.057, mkm());
+    addParam(_MI, 1);
+}
+
+//--------------------------------------------------------------------------------
+//                              PumpParams_InvComplex
+//--------------------------------------------------------------------------------
+
+PumpParams_InvComplex::PumpParams_InvComplex() : PumpParams_Complex()
+{
+    // q = [0.009(um^-1) + i*0.003(um^-1)] nearly corresponds to
+    // a beam having waist=100um and lambda=980nm at distance=100mm
+    real()->setValue(ValueTS(0.009, mkm()));
+    imag()->setValue(ValueTS(0.003, mkm()));
+}
+
+//--------------------------------------------------------------------------------
+//                                      Pump
+//--------------------------------------------------------------------------------
+
+const QVector<const PumpMode*>& Pumps::allModes()
+{
+    static QVector<const PumpMode*> producers({
+        PumpMode_Waist::instance(),
+        PumpMode_Front::instance(),
+        PumpMode_RayVector::instance(),
+        PumpMode_TwoSections::instance(),
+        PumpMode_Complex::instance(),
+        PumpMode_InvComplex::instance(),
+    });
+    return producers;
+}
+
+const PumpMode* Pumps::findByModeName(const QString& name)
+{
+    for (auto producer : allModes())
+        if (producer->modeName() == name)
+            return producer;
+    return nullptr;
+}
+
+QString Pumps::labelPrefix()
+{
+    return QStringLiteral("P");
+}
+
+bool Pumps::isGeometric(const PumpParams* p)
+{
+    return dynamic_cast<const PumpParams_RayVector*>(p) ||
+           dynamic_cast<const PumpParams_TwoSections*>(p);
+}

@@ -1,0 +1,406 @@
+#include "Element.h"
+
+#include "Formula.h"
+#include "Perf.h"
+#include "Protocol.h"
+
+#include <QApplication>
+
+//------------------------------------------------------------------------------
+//                                ElementOwner
+//------------------------------------------------------------------------------
+
+ElementOwner::~ElementOwner()
+{
+}
+
+//------------------------------------------------------------------------------
+//                                Element
+//------------------------------------------------------------------------------
+
+Element::Element()
+{
+    static int id = 0;
+    _id = ++id;
+    
+    _matrs[MatrixKind::T] = Z::Matrix();
+    _matrs[MatrixKind::S] = Z::Matrix();
+    _matrs[MatrixKind::InvT] = Z::Matrix();
+    _matrs[MatrixKind::InvS] = Z::Matrix();
+}
+
+Element::~Element()
+{
+    qDeleteAll(_params);
+
+    setOwner(nullptr);
+}
+
+void Element::setOwner(ElementOwner *owner)
+{
+    _owner = owner;
+}
+
+QString Element::displayLabel()
+{
+    if (!_label.isEmpty())
+        return _label;
+    if (_owner)
+        return QString("#%1").arg(_owner->indexOf(this)+1);
+    return typeName();
+}
+
+QString Element::displayTitle()
+{
+    if (!_title.isEmpty())
+        return _title;
+    return displayLabel();
+}
+
+QString Element::displayLabelTitle()
+{
+    if (!_label.isEmpty())
+    {
+        if (!_title.isEmpty())
+            return QString("%1 (%2)").arg(_label, _title);
+        return _label;
+    }
+    if (!_title.isEmpty())
+        return _title;
+    if (_owner)
+        return QString("#%1 (%2)").arg(_owner->indexOf(this)+1).arg(typeName());
+    return typeName();
+}
+
+void Element::addParam(Z::Parameter *param, int index)
+{
+    if (_params.contains(param)) {
+        qWarning() << "Element::addParam: parameter already exists";
+        return;
+    }
+    param->addListener(this);
+    if (index < 0 || index >= _params.size())
+        _params.append(param);
+    else _params.insert(index, param);
+}
+
+void Element::removeParam(Z::Parameter *param, bool free)
+{
+    if (!_params.contains(param)) {
+        qWarning() << "Element::removeParam: parameter does not added";
+        return;
+    }
+    param->removeListener(this);
+    _params.removeOne(param);
+    if (free) delete param;
+}
+
+void Element::moveParamUp(Z::Parameter* param)
+{
+    int index = _params.indexOf(param);
+    if (index < 0)
+    {
+        qWarning() << "ElemFormula::moveParamUp: invalid parameter, it's not in the parameters list";
+        return;
+    }
+    if (index == 0)
+    {
+        _params.removeAt(0);
+        _params.append(param);
+    }
+    else
+        _params.swapItemsAt(index, index-1);
+}
+
+void Element::moveParamDown(Z::Parameter* param)
+{
+    int index = _params.indexOf(param);
+    if (index < 0)
+    {
+        qWarning() << "ElemFormula::moveParamDown: invalid parameter, it's not in the parameters list";
+        return;
+    }
+    if (index == _params.size()-1)
+    {
+        _params.removeAt(index);
+        _params.insert(0, param);
+    }
+    else
+        _params.swapItemsAt(index, index+1);
+}
+
+void Element::reorderParams(const Z::Parameters& params)
+{
+    if (_params.size() != params.size())
+    {
+        qWarning() << Q_FUNC_INFO << "Given parameters list is not of the same size as the current one";
+        return;
+    }
+    for (auto p : std::as_const(params))
+        if (!_params.contains(p))
+        {
+            qWarning() << Q_FUNC_INFO << "GIven parameter does not belog to the current element";
+            return;
+        }
+    for (int i = 0; i < params.size(); i++)
+        _params[i] = params.at(i);
+}
+
+void Element::parameterChanged(Z::ParameterBase *p)
+{
+    Z_PERF_BEGIN("Element::parameterChanged_1")
+    if (_calcMatrixLocked)
+        _calcMatrixNeeded = true;
+    else
+        calcMatrix("Element::parameterChanged");
+    Z_PERF_END
+
+    Z_PERF_BEGIN("Element::parameterChanged_2")
+    if (!_eventsLocked && _owner)
+        _owner->elementChanged(this, p, QStringLiteral("Element::parameterChanged(%1)").arg(p->alias()));
+    Z_PERF_END
+}
+
+void Element::parameterFailed(Z::ParameterBase *p)
+{
+    if (!_eventsLocked && _owner)
+        _owner->elementChanged(this, p, QStringLiteral("Element::parameterFailed(%1)").arg(p->alias()));
+}
+
+void Element::calcMatrix(const char *reason)
+{
+    Q_UNUSED(reason)
+    //qDebug() << "Calc matrix" << type() << displayLabel() << reason;
+    calcMatrixInternal();
+}
+
+void Element::calcMatrixInternal()
+{
+    for (auto it = _matrs.begin(); it != _matrs.end(); it++)
+        it->second.unity();
+}
+
+void Element::setLabel(const QString& value)
+{
+    _label = value;
+    if (!_eventsLocked && _owner)
+        _owner->elementChanged(this, nullptr, "Element::setLabel");
+}
+
+void Element::setTitle(const QString& value)
+{
+    _title = value;
+    if (!_eventsLocked && _owner)
+        _owner->elementChanged(this, nullptr, "Element::setTitle");
+}
+
+void Element::setDisabled(bool value)
+{
+    _disabled = value;
+    if (!_eventsLocked && _owner)
+        _owner->elementChanged(this, nullptr, "Element::setDisabled");
+}
+
+bool Element::failed() const
+{
+    if (!_error.isEmpty())
+        return true;
+    for (auto p : std::as_const(_params))
+        if (p->failed())
+            return true;
+    return false;
+}
+
+QString Element::failReason() const
+{
+    if (!_error.isEmpty())
+        return _error;
+    for (auto p : std::as_const(_params))
+        if (p->failed())
+            return qApp->tr("参数 %1 计算失败：%2").arg(p->displayLabel(), p->error());
+    return QString();
+}
+
+ElemAsRange Element::asRange()
+{
+    if (_kind == ElementKind::Range)
+        return ElemAsRangeImpl{ .elem = this };
+    return {};
+}
+
+ElemAsDynamic Element::asDynamic()
+{
+    if (_kind == ElementKind::Dynamic)
+        return ElemAsDynamicImpl{ .elem = this };
+    return {};
+}
+
+ElemAsInterface Element::asInterface()
+{
+    if (_kind == ElementKind::Interface)
+        return ElemAsInterfaceImpl{ .elem = this };
+    return {};
+}
+
+//------------------------------------------------------------------------------
+//                             ElemAsRangeImpl
+//------------------------------------------------------------------------------
+
+void ElemAsRangeImpl::setSubRange(const Z::Value& value)
+{
+    double v = value.toSi();
+    if (v < 0) v = 0;
+    else
+    {
+        double len = axisLengthSI();
+        if (v > len) v = len;
+    }
+    setSubRangeSI(v);
+}
+
+Z::Value ElemAsRangeImpl::subRangeLf() const
+{
+    auto unit = paramLength()->value().unit();
+    return {unit->fromSi(subRangeSI()), unit};
+}
+
+Z::Value ElemAsRangeImpl::subRangeRt() const
+{
+    auto unit = paramLength()->value().unit();
+    return {unit->fromSi(axisLengthSI() - subRangeSI()), unit};
+}
+
+Z::Value ElemAsRangeImpl::axisLen() const
+{
+    auto unit = paramLength()->value().unit();
+    return {unit->fromSi(axisLengthSI()), unit};
+}
+
+//------------------------------------------------------------------------------
+//                               ElementEventsLocker
+//------------------------------------------------------------------------------
+
+ElementEventsLocker::ElementEventsLocker(Element* elem, const char *reason): _reason(reason)
+{
+    _elems << elem;
+    elem->_eventsLocked = true;
+    //qDebug() << "Lock events" << elem->displayLabel() << reason;
+}
+
+ElementEventsLocker::ElementEventsLocker(Z::Parameter* param, const char *reason): _reason(reason)
+{
+    collectElems(param, _elems);
+    for (auto elem : std::as_const(_elems))
+        elem->_eventsLocked = true;
+    //qDebug() << "Lock events" << Z::Utils::displayStr(_elems) << reason;
+}
+
+ElementEventsLocker::~ElementEventsLocker()
+{
+    //qDebug() << "Unlock events" << Z::Utils::displayStr(_elems) << _reason;
+    for (auto elem : std::as_const(_elems))
+        elem->_eventsLocked = false;
+}
+
+void ElementEventsLocker::cancel()
+{
+    _elems.clear();
+}
+
+void ElementEventsLocker::collectElems(Z::Parameter *param, Elements &elems)
+{
+    for (auto listener : param->listeners()) {
+        if (auto elem = dynamic_cast<Element*>(listener); elem) {
+            if (!elems.contains(elem))
+                elems << elem;
+        }
+        else if (auto link = dynamic_cast<Z::ParamLink*>(listener); link) {
+            for (auto listener : link->target()->listeners())
+                if (auto elem = dynamic_cast<Element*>(listener); elem) {
+                    if (!elems.contains(elem))
+                        elems << elem;
+                }
+        } else if (auto formula = dynamic_cast<Z::Formula*>(listener); formula) {
+            collectElems(formula->target(), elems);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+//                                ElementParamsBackup
+//------------------------------------------------------------------------------
+
+ElementParamsBackup::ElementParamsBackup(Element *elem, const char *reason) : _elem(elem), _reason(reason)
+{
+    //qDebug() << "Backup elem params" << elem->displayLabel() << reason;
+    for (auto p : elem->params())
+        _backup.insert(p, std::shared_ptr<Z::ParamValueBackup>(new Z::ParamValueBackup(p, reason)));
+}
+
+ElementParamsBackup::~ElementParamsBackup()
+{
+    //qDebug() << "Restore elem params" << _elem->displayLabel() << _reason;
+}
+
+//------------------------------------------------------------------------------
+//                                Z::Utils
+//------------------------------------------------------------------------------
+
+namespace Z {
+namespace Utils {
+
+void setElemWavelen(Element* elem, const Z::Value& lambda)
+{
+    QString paramName = QStringLiteral("Lambda");
+    auto param = elem->params().byAlias(paramName);
+    if (!param)
+    {
+        Z_WARNING("Element" << elem->displayLabel() << "is marked as wavelength requiring but doesn't provide parameter" << paramName)
+        qWarning() << "Element" << elem->displayLabel() << "is marked as wavelength requiring but doesn't provide parameter" << paramName;
+        return;
+    }
+    if (param->dim() != Z::Dims::linear())
+    {
+        Z_WARNING("Element" << elem->displayLabel() << "is marked as wavelength requiring "
+            "but its parameter" << paramName << "has invalid dimension" << param->dim()->name() <<
+            "while it should be" << Z::Dims::linear()->name())
+        qWarning() << "Element" << elem->displayLabel() << "is marked as wavelength requiring "
+            "but its parameter" << paramName << "has invalid dimension" << param->dim()->name() <<
+            "while it should be" << Z::Dims::linear()->name();
+        return;
+    }
+    param->setValue(lambda);
+}
+
+ParameterFilterPtr defaultParamFilter()
+{
+    static ParameterFilterPtr filter = std::make_shared<ParameterFilter>(
+       std::initializer_list<ParameterFilterCondition*> { new ParameterFilterVisible });
+    return filter;
+}
+
+void copyParamValues(const Element* source, Element* target, const char* reason)
+{
+    ElementMatrixLocker matrixLocker(target, reason);
+    QMap<QString, Parameter*> targetParams;
+    for (auto p : target->params())
+        targetParams[p->alias()] = p;
+    for (auto p : source->params())
+    {
+        auto p1 = targetParams.value(p->alias());
+        if (p1 && p1->dim() == p->dim())
+            p1->setValue(p->value());
+    }
+}
+
+QString displayStr(const Elements &elems)
+{
+    QStringList s;
+    for (const auto &elem : elems)
+        s << elem->displayLabel();
+    return s.join(',');
+}
+
+} // namespace Utils
+} // namespace Z
+

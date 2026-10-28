@@ -1,0 +1,263 @@
+#ifndef PY_CLASS_ELEMENT_H
+#define PY_CLASS_ELEMENT_H
+
+#include "PyUtils.h"
+#include "PyClassMatrix.h"
+#include "PyClassParamRef.h"
+#include "Schema.h"
+#include "../math/FunctionUtils.h"
+
+namespace PyClass::Element {
+
+const char *moduleName = nullptr;
+
+PyTypeObject* type();
+PyObject* make(::Element *elem);
+
+struct Self
+{
+    PyObject_HEAD
+    ::Element *elem;
+    std::shared_ptr<ElementEventsLocker> locker;
+    std::shared_ptr<ElementParamsBackup> backup;
+};
+
+void dtor(Self *self)
+{
+    self->backup.reset();
+    self->locker.reset();
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+PyObject* label(Self *self, PyObject *Py_UNUSED(args))
+{
+    auto label = self->elem->label().toUtf8();
+    return PyUnicode_FromString(label.constData());
+}
+
+PyObject* length(Self *self, PyObject *Py_UNUSED(args))
+{
+    if (auto range = self->elem->asRange(); range)
+        return PyFloat_FromDouble(range->lengthSI());
+    Py_RETURN_NONE;
+}
+
+PyObject* axial_length(Self *self, PyObject *Py_UNUSED(args))
+{
+    if (auto range = self->elem->asRange(); range)
+        return PyFloat_FromDouble(range->axisLengthSI());
+    Py_RETURN_NONE;
+}
+
+PyObject* optical_path(Self *self, PyObject *Py_UNUSED(args))
+{
+    if (auto range = self->elem->asRange(); range)
+        return PyFloat_FromDouble(range->opticalPathSI());
+    Py_RETURN_NONE;
+}
+
+PyObject* ior(Self *self, PyObject *Py_UNUSED(args))
+{
+    if (auto range = self->elem->asRange(); range)
+        return PyFloat_FromDouble(range->ior());
+    Py_RETURN_NONE;
+}
+
+PyObject* offset(Self *self, PyObject *Py_UNUSED(args))
+{
+    if (auto range = self->elem->asRange(); range)
+        return PyFloat_FromDouble(range->subRangeSI());
+    Py_RETURN_NONE;
+}
+
+int set_offset(Self *self, PyObject *arg)
+{
+    auto range = self->elem->asRange();
+    CHECK_I(range, AssertionError, "element does not have length parameter")
+    double v = 0;
+    if (PyFloat_Check(arg))
+        v = PyFloat_AsDouble(arg);
+    else if (PyLong_Check(arg))
+        v = PyLong_AsLong(arg);
+    else CHECK_I(false, TypeError, "unsupported argument type, number expected")
+    range->setSubRangeSI(v);
+    return 0;
+}
+
+PyObject* index(Self *self, PyObject *Py_UNUSED(args))
+{
+    CHECK_SCHEMA
+    auto idx = SCHEMA->elements().indexOf(self->elem);
+    if (idx < 0)
+        Py_RETURN_NONE;
+    // For python code elements are numbered 1-based
+    // as they are shown in the elements table
+    return PyLong_FromLong(idx + 1);
+}
+
+PyObject* prev(Self *self, PyObject *Py_UNUSED(args))
+{
+    CHECK_SCHEMA
+    auto prevElem = FunctionUtils::prevElem(SCHEMA, self->elem);
+    if (!prevElem)
+        Py_RETURN_NONE;
+    return make(prevElem);
+}
+
+PyObject* next(Self *self, PyObject *Py_UNUSED(args))
+{
+    CHECK_SCHEMA
+    auto nextElem = FunctionUtils::nextElem(SCHEMA, self->elem);
+    if (!nextElem)
+        Py_RETURN_NONE;
+    return make(nextElem);
+}
+
+PyObject* disabled(Self *self, PyObject *Py_UNUSED(args))
+{
+    return PyBool_FromLong(self->elem->disabled());
+}
+
+PyObject* param(Self *self, PyObject *args)
+{
+    char *alias;
+    double def = qQNaN();
+    if (!PyArg_ParseTuple(args, "s|d", &alias, &def))
+        return nullptr;
+    auto param = self->elem->param(QString::fromUtf8(alias));
+    if (!param) {
+        if (!qIsNaN(def))
+            return PyFloat_FromDouble(def);
+        Py_RETURN_NONE;
+    }
+    return PyFloat_FromDouble(param->value().toSi());
+}
+
+PyObject* set_param(Self *self, PyObject *args)
+{
+    char *alias;
+    double val = qQNaN();
+    if (!PyArg_ParseTuple(args, "s|d", &alias, &val))
+        return nullptr;
+    auto param = self->elem->param(QString::fromUtf8(alias));
+    CHECK_(param, KeyError, "parameter not found")
+    CHECK_(!qIsNaN(val), ValueError, "invalid parameter value")
+    Z::Value value(val, param->dim()->siUnit());
+    param->setValue(value.toUnit(param->value().unit()));
+    Py_RETURN_NONE;
+}
+
+PyObject* param_ref(Self *self, PyObject* args)
+{
+    CHECK_SCHEMA
+    const char *alias;
+    if (!PyArg_Parse(args, "s", &alias))
+        return nullptr;
+    auto param = self->elem->param(QString::fromUtf8(alias));
+    CHECK_(param, KeyError, "parameter not found")
+    return PyClass::ParamRef::make(param);
+}
+
+PyObject* lock(Self *self, PyObject *Py_UNUSED(args))
+{
+    //qDebug() << "Lock" << self->elem->label();
+    self->locker.reset(new ElementEventsLocker(self->elem, "py.element.lock()"));
+    self->backup.reset(new ElementParamsBackup(self->elem, "py.element.lock()"));
+    Py_RETURN_NONE;
+}
+
+PyObject* unlock(Self *self, PyObject *Py_UNUSED(args))
+{
+    //qDebug() << "Unlock" << self->elem->label();
+    self->backup.reset();
+    self->locker.reset();
+    Py_RETURN_NONE;
+}
+
+PyObject* matrix(Self *self, PyObject *args)
+{
+    auto workPlane = Z::WorkPlane::T;
+    auto argCount = PyTuple_Size(args);
+    if (argCount < 0)
+        return nullptr;
+    CHECK_(argCount == 1 || argCount == 0, TypeError, "wrong args count, 0 or 1 arg expected")
+    if (argCount == 1) {
+        auto arg = PyTuple_GetItem(args, 0);
+        if (!arg)
+            return nullptr;
+        if (PyUnicode_Check(arg)) {
+            auto plane = QString::fromUtf8(PyUnicode_AsUTF8(arg)).toUpper();
+            if (plane == Z::planeName(Z::T))
+                workPlane = Z::T;
+            else if (plane == Z::planeName(Z::S))
+                workPlane = Z::S;
+            else
+                CHECK_(false, ValueError, "wrong work plane name, T or S expected")
+        } else if (PyLong_Check(arg)) {
+            auto plane = PyLong_AsLong(arg);
+            CHECK_(plane == Z::WorkPlane::T || plane == Z::WorkPlane::S, ValueError, 
+                "unexpected arg, expected one of Z.PLANE_T or Z.PLANE_S")
+            workPlane = (Z::WorkPlane)plane;
+        } else {
+            CHECK_(false, TypeError, "wrong type of arg, string or integer expected")
+        }
+    }
+    auto m = workPlane == Z::WorkPlane::T ? self->elem->Mt() : self->elem->Ms();
+    return PyClass::Matrix::make(m);
+}
+
+PyTypeObject* type()
+{
+    static PyMethodDef methods[] = {
+        { "param", (PyCFunction)param, METH_VARARGS, "Return element's parameter value (in SI units) by alias" },
+        { "set_param", (PyCFunction)set_param, METH_VARARGS, "Set element's parameter value (in SI units) by alias" },
+        { "param_ref", (PyCFunction)param_ref, METH_O, "Return reference to element's parameter." },
+        { "lock", (PyCFunction)lock, METH_NOARGS, "Disable element event and backup parameters values" },
+        { "unlock", (PyCFunction)unlock, METH_NOARGS, "Enable element event and restore parameters values" },
+        { "matrix", (PyCFunction)matrix, METH_VARARGS, "Return element matrix in the given plane" },
+        { NULL }
+    };
+    
+    static PyGetSetDef getset[] = {
+        GETTER(label, "Element's label"),
+        GETTER(index, "Element's index in schema (1-based) or none if not found"),
+        GETTER(length, "Length parameter (in m) or none if element is not a range"),
+        GETTER(axial_length, "Axial length (in m) or none if element is not a range"),
+        GETTER(optical_path, "Optical path (in m) or none if element is not a range"),
+        GETTER(ior, "Refraction index or none if it's not supported in the element"),
+        GETSET(offset, "Offset inside the element or none if element is not a range"),
+        GETTER(prev, "Previous element respecting round-trip rules for different schema kinds (SW, SP, RR)"),
+        GETTER(next, "Next element respecting round-trip rules for different schema kinds (SW, SP, RR)"),
+        GETTER(disabled, "Whether the element is disabled"),
+        { NULL }
+    };
+    
+    static QByteArray typeName = QString("%1.Element").arg(moduleName).toUtf8();
+    
+    static PyTypeObject type = {
+        .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+        .tp_name = typeName.constData(),
+        .tp_basicsize = sizeof(Self),
+        .tp_itemsize = 0,
+        .tp_dealloc = (destructor)dtor,
+        .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+        .tp_doc = PyDoc_STR("Optical element"),
+        .tp_methods = methods,
+        .tp_getset = getset,
+    };
+
+    return &type;
+}
+
+PyObject* make(::Element *elem)
+{
+    MAKE_OBJECT
+    if (obj) {
+        obj->elem = elem;
+    }
+    return (PyObject*)obj;
+}
+
+} // namespace PyClass::Element 
+
+#endif // PY_CLASS_ELEMENT_H
