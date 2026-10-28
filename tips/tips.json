@@ -1,0 +1,90 @@
+{
+    "online_help": {
+        "text": "如果看不到离线文档，你也可以在线阅读：<a href='http://rezonator.orion-project.org/help/'>rezonator.orion-project.org/help</a>",
+        "image": "online_help.png"
+    },
+    "disable_elem": {
+        "text": "你可以临时<b>禁用一个元件</b>，而不必永久删除它。这样可以快速地用另一个元件替换它再换回来，所有函数和绘图都会自动重新计算。",
+        "image": "disable_elem.png"
+    },
+    "memo": {
+        "text": "<b>备忘窗口</b>是一个富文本编辑器，你可以在其中记录工作笔记、保存一些有用的信息，甚至粘贴图片，所有这些数据都会保存在你的光路图项目文件中。",
+        "image": "memo.png"
+    },
+    "edit_cursor_values": {
+        "text": "你可以通过拖动光标线，或点击光标面板中的 X 或 Y 值并输入<b>精确数值</b>来<b>移动光标</b>。双击可将光标移动到点击位置。",
+        "image": "edit_cursor_values.gif",
+        "see_also": [
+            "toggle_cursor_lines"
+        ]
+    },
+    "toggle_cursor_lines": {
+        "text": "你可以<b>切换光标线</b>，并让光标<b>跟随鼠标</b>，而无需按住任何按钮。双击可将光标移动到点击位置。",
+        "image": "toggle_cursor_lines.gif",
+        "see_also": [
+            "edit_cursor_values"
+        ]
+    },
+    "disable_start_window": {
+        "text": "你可以在应用设置对话框中使用相应选项<b>禁用这个起始窗口</b>。这样，程序启动时将打开带有空光路图的项目窗口。"
+    },
+    "enlarge_tip_preview": {
+        "text": "点击这些小的<b>预览图片</b>可以<b>放大</b>它们。→<br>另外，其中一些是动态图！",
+        "preview": "enlarge_tip_preview.png",
+        "image": "limit_plot_operations_to_axis.gif"
+    },
+    "add_global_param": {
+        "text": "你可以在光路图中创建一个<b>全局参数</b>，它的值可以依赖于其他参数，甚至可以通过公式设定。这些全局参数之后可用于为元件参数提供数值。",
+        "see_also": [
+            "link_elem_param_to_global",
+            "formulas_in_si"
+        ],
+        "image": "add_global_param.gif"
+    },
+    "link_elem_param_to_global": {
+        "text": "你可以将<b>元件参数链接</b>到光路图的全局参数，这样元件参数就取全局值。多个元件可以链接到同一个全局参数，从而彼此关联。",
+        "image": "link_elem_param_to_global.gif",
+        "see_also": [
+            "add_global_param",
+            "formulas_in_si"
+        ]
+    },
+    "active_status_bar": {
+        "text": "你可以通过<b>双击</b>状态栏中的不同项目来执行命令——编辑波长、更改光路图往返类型、设置活动泵浦。",
+        "image": "active_status_bar.gif"
+    },
+    "several_pumps": {
+        "text": "你可以在单程光路图中定义参数不同的<b>多个输入光束</b>，并在它们之间切换。所有结果都会自动重新计算。",
+        "image": "several_pumps.gif"
+    },
+    "drag_scale_plot": {
+        "text": "按住鼠标中键移动鼠标可以<b>平移</b>绘图，用鼠标滚轮可以<b>缩放</b>绘图。",
+        "image": "drag_scale_plot.gif",
+        "see_also": [
+            "limit_plot_operations_to_axis"
+        ]
+    },
+    "limit_plot_operations_to_axis": {
+        "text": "点击绘图的一个坐标轴，可以将绘图的缩放和平移<b>限制</b>在该轴上。",
+        "image": "limit_plot_operations_to_axis.gif",
+        "see_also": [
+            "drag_scale_plot"
+        ]
+    },
+    "tool_gauss_calc": {
+        "text": "你可以使用<b>高斯计算器</b>工具可视化并计算高斯光束的常用参数。",
+        "image": "tool_gauss_calc.gif"
+    },
+    "lensmaker": {
+        "text": "你可以使用<b>透镜设计</b>工具可视化简单的透镜设计，并估计透镜形状和焦点位置。",
+        "image": "tool_lensmaker.png"
+    },
+    "beam_variation_offset": {
+        "text": "在光束尺寸变化函数中，你可以指定元件内部计算光束尺寸的<b>偏移</b>。偏移可以取负值，此时从元件右侧起量。它甚至可以取相对值，并会自动计算！",
+        "image": "beam_variation_offset.png"
+    },
+    "cursor_shows_elem": {
+        "text": "在较长的焦散线绘图中，可能难以区分图形的某一部分对应哪个元件。将<b>光标</b>放在图形的某一部分上，光标面板会显示你正在查看的元件的标签，同时还会显示该元件内的偏移以及从绘图起点起的总偏移。",
+        "image": "cursor_shows_elem.svg"
+    }
+}
