@@ -1,26 +1,26 @@
 .. index:: single: axicon lens
 .. index:: single: lens (axicon)
 
-Axicon Lens
-===========
+轴锥透镜
+========
 
-Axicon lens is a specialized type of lens that has a conical surface; it can be converging or diverging depending on the sign of its angle `θ`.
+轴锥透镜是一种特殊类型的透镜，具有锥形表面；根据其角度 `θ` 的符号，它可以是会聚的或发散的。
 
-The axicon lens has the same matrices for both planes when the beam falls at the normal angle. When incident beam inclined at angle `α`, then matrices for T and S planes differ.
+当光束以法向角度入射时，轴锥透镜在两个平面上的矩阵相同。当入射光束以角度 `α` 倾斜入射时，T 平面和 S 平面的矩阵不同。
 
-Because the ray matrix depends on the radius of the incident beam `r`, this element can be used only effectively in single-pass schemas where a beam radius is known from the beginning. In resonators, it operates as a plane or a point, having a unity matrix. (It's not about the real axicon, it's just a convention of the software.)
+由于光线矩阵取决于入射光束的半径 `r` ，该元件只能有效地用于单程方案，其中光束半径从一开始就是已知的。在谐振腔中，它作为一个平面或一个点起作用，具有单位矩阵。（这与真实的轴锥无关，只是软件的一种约定。）
 
-The axicon lens acts in the same way as :doc:`axicon mirror <ElemAxiconMirror>`, except that you have to specify an index of refraction `n` in addition to the angle.
+轴锥透镜的作用方式与 :doc:`轴锥反射镜 <ElemAxiconMirror>` 相同，只是除了角度之外，你还必须指定折射率 `n` 。
 
     .. image:: ElemAxiconLens.png
 
 .. note::
 
-  In real optical systems, axicons used to turn a Gaussian beam into a non-diffractive `Bessel-like beam <https://en.wikipedia.org/wiki/Bessel_beam>`_. But |rezonator| can't calculate such beams, so the result of calculation of schemas with axicons is only mathematically correct, but hardly can be correlated with real situations.
+  在真实的光学系统中，轴锥用于把高斯光束变成无衍射的 `类贝塞尔光束 <https://en.wikipedia.org/wiki/Bessel_beam>`_。但 |rezonator| 无法计算这样的光束，因此带有轴锥的方案的计算结果只在数学上是正确的，很难与真实情况对应起来。
 
 .. seeAlso::
 
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Axicon in Wikipedia <https://en.wikipedia.org/wiki/Axicon>`_
+    - `维基百科中的轴锥 <https://en.wikipedia.org/wiki/Axicon>`_

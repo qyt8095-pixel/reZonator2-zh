@@ -1,7 +1,7 @@
-Matrix Element
-==============
+矩阵元件
+========
 
-The matrix element is an element whose matrices are set by the user directly.
+矩阵元件是一种由用户直接设置其矩阵的元件。
 
     .. image:: ../../img/elem/ElemMatrix.svg
 

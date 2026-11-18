@@ -134,13 +134,13 @@ void SchemaWriterJson::writeWindows(QJsonObject& root)
             windowsJson.append(windowJson);
             if (!windowReport.isEmpty())
             {
-                _report.info(QString("There are messages while saving window of type '%1'").arg(windowType));
+                _report.info(QString("保存类型为 '%1' 的窗口时有提示信息").arg(windowType));
                 _report.report(windowReport);
             }
         }
         else
         {
-            _report.warning(QString("Unable to save window of type '%1'").arg(windowType));
+            _report.warning(QString("无法保存类型为 '%1' 的窗口").arg(windowType));
             _report.report(windowReport);
         }
     }

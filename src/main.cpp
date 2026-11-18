@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
         else
         {
         #ifdef Q_OS_WIN
-            QMessageBox::critical(nullptr, app.applicationName(), "Unknown tool name: " + toolName);
+            QMessageBox::critical(nullptr, app.applicationName(), "未知工具名：" + toolName);
         #else
             std::cerr << "Unknown tool name: " << qPrintable(toolName) << std::endl;
         #endif

@@ -1,26 +1,26 @@
 .. index:: single: rezonator (Python)
 
-Module: rezonator
-=================
+模块：rezonator
+===============
 
-The ``rezonator`` module (aliased as ``Z`` for brevity) provides global constants, utility functions, and classes for matrix and beam calculations.
+``rezonator`` 模块（简写别名为 ``Z`` ）提供全局常量、实用函数，以及用于矩阵和光束计算的类。
 
-Constants
----------
+常量
+----
 
 .. ###################################################################
 
 .. index:: single: C (Python)
 
 ``Z.C``
-  Speed of light in m/s
+  光速，单位为 m/s
 
 .. ###################################################################
 
 .. index:: single: PI (Python)
 
 ``Z.PI``
-  Pi constant
+  圆周率常量
 
 .. ###################################################################
 
@@ -28,7 +28,7 @@ Constants
 .. _py_const_plane_t:
 
 ``Z.PLANE_T``
-  :ref:`Tangential <working_planes>` plane
+  :ref:`切向 <working_planes>` 平面
 
 .. ###################################################################
 
@@ -36,7 +36,7 @@ Constants
 .. _py_const_plane_s:
 
 ``Z.PLANE_S``
-  :ref:`Sagittal <working_planes>` plane
+  :ref:`弧矢 <working_planes>` 平面
 
 .. ###################################################################
 
@@ -44,7 +44,7 @@ Constants
 .. _py_const_dim_none:
 
 ``Z.DIM_NONE``
-  Dimensionless.
+  无量纲。
 
 .. ###################################################################
 
@@ -52,7 +52,7 @@ Constants
 .. _py_const_dim_linear:
 
 ``Z.DIM_LINEAR``
-  Linear dimension (length)
+  线性量纲（长度）
 
 .. ###################################################################
 
@@ -60,12 +60,12 @@ Constants
 .. _py_const_dim_angular:
 
 ``Z.DIM_ANGULAR``
-  Angular dimension
+  角度量纲
 
 .. ###################################################################
 
-Functions
----------
+函数
+----
 
 .. ###################################################################
 
@@ -75,14 +75,14 @@ Functions
 ``print(*args, spaced=True)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Print messages to the function output window.
+将消息打印到函数输出窗口。
 
-Arguments:
+参数：
 
-- ``*args`` - Values to print (strings, numbers, or objects with ``__repr__``). When an argument is a number, then it is formatted according to :ref:`application settings <app_settings_format_precision>`. To get unformatted output, use the Python's built-in function ``str`` to convert a number into string ignoring application settings.
-- ``spaced`` (bool, optional) - If True (default), separate arguments with spaces
+- ``*args`` - 要打印的值（字符串、数字或具有 ``__repr__`` 的对象）。当参数是数字时，它会根据 :ref:`应用程序设置 <app_settings_format_precision>` 进行格式化。要获得未格式化的输出，请使用 Python 内置函数 ``str`` 将数字转换为字符串，忽略应用程序设置。
+- ``spaced`` (bool, optional) - 如果为 True（默认值），用空格分隔参数
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -98,17 +98,17 @@ Example:
 ``format(value)``
 ~~~~~~~~~~~~~~~~~
 
-Format a numeric value into a user-friendly display string respecting the :ref:`application settings <app_settings_format_precision>`.
+将数值格式化为用户友好的显示字符串，遵循 :ref:`应用程序设置 <app_settings_format_precision>` 。
 
-Arguments:
+参数：
 
-- ``value`` (float) - The numeric value to format
+- ``value`` (float) - 要格式化的数值
 
-Returns:
+返回值：
 
-- str - Formatted string representation
+- str - 格式化后的字符串表示
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -122,7 +122,7 @@ Example:
 ``version()``
 ~~~~~~~~~~~~~
 
-Get the application version string, e.g., "2.1.2".
+获取应用程序版本字符串，例如“2.1.2”。
 
 .. ###################################################################
 
@@ -131,15 +131,15 @@ Get the application version string, e.g., "2.1.2".
 ``exe_dir()``
 ~~~~~~~~~~~~~
 
-Get the application executable directory path.
+获取应用程序可执行文件所在目录的路径。
 
-Returns:
+返回值：
 
-- str - Full path to the directory containing the application executable
+- str - 包含应用程序可执行文件的目录的完整路径
 
-This function is especially useful on Linux (where the path from which an AppImage is started differs from where it's actually running) and macOS (where resources are packed into app bundles). When accessing built-in application resources like example files, using ``getcwd() + "/examples"`` may fail, while ``Z.exe_dir() + "/examples"`` will work correctly.
+该函数在 Linux 上特别有用（从 AppImage 启动的路径与实际运行位置不同）和 macOS 上（资源打包在应用程序包中）。访问内置应用程序资源（如示例文件）时，使用 ``getcwd() + "/examples"`` 可能会失败，而 ``Z.exe_dir() + "/examples"`` 可以正常工作。
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -157,17 +157,17 @@ Example:
 ``plane_str(plane)``
 ~~~~~~~~~~~~~~~~~~~~
 
-Convert :ref:`work plane <work_plane>` constant to string name.
+将 :ref:`工作平面 <work_plane>` 常量转换为字符串名称。
 
-Arguments:
+参数：
 
-- ``plane`` (int) - Plane constant (``Z.PLANE_T`` or ``Z.PLANE_S``)
+- ``plane`` (int) - 平面常量（``Z.PLANE_T`` 或 ``Z.PLANE_S`` ）
 
-Returns:
+返回值：
 
-- str - Plane name ('T' or 'S')
+- str - 平面名称（'T' 或 'S'）
 
-Example:
+示例：
 
 .. code-block:: python
 

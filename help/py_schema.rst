@@ -1,12 +1,12 @@
 .. index:: single: schema (Python API)
 
-Module: schema
-==============
+模块：schema
+============
 
-The ``schema`` module provides functions to access and manipulate the current optical schema.
+``schema`` 模块提供用于访问和操作当前光学方案的函数。
 
-Functions
----------
+函数
+----
 
 .. #######################################################################
 
@@ -16,23 +16,23 @@ Functions
 ``elem(identifier)``
 ~~~~~~~~~~~~~~~~~~~~
 
-Get an element by label or index.
+按标签或索引获取元件。
 
-Arguments:
+参数：
 
-- ``identifier`` - Element label (str) or 1-based index (int). Unlike regular Python lists, elements in schema are indexed starting from 1 to be consistent with how they are numbered in the :doc:`schema_elems`.
+- ``identifier`` - 元件标签（str）或从 1 开始的索引（int）。与常规 Python 列表不同，方案中的元件从 1 开始索引，以与它们在 :doc:`元件列表 <schema_elems>` 中的编号一致。
 
-Returns:
+返回值：
 
-- :doc:`Element <py_element>` - The requested element
+- :doc:`Element <py_element>` - 请求的元件
 
-Raises:
+异常：
 
-- ``KeyError`` - If element with given label is not found
-- ``IndexError`` - If element with given index is not found
-- ``TypeError`` - If identifier is neither string nor integer
+- ``KeyError`` - 如果找不到给定标签的元件
+- ``IndexError`` - 如果找不到给定索引的元件
+- ``TypeError`` - 如果标识符既不是字符串也不是整数
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -51,13 +51,13 @@ Example:
 ``elem_count()``
 ~~~~~~~~~~~~~~~~
 
-Get the total number of elements in the schema.
+获取方案中元件的总数。
 
-Returns:
+返回值：
 
-- int - Number of elements
+- int - 元件数量
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -74,13 +74,13 @@ Example:
 ``wavelength()``
 ~~~~~~~~~~~~~~~~
 
-Get the current :doc:`wavelength <wavelen>`.
+获取当前的 :doc:`波长 <wavelen>` 。
 
-Returns:
+返回值：
 
-- float - Wavelength in meters
+- float - 以米为单位的波长
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -95,17 +95,17 @@ Example:
 ``param(label)``
 ~~~~~~~~~~~~~~~~
 
-Get a :doc:`global parameter <params_window>` value by label.
+按标签获取 :doc:`全局参数 <params_window>` 的值。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
+- ``label`` (str) - 参数标签
 
-Returns:
+返回值：
 
-- float - Parameter value in SI units, or None if not found
+- float - 以 SI 单位表示的参数值，如果未找到则为 None
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -119,19 +119,19 @@ Example:
 ``set_param(label, value)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Set a :doc:`global parameter <params_window>` value by label.
+按标签设置 :doc:`全局参数 <params_window>` 的值。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
-- ``value`` (float) - Parameter value in SI units
+- ``label`` (str) - 参数标签
+- ``value`` (float) - 以 SI 单位表示的参数值
 
-Raises:
+异常：
 
-- ``KeyError`` - If parameter is not found
-- ``ValueError`` - If value is invalid
+- ``KeyError`` - 如果找不到参数
+- ``ValueError`` - 如果值无效
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -147,15 +147,15 @@ Example:
 ``lock_param(label)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Lock element those are directly or indirectly depend on  a :doc:`global parameter <params_window>`.
+锁定直接或间接依赖于 :doc:`全局参数 <params_window>` 的元件。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
+- ``label`` (str) - 参数标签
 
-Raises:
+异常：
 
-- ``KeyError`` - If parameter is not found
+- ``KeyError`` - 如果找不到参数
 
 .. #######################################################################
 
@@ -165,21 +165,21 @@ Raises:
 ``unlock_param(label)``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Unlock elements previously locked by the :ref:`lock_param <py_method_schema_lock_param>` method.
+解锁之前由 :ref:`lock_param <py_method_schema_lock_param>` 方法锁定的元件。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
+- ``label`` (str) - 参数标签
 
-Raises:
+异常：
 
-- ``KeyError`` - If parameter is not found
+- ``KeyError`` - 如果找不到参数
 
 .. note::
 
-  Use ``schema.lock_param()`` and ``schema.unlock_param()`` methods when making temporary parameter changes (e.g., during :doc:`plot function <custom_plot>` calculation) to ensure proper restoration and also to prevent the UI from unnecessary updates. UI updates can significantly slow down the application when happen too often.
+  在进行临时参数更改时（例如，在 :doc:`绘图函数 <custom_plot>` 计算期间），请使用 ``schema.lock_param()`` 和 ``schema.unlock_param()`` 方法，以确保正确恢复，并防止 UI 进行不必要的更新。UI 更新过于频繁时会显著拖慢应用程序。
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -202,17 +202,17 @@ Example:
 ``param_ref(label)``
 ~~~~~~~~~~~~~~~~~~~~
 
-Create a :doc:`ParamRef <py_param_ref>` object for more convenient implementation of the lock-unlock pattern in plotting functions.
+创建 :doc:`ParamRef <py_param_ref>` 对象，以便在绘图函数中更方便地实现锁定-解锁模式。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
+- ``label`` (str) - 参数标签
 
-Raises:
+异常：
 
-- ``KeyError`` - If parameter is not found
+- ``KeyError`` - 如果找不到参数
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -233,13 +233,13 @@ Example:
 ``is_sp()``, ``is_sw()``, ``is_rr()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check the schema :doc:`type <trip_type>`.
+检查方案的 :doc:`类型 <trip_type>` 。
 
-Returns:
+返回值：
 
-- bool - True if schema is of the corresponding type
+- bool - 如果方案是相应类型，则为 True
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -259,24 +259,24 @@ Example:
 ``round_trip(ref=None, plane='T', inside=False)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a :ref:`round-trip <round_trip>` calculator for beam parameters.
+创建用于光束参数的 :ref:`往返 <round_trip>` 计算器。
 
-Arguments:
+参数：
 
-- ``ref`` - Reference element (:doc:`Element <py_element>`, str label, int index, or None for last element)
-- ``plane`` - :ref:`Work plane <work_plane>` ('T', 'S', :ref:`Z.PLANE_T <py_const_plane_t>`, or :ref:`Z.PLANE_S <py_const_plane_s>`)
-- ``inside`` (bool) - If True, :ref:`split range elements <calc_round_trip_subrange>` at reference point
+- ``ref`` - 参考元件（:doc:`Element <py_element>` 、str 标签、int 索引，或 None 表示最后一个元件）
+- ``plane`` - :ref:`工作平面 <work_plane>` （'T'、'S'、:ref:`Z.PLANE_T <py_const_plane_t>` 或 :ref:`Z.PLANE_S <py_const_plane_s>` ）
+- ``inside`` (bool) - 如果为 True，在参考点处 :ref:`拆分有长度的元件 <calc_round_trip_subrange>`
 
-Returns:
+返回值：
 
-- :doc:`RoundTrip <py_round_trip>` - Round trip calculator object
+- :doc:`RoundTrip <py_round_trip>` - 往返计算器对象
 
-Raises:
+异常：
 
-- ``KeyError`` - If reference element is not found
-- ``ValueError`` - If invalid plane name or element reference
+- ``KeyError`` - 如果找不到参考元件
+- ``ValueError`` - 如果平面名称或元件引用无效
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -295,5 +295,5 @@ Example:
 
   - :doc:`py_api`
   - :doc:`py_global`
-  - :ref:`Example - Basic Schema Access <py_example_basic_schema_access>`
-  - :ref:`Example - Basic Element Manipulation <py_example_basic_elem_manipulation>`
+  - :ref:`示例——基本方案访问 <py_example_basic_schema_access>`
+  - :ref:`示例——基本元件操作 <py_example_basic_elem_manipulation>`

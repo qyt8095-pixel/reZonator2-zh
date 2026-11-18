@@ -1,22 +1,22 @@
-Custom Script
-=============
+自定义脚本
+==========
 
-:menuSelection:`Functions --> New Custom Script Window`
+:menuSelection:`函数 --> 新建自定义脚本窗口`
 
-The Custom Script function allows you to perform arbitrary user calculations using the provided :doc:`py_api`. This powerful feature enables you to analyze your optical schema, perform custom computations, and process results according to your specific needs.
+自定义脚本函数让你可以使用提供的 :doc:`py_api` 执行任意用户计算。这一强大的功能让你可以分析光学方案、执行自定义计算，并根据你的具体需求处理结果。
 
-Code Module
------------
+代码模块
+--------
 
-A custom script is a user-defined Python module. The first line of the module docstring will be used as a human-readable function name and displayed in the function window headers. This allows you to give your script a meaningful title.
+自定义脚本是一个用户定义的 Python 模块。模块文档字符串的第一行将用作人类可读的函数名，并显示在函数窗口的标题中。这样你可以给脚本起一个有意义的标题。
 
   .. note::
-    Unlike :doc:`table <custom_table>` or :doc:`plot <custom_plot>` custom functions, where the script code is stored behind the respective view window, for custom script functions the script editor window is the only storage of your code. So if you close the editor window, then the function code *will be lost*.
+    与 :doc:`表格 <custom_table>` 或 :doc:`绘图 <custom_plot>` 自定义函数不同——在那些函数中脚本代码保存在相应的视图窗口之后——对于自定义脚本函数，脚本编辑器窗口是你代码的唯一存储位置。所以如果你关闭编辑器窗口，函数代码 *将会丢失* 。
 
 ``calculate()``
 ~~~~~~~~~~~~~~~
 
-The script must contain a ``calculate`` function, which is automatically called without arguments when you press the :guilabel:`Run` button on the toolbar or use the :menuSelection:`Script --> Run` menu command. This method serves as the entry point for your custom calculations and will be executed each time you run the script.
+脚本必须包含一个 ``calculate`` 函数，当你按下工具栏上的 :guilabel:`运行` 按钮或使用 :menuSelection:`脚本 --> 运行` 菜单命令时，它会被自动无参调用。该方法是你的自定义计算的入口点，每次运行脚本时都会执行。
 
 .. code-block:: python
 
@@ -24,26 +24,26 @@ The script must contain a ``calculate`` function, which is automatically called 
     # Your calculation code here
     pass
 
-Output
-~~~~~~
+输出
+~~~~
 
-All calculations in |rezonator| are performed in SI units (meters, radians, etc.). All parameter values provided to scripts are in SI units as well. For custom scripts that output to the log panel, you should manually format values to more convenient units for better readability. For example, convert meters to millimeters or nanometers when displaying wavelengths or beam sizes.
+|rezonator| 中的所有计算都以 SI 单位（米、弧度等）执行。提供给脚本的所有参数值也都是 SI 单位。对于输出到日志面板的自定义脚本，你应该手动把值格式化为更方便的单位以提高可读性。例如，显示波长或光束尺寸时把米换算成毫米或纳米。
 
-Custom code outputs results in text form to the log panel located in the bottom part of the script window. This is useful for displaying calculation results, debugging information, or status messages. To see output in the log panel, use the :ref:`rezonator.print() <py_module_z_print>` helper function rather than Python's built-in ``print()`` function. To clear the log panel, use :menuSelection:`Script --> Clear Log`.
+自定义代码以文本形式把结果输出到脚本窗口底部区域的日志面板。这对显示计算结果、调试信息或状态消息很有用。要在日志面板中看到输出，请使用 :ref:`rezonator.print() <py_module_z_print>` 辅助函数，而不是 Python 内置的 ``print()`` 函数。要清除日志面板，请使用 :menuSelection:`脚本 --> 清除日志` 。
 
-For different kinds of output, consider using :doc:`custom_table` for tabular data presentation or :doc:`custom_plot` for graphical visualization of results.
+对于不同种类的输出，可以考虑使用 :doc:`custom_table` 进行表格数据呈现，或使用 :doc:`custom_plot` 进行结果的图形化可视化。
 
-Custom Library
---------------
+自定义代码库
+------------
 
-You can save your code for later usage into a :ref:`custom code library <custom_func_lib>` using the :menuSelection:`Script --> Save to Custom Library` menu command. This allows you to build a collection of reusable calculation scripts for common tasks.
+你可以使用 :menuSelection:`脚本 --> 保存到自定义库` 菜单命令把代码保存到 :ref:`自定义代码库 <custom_func_lib>` 以备后用。这样你可以建立一个可复用计算脚本的集合，用于常见任务。
 
-Custom Parameters
------------------
+自定义参数
+----------
 
-:ref:`Custom parameters <custom_params>` are arbitrary parameters that you can add to any element in addition to its predefined parameters. They are especially useful for custom scripts because they allow you to calculate or track properties that are not covered by the element's default parameters.
+:ref:`自定义参数 <custom_params>` 是你可以为任何元件添加的任意参数，作为其预定义参数的补充。它们对自定义脚本尤其有用，因为它们让你可以计算或跟踪元件默认参数未涵盖的属性。
 
-You can add custom parameters to elements through the :doc:`elem_props` dialog and then access and manipulate them in your custom scripts using the :ref:`Element.param()<py_method_elem_param>` method. This provides flexibility to extend elements with project-specific data or intermediate calculation results.
+你可以通过 :doc:`elem_props` 对话框为元件添加自定义参数，然后在自定义脚本中使用 :ref:`Element.param()<py_method_elem_param>` 方法访问和操作它们。这为扩展元件以容纳项目特定数据或中间计算结果提供了灵活性。
 
 .. seeAlso::
 
@@ -51,4 +51,4 @@ You can add custom parameters to elements through the :doc:`elem_props` dialog a
   - :doc:`custom_funcs`
   - :doc:`custom_table`
   - :doc:`custom_plot`
-  - :ref:`Example - Basic Ray Tracing<py_example_basic_ray_tracing>`
+  - :ref:`示例 - 基本光线追迹<py_example_basic_ray_tracing>`

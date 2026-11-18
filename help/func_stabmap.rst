@@ -1,81 +1,81 @@
 .. index:: single: stability map (function)
 
-Stability Map
-=============
+稳定性图
+========
 
-:menuSelection:`Functions --> Stability Map`
+:menuSelection:`函数 --> 稳定性图`
 
-The function plots the stability parameter of the schema as a function of a single variable, P(X), where X is the parameter value of one of the schema elements.
+该函数将光路图的稳定性参数绘制为单个变量的函数 P(X)，其中 X 是某个光路图元件的参数值。
 
-The function works only on :ref:`resonators <trip_type>` because the idea of stability is not applicable to single-pass systems.
+该函数仅适用于 :ref:`谐振腔 <trip_type>` ，因为稳定性的概念不适用于单程系统。
 
-Parameters
-----------
+参数
+----
 
   .. image:: img/func_stabmap_params.png
 
-Element, Parameter
-~~~~~~~~~~~~~~~~~~
+元件、参数
+~~~~~~~~~~
 
-An element and its parameter or a :ref:`global parameter <params_window>` to vary. The value of this parameter will be marked along the horizontal axis of the stability map plot.
+要变化的元件及其参数，或 :ref:`全局参数 <params_window>` 。该参数的值将标注在稳定性图绘图的横轴上。
 
-Variation
-~~~~~~~~~
+变化范围
+~~~~~~~~
 
-The fields allow specifying starting and ending values of the selected parameter (plot range) and a number of points in resulting graphs. The points number can be input directly in the “Number of points” field. Instead, it is possible to specify a distance between points (plotting step) in the field “With step”.
+这些字段用于指定所选参数的起始值和结束值（绘图范围）以及结果图形中的点数。点数可以直接在“点数”字段中输入。也可以在“步长”字段中指定点之间的距离（绘图步长）。
 
 
-Additional Parameters
----------------------
+附加参数
+--------
 
-:menuSelection:`View --> Function Params`
+:menuSelection:`视图 --> 函数参数`
 
   .. image:: img/func_stabmap_stab_param.png
 
-The tab defines a method of stability parameter calculation.
+该选项卡定义稳定性参数的计算方法。
 
 - `P = (A + D) / 2`
 
 - `P = 1 — ((A + D) / 2)²`
 
-Where A and D are system :ref:`round-trip matrix <round_trip>` components. In the first case, the system is stable when the parameter value is in the range from -1 to 1. In the second case, the system is stable when the parameter value is in the range from 0 to 1. Use the :menuSelection:`Limits --> Y-Axis -> Stability Range` menu command or the respective button on the function's window toolbar to visually fit the plot into these ranges.
+其中 A 和 D 是系统 :ref:`往返矩阵 <round_trip>` 的分量。在第一种情况下，当参数值在 -1 到 1 的范围内时，系统是稳定的。在第二种情况下，当参数值在 0 到 1 的范围内时，系统是稳定的。使用 :menuSelection:`范围 --> Y 轴 -> 稳定范围` 菜单命令，或函数窗口工具栏上的相应按钮，可以直观地将绘图适配到这些范围。
 
-Special Points
---------------
+特殊点
+------
 
-:menuSelection:`View --> Special Points`
+:menuSelection:`视图 --> 特殊点`
 
   .. image:: img/func_stabmap_spec_points.png
 
-Special points of the function are stability boundaries. These are such threshold magnitudes of the variable parameter, at which the schema is still stay stable. At these thresholds, the stability parameter takes values (-1 and 1) or (0 and 1) depending on the calculation mode (see above). If the schema has several stability intervals (see the "v_empty" example), then all of them are shown in the tab as *N-beg* - *N-end*.
+该函数的特殊点是稳定性边界。这些是可变参数的阈值大小，在这些阈值处光路图仍然保持稳定。在这些阈值处，稳定性参数取值为（-1 和 1）或（0 和 1），取决于计算模式（见上文）。如果光路图有多个稳定区间（见 “v_empty” 示例），则它们在选项卡中全部显示为 *N-beg* - *N-end* 。
 
-Values are displayed in the units of measurements of the plot's X-axis. When those are changed, the special points are recalculated.
+值以绘图 X 轴的计量单位显示。更改这些单位时，特殊点会重新计算。
 
-Additional Commands of Plot Window
-----------------------------------
+绘图窗口的附加命令
+------------------
 
 .. _func_stabmap_stab_lines:
 
-Toggle Stability Boundary Markers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+切换稳定性边界标记
+~~~~~~~~~~~~~~~~~~
 
-:menuSelection:`View --> Stability Boundary Markers`
+:menuSelection:`视图 --> 稳定性边界标记`
 
-The command toggles the visibility of stability boundary markers on the plot. They are two horizontal lines at levels (-1 and 1) or (0 and 1), depending on the mode of the stability parameter calculation (see above). The values of the variable parameter at which graphs lie between the boundary lines determine the stability interval.
+该命令切换绘图上稳定性边界标记的可见性。它们是位于（-1 和 1）或（0 和 1）水平的两条水平线，取决于稳定性参数的计算模式（见上文）。图形位于边界线之间的可变参数值决定了稳定区间。
 
-Stability Boundary Markers Format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+稳定性边界标记格式
+~~~~~~~~~~~~~~~~~~
 
-:menuSelection:`Format --> Stability Boundary Markers Format...`
+:menuSelection:`格式 --> 稳定性边界标记格式...`
 
-The command changes the appearance of stability boundary markers for the current function window. A default appearance which is applied to all newly opened function windows, is controlled via :ref:`application settings <app_settings_lines>`.
+该命令更改当前函数窗口中稳定性边界标记的外观。应用于所有新打开的函数窗口的默认外观，通过 :ref:`应用设置 <app_settings_lines>` 控制。
 
-Fit Y-Axis to Stability Range
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+将 Y 轴适配到稳定范围
+~~~~~~~~~~~~~~~~~~~~~
 
-:menuSelection:`Limits --> Y-Axis -> Stability Range`
+:menuSelection:`范围 --> Y 轴 -> 稳定范围`
 
-The command adjusts vertical axis limits so that they correspond to stability marker lines positions.
+该命令调整纵轴范围，使其与稳定性标记线的位置相对应。
 
 .. seeAlso::
 

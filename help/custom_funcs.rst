@@ -1,161 +1,161 @@
 .. _custom_funcs:
 
-Custom Functions
-================
+自定义函数
+==========
 
-Custom functions provide a powerful way to extend |rezonator|'s capabilities by writing your own Python code to analyze optical schemas, perform specialized calculations, and visualize results in ways that suit your specific needs.
+自定义函数提供了一种强大的方式来扩展 |rezonator| 的功能：你可以编写自己的 Python 代码来分析光学方案、执行专门的计算，并以适合你具体需求的方式可视化结果。
 
-There are three types of custom functions, each designed for different output formats:
+自定义函数有三种类型，每种针对不同的输出格式：
 
-- :doc:`Custom Script <custom_script>` - For general-purpose calculations with text output to a log panel
-- :doc:`Custom Table <custom_table>` - For calculations presented in structured tabular format
-- :doc:`Custom Plot <custom_plot>` - For calculations visualized as graphs and plots
+- :doc:`自定义脚本 <custom_script>` - 用于通用计算，结果以文本形式输出到日志面板
+- :doc:`自定义表格 <custom_table>` - 用于以结构化表格形式呈现的计算
+- :doc:`自定义绘图 <custom_plot>` - 用于以图形和绘图形式可视化的计算
 
-All custom functions use the same :doc:`Python API <py_api>` to interact with your optical schema, access element properties, and perform calculations.
+所有自定义函数都使用同一个 :doc:`Python API <py_api>` 与你的光学方案交互、访问元件属性并执行计算。
 
-Overview of Custom Function Types
-----------------------------------
+自定义函数类型概览
+------------------
 
-Custom Script
-~~~~~~~~~~~~~
+自定义脚本
+~~~~~~~~~~
 
-:menuselection:`Functions --> New Custom Script Window`
+:menuselection:`函数 --> 新建自定义脚本窗口`
 
-The :doc:`custom_script` function is the simplest form of custom function, designed for arbitrary calculations with text-based output. It's ideal for:
+:doc:`custom_script` 函数是最简单的自定义函数形式，用于任意计算并以文本形式输出结果。它适用于：
 
-- Quick calculations and debugging
-- Generating custom reports
-- Performing one-off analyses
-- Prototyping more complex functions
+- 快速计算和调试
+- 生成自定义报告
+- 执行一次性分析
+- 为更复杂的函数制作原型
 
-Results are displayed in a log panel at the bottom of the script window using the :ref:`rezonator.print() <py_module_z_print>` function.
-
-  .. .. note::
-  ..   Script code is stored only in the editor window and will be lost when the window is closed. Save your scripts to the :ref:`custom code library <custom_func_lib>` for reuse.
-
-Custom Table
-~~~~~~~~~~~~
-
-:menuselection:`Functions --> Create Custom Table Function`
-
-The :doc:`custom_table` function presents calculation results in a structured :doc:`table format <table_window>`. It's ideal for:
-
-- Comparing properties across multiple elements
-- Calculating values at different positions along the optical path
-- Displaying results with automatic unit conversion
-- Presenting data that benefits from tabular organization
-
-The function automatically calls your code for each element and position, building a comprehensive table of results.
+结果使用 :ref:`rezonator.print() <py_module_z_print>` 函数显示在脚本窗口底部的日志面板中。
 
   .. .. note::
-  ..   Table code is stored in the table window and persists when you close the code editor. The function is lost only when you close the table window itself.
+  ..   脚本代码只保存在编辑器窗口中，关闭窗口后会丢失。请把脚本保存到 :ref:`自定义代码库 <custom_func_lib>` 以便复用。
 
-Custom Plot
-~~~~~~~~~~~
+自定义表格
+~~~~~~~~~~
 
-:menuselection:`Functions --> Create Custom Plot Function`
+:menuselection:`函数 --> 创建自定义表格函数`
 
-The :doc:`custom_plot` function visualizes calculation results as graphs in a :doc:`plot window <plot_window>`. It's ideal for:
+:doc:`custom_table` 函数以结构化的 :doc:`表格形式 <table_window>` 呈现计算结果。它适用于：
 
-- Visualizing dependencies and trends
-- Parameter sweep analyses
-- Beam propagation visualization
-- Stability diagrams and other graphical analyses
+- 比较多个元件的属性
+- 计算沿光路不同位置的值
+- 显示带有自动单位换算的结果
+- 呈现适合用表格组织的数据
 
-The function generates data points that are automatically plotted with full support for multiple graph lines, unit conversion, and interactive plot controls.
+该函数会为每个元件和位置自动调用你的代码，生成一份完整的结果表格。
 
   .. .. note::
-  ..   Plot code is stored in the plot window and persists when you close the code editor. The function is lost only when you close the plot window itself.
+  ..   表格代码保存在表格窗口中，关闭代码编辑器后仍然保留。只有关闭表格窗口本身时，函数才会丢失。
 
-Common Features
----------------
+自定义绘图
+~~~~~~~~~~
 
-All custom function types share several common capabilities:
+:menuselection:`函数 --> 创建自定义绘图函数`
 
-Python API Access
-~~~~~~~~~~~~~~~~~
+:doc:`custom_plot` 函数把计算结果可视化为 :doc:`绘图窗口 <plot_window>` 中的图形。它适用于：
 
-All custom functions use the same comprehensive :doc:`py_api` which provides:
+- 可视化依赖关系和趋势
+- 参数扫描分析
+- 光束传播可视化
+- 稳定性图及其他图形分析
 
-- Access to schema elements via :doc:`Element <py_element>` objects
-- Round-trip calculations via :doc:`RoundTrip <py_round_trip>` objects
-- Matrix operations via :doc:`Matrix <py_matrix>` and :doc:`Matrix3 <py_matrix3>` objects
-- Schema-level access via :doc:`Schema <py_schema>` object
-- Utility functions in the global :doc:`rezonator module <py_global>`
+该函数生成的数据点会自动绘制成图形，完整支持多条曲线、单位换算和交互式绘图控件。
 
-Custom Parameters
-~~~~~~~~~~~~~~~~~
+  .. .. note::
+  ..   绘图代码保存在绘图窗口中，关闭代码编辑器后仍然保留。只有关闭绘图窗口本身时，函数才会丢失。
 
-:ref:`Custom parameters <custom_params>` allow you to extend any element with additional user-defined parameters beyond its built-in parameters. This is especially useful for custom functions because you can:
+通用功能
+--------
 
-- Store intermediate calculation results
-- Track properties specific to your analysis
-- Add element-specific configuration data
-- Create parameters for properties not covered by default
+所有自定义函数类型都共享以下几种通用功能：
 
-Custom parameters are added through the :ref:`Element Properties dialog <elem_props>` and accessed in your code using the :ref:`Element.param() <py_method_elem_param>` method.
+Python API 访问
+~~~~~~~~~~~~~~~
 
-Code Library
-~~~~~~~~~~~~
+所有自定义函数都使用同一个全面的 :doc:`py_api` ，它提供：
 
-All custom functions can be saved to a :ref:`custom code library <custom_func_lib>` using :menuselection:`Script --> Save to Custom Library`. This allows you to:
+- 通过 :doc:`元件 <py_element>` 对象访问方案元件
+- 通过 :doc:`往返 <py_round_trip>` 对象进行往返计算
+- 通过 :doc:`矩阵 <py_matrix>` 和 :doc:`矩阵 3 <py_matrix3>` 对象进行矩阵运算
+- 通过 :doc:`方案 <py_schema>` 对象访问方案级别的数据
+- 全局 :doc:`rezonator 模块 <py_global>` 中的工具函数
 
-- Build a collection of reusable calculation scripts
-- Share analysis code across different schemas
-- Maintain a library of common calculations
-- Quickly create new functions from templates
+自定义参数
+~~~~~~~~~~
 
-The library stores both the code and metadata (function name, description, creation date) for easy organization and retrieval.
+:ref:`自定义参数 <custom_params>` 让你可以为任何元件扩展用户自定义参数，超出其内置参数的范围。这对自定义函数尤其有用，因为你可以：
 
-SI Units
-~~~~~~~~
+- 存储中间计算结果
+- 跟踪特定于你的分析的属性
+- 添加特定于元件的配置数据
+- 为默认参数未涵盖的属性创建参数
 
-All calculations in |rezonator| use SI units internally (meters, radians, etc.):
+自定义参数通过 :ref:`元件属性对话框 <elem_props>` 添加，并在代码中使用 :ref:`Element.param() <py_method_elem_param>` 方法访问。
 
-- Parameter values are always provided in SI units
-- For **custom scripts**: You should manually format output for readability (e.g., convert meters to millimeters)
-- For **custom tables and plots**: Return values in SI units; the UI automatically handles unit conversion based on dimension types
+代码库
+~~~~~~
 
-Choosing the Right Function Type
----------------------------------
+所有自定义函数都可以使用 :menuselection:`脚本 --> 保存到自定义库` 保存到 :ref:`自定义代码库 <custom_func_lib>` 。这样你可以：
 
-Consider the following when selecting a custom function type:
+- 建立可复用计算脚本的集合
+- 在不同方案之间共享分析代码
+- 维护常用计算的库
+- 从模板快速创建新函数
 
-Use **Custom Script** when you need:
-  - Simple text-based output
-  - Quick calculations or debugging
-  - Custom reports or summaries
-  - Maximum flexibility without a predefined output format
+代码库同时保存代码和元数据（函数名、描述、创建日期），便于组织和检索。
 
-Use **Custom Table** when you need:
-  - Structured presentation of multiple values
-  - Comparison across elements or positions
-  - Automatic unit conversion in the UI
-  - Organized tabular data display
+SI 单位
+~~~~~~~
 
-Use **Custom Plot** when you need:
-  - Graphical visualization of results
-  - Trend analysis or parameter sweeps
-  - Interactive plots with zoom and pan
-  - Multiple graph lines on the same axes
+|rezonator| 中的所有计算内部都使用 SI 单位（米、弧度等）：
 
-Getting Started
----------------
+- 参数值始终以 SI 单位提供
+- 对于 **自定义脚本** ：你应该手动格式化输出以提高可读性（例如把米换算成毫米）
+- 对于 **自定义表格和绘图** ：返回 SI 单位的值即可；界面会根据量纲类型自动处理单位换算
 
-1. **Learn the Python API**: Review the :doc:`py_api` documentation to understand available objects and methods
+选择合适的函数类型
+------------------
 
-2. **Study Examples**: Open example projects via :menuselection:`File --> Open Example`:
+选择自定义函数类型时，请考虑以下几点：
 
-  - ``custom_func_simple.rez`` - Generic coding examples
-  - ``custom_func_aper_ratio.rez`` - Simplest custom table example
-  - ``custom_plot.rez`` - Simplest custom plot example
-  - ``misalign.rez`` - Combined custom table and plot example
+在以下情况下使用 **自定义脚本** ：
+  - 需要简单的文本输出
+  - 快速计算或调试
+  - 自定义报告或摘要
+  - 需要最大的灵活性且没有预定义的输出格式
 
-3. **Start Simple**: Begin with a :doc:`custom_script` to understand the API, then progress to tables and plots
+在以下情况下使用 **自定义表格** ：
+  - 需要结构化呈现多个值
+  - 比较不同元件或位置的值
+  - 需要界面中的自动单位换算
+  - 需要有组织的表格数据展示
 
-4. **Use Custom Parameters**: Extend elements with :ref:`custom parameters <custom_params>` when you need to store additional data
+在以下情况下使用 **自定义绘图** ：
+  - 需要图形化可视化结果
+  - 趋势分析或参数扫描
+  - 带有缩放和平移的交互式绘图
+  - 同一坐标轴上的多条曲线
 
-5. **Build Your Library**: Save successful functions to the :ref:`custom code library <custom_func_lib>` for reuse
+入门
+----
+
+1. **学习 Python API** ：阅读 :doc:`py_api` 文档，了解可用的对象和方法
+
+2. **学习示例** ：通过 :menuselection:`文件 --> 打开示例` 打开示例项目：
+
+  - ``custom_func_simple.rez`` - 通用编码示例
+  - ``custom_func_aper_ratio.rez`` - 最简单的自定义表格示例
+  - ``custom_plot.rez`` - 最简单的自定义绘图示例
+  - ``misalign.rez`` - 自定义表格和绘图组合示例
+
+3. **从简单开始** ：先从 :doc:`custom_script` 入手了解 API，然后再进阶到表格和绘图
+
+4. **使用自定义参数** ：当你需要存储额外数据时，用 :ref:`自定义参数 <custom_params>` 扩展元件
+
+5. **建立你的代码库** ：把成功的函数保存到 :ref:`自定义代码库 <custom_func_lib>` 以便复用
 
 .. seeAlso::
 

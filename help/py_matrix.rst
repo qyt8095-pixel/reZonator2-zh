@@ -1,30 +1,30 @@
 .. index:: single: Matrix (Python)
 
-Class: Matrix
-=============
+类：Matrix
+==========
 
-2×2 ABCD ray transfer matrix for paraxial optics.
+用于近轴光学的 2×2 ABCD 光线传输矩阵。
 
-Constructor
------------
+构造函数
+--------
 
-Arguments:
+参数：
 
-- ``A``, ``B``, ``C``, ``D`` (float or complex, optional) - Matrix elements
+- ``A`` 、``B`` 、``C`` 、``D`` (float or complex, optional) - 矩阵元素
 
-Example:
+示例：
 
 .. code-block:: python
 
     Matrix(A=1, B=0, C=0, D=1)
 
-Properties
-----------
+属性
+----
 
-``A``, ``B``, ``C``, ``D`` (float or complex, read/write)
-    Matrix elements
+``A`` 、``B`` 、``C`` 、``D`` (float or complex, 可读/写)
+    矩阵元素
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -34,10 +34,10 @@ Example:
     Z.print(m.C)  # C = 3
     Z.print(m.D)  # D = 4
 
-Indexing
---------
+索引
+----
 
-Matrix elements can be accessed by index (0-3):
+矩阵元素可以通过索引（0–3）访问：
 
 .. code-block:: python
 
@@ -47,20 +47,20 @@ Matrix elements can be accessed by index (0-3):
     Z.print(m[2])  # C = 3
     Z.print(m[3])  # D = 4
 
-Indexing also allows for unpacking a matrix object into separate variables:
+索引还允许将矩阵对象解包为单独的变量：
 
 .. code-block:: python
 
     m = Z.Matrix(1, 2, 3, 4)
     A, B, C, D = m
 
-Operations
-----------
+运算
+----
 
-Multiplication
-~~~~~~~~~~~~~~
+乘法
+~~~~
 
-Matrices can be multiplied with other matrices or :ref:`ray vectors <py_ray_vector>`:
+矩阵可以与其他矩阵或 :ref:`光线矢量 <py_ray_vector>` 相乘：
 
 .. code-block:: python
 
@@ -77,8 +77,8 @@ Matrices can be multiplied with other matrices or :ref:`ray vectors <py_ray_vect
     v_in = Z.RayVector(0.001, 0.01)
     v_out = m1 * v_in
 
-Example
--------
+示例
+----
 
 .. code-block:: python
 
@@ -99,4 +99,4 @@ Example
     - :doc:`py_api`
     - :doc:`py_matrix3`
     - :doc:`py_ray_vector`
-    - :ref:`Example - Basic Ray Tracing <py_example_basic_ray_tracing>`
+    - :ref:`示例——基本光线追迹 <py_example_basic_ray_tracing>`

@@ -2,12 +2,12 @@
 .. index:: single: space
 .. index:: single: empty space
 
-Empty Space
-===========
+自由空间
+========
 
-The empty space element is a distance between two reference planes in the air (`n` = 1).
+自由空间元件是空气中两个参考面之间的距离（`n` = 1）。
 
-Matrices for tangential and sagittal planes are the same.
+子午面和弧矢面的矩阵相同。
 
     .. image:: ElemEmptyRange.png
 

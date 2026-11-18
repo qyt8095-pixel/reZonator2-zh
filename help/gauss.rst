@@ -1,20 +1,20 @@
 .. index:: single: gaussian beam
 
-Gaussian Beam
-=============
+高斯光束
+========
 
 .. |z0| replace:: `z`\ :sub:`0`
 
-The Gaussian beam is the model for a beam of coherent emission having diffraction spreading. The energy of the beam concentrates close to its axis (the paraxial beam) and quickly falls off in a transverse direction. Radial decay of the beam intensity is properly characterized by the Gaussian function. Such a beam is the most accurate diffraction approximation for a single light ray.
+高斯光束是具有衍射发散的相干辐射光束的模型。光束的能量集中在轴附近（近轴光束），并沿横向迅速衰减。光束强度的径向衰减由高斯函数很好地描述。这种光束是单根光线最精确的衍射近似。
 
-Radial Intensity Variation
---------------------------
+径向强度变化
+------------
 
-Variation of the beam intensity with radial distance:
+光束强度随径向距离的变化：
 
     .. image:: img/gauss_intensity.png
     
-About 86.5% of the total beam's energy concentrates in the paraxial region:
+光束总能量的约 86.5% 集中在近轴区域：
 
     .. image:: img/gauss_energy.png
   
@@ -23,10 +23,10 @@ About 86.5% of the total beam's energy concentrates in the paraxial region:
 .. index:: single: full width at half-maximum
 .. index:: single: FWHM
     
-Intensity
----------
+强度
+----
 
-The intensity of the Gaussian beam falls twice at a distance of about 0.6 of spot size:
+高斯光束的强度在约为 0.6 倍光斑尺寸的距离处下降一半：
 
     .. image:: img/gauss_fwhm.png
     
@@ -44,10 +44,10 @@ The intensity of the Gaussian beam falls twice at a distance of about 0.6 of spo
 .. index:: single: radius of gaussian beam
 .. index:: single: spot size of gaussian beam
 
-Radius (Spot Size)
-------------------
+半径（光斑尺寸）
+----------------
 
-Variation of the beam radius along the beam propagation axis:
+光束半径沿光束传播轴的变化：
 
     .. image:: img/gauss_size_z.png
     
@@ -56,10 +56,10 @@ Variation of the beam radius along the beam propagation axis:
 .. index:: single: curvature of wavefront of gaussian beam
 .. index:: single: radius of wavefront curvature of gaussian beam
 
-Radius of Wavefront Curvature
------------------------------
+波前曲率半径
+------------
 
-Variation of the radius of wavefront curvature along the beam propagation axis:
+波前曲率半径沿光束传播轴的变化：
 
     .. image:: img/gauss_front_z.png
     
@@ -69,10 +69,10 @@ Variation of the radius of wavefront curvature along the beam propagation axis:
 .. index:: single: far-field zone
 .. index:: single: near-field zone
 
-Rayleigh Distance
------------------
+瑞利距离
+--------
 
-The Rayleigh distance is the distance at which the radius of wavefront curvature is minimal (therefore curvature is maximal) and the spot area is twice greater than the waist area. Distances `z` > |z0| are called the **far-field zone**. Distances `z` < |z0| are called the **near-field zone**.
+瑞利距离是指波前曲率半径最小（因此曲率最大）且光斑面积为束腰面积两倍处的距离。`z` > |z0| 的距离称为 **远场区** 。`z` < |z0| 的距离称为 **近场区** 。
 
     .. image:: img/gauss_z0.png
 
@@ -84,10 +84,10 @@ The Rayleigh distance is the distance at which the radius of wavefront curvature
 .. index:: single: divergence of gaussian beam
 .. index:: single: angle of gaussian beam
  
-Angular Spread
---------------
+角发散
+------
  
-Angular spread of the Gaussian beam is given by the asymptotic angle of divergence in the far-field zone. The plus-minus sign means the formula gives only half of full angle of a beam.
+高斯光束的角发散由远场区的渐近发散角给出。正负号表示该公式只给出光束全角的一半。
 
     .. image:: img/gauss_vs.png
     
@@ -104,14 +104,14 @@ Angular spread of the Gaussian beam is given by the asymptotic angle of divergen
 .. _gauss_complex_param:
 .. index:: single: complex radius of curvature
     
-Complex Radius of Curvature
----------------------------
+复曲率半径
+----------
 
-The complex radius of curvature `q(z)` is related to the beam radius `w(z)` and the radius of curvature `R(z)` by the definition:
+复曲率半径 `q(z)` 由定义与光束半径 `w(z)` 和曲率半径 `R(z)` 相关：
 
     .. image:: img/gauss_q.png
     
-The beam radius and the radius of curvature can be expressed from the complex radius of curvature: 
+光束半径和曲率半径可以由复曲率半径表示：
 
     .. image:: img/gauss_q_r_w.png
     
@@ -119,4 +119,3 @@ The beam radius and the radius of curvature can be expressed from the complex ra
 .. seealso::
 
     :doc:`matrix_optics`, :doc:`hyper_gauss`
-

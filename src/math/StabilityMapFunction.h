@@ -10,7 +10,7 @@ public:
     enum SpecPointParam { spUnitX };
 
     FUNC_ALIAS("StabMap")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "Stability Map"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "稳定性图"))
     FUNC_ICON(":/toolbar/func_stab_map")
     FUNC_HELP(help_topic())
     static QString help_topic() { return "func_stabmap.html"; }

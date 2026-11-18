@@ -24,7 +24,7 @@ CustomPlotFunction::CustomPlotFunction(Schema *schema) : PlotFunctionV2(schema)
 QString CustomPlotFunction::name() const
 {
     if (_customTitle.isEmpty())
-        return QT_TRANSLATE_NOOP("Function Name", "Custom Plot");
+        return QT_TRANSLATE_NOOP("Function Name", "自定义绘图函数");
     return _customTitle;
 }
 
@@ -113,7 +113,7 @@ void CustomPlotFunction::calculateInternal()
         auto x = line[RES_X].value<QVector<double>>();
         auto y = line[RES_Y].value<QVector<double>>();
         if (x.size() != y.size()) {
-            showError("Lengths of X and Y arrays do not match");
+            showError("X 与 Y 数组的长度不一致");
             return;
         }
         int cnt = x.size();

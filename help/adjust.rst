@@ -1,59 +1,59 @@
 .. _adjust:
 .. index:: single: adjustment
 
-Adjustment
-==========
+调节
+====
 
-:menuSelection:`Utils --> Adjustment`
+:menuSelection:`工具 --> 调节`
 
-:menuSelection:`Element context menu --> Add Adjuster --> [Parameter name]`
+:menuSelection:`元件上下文菜单 --> 添加调节器 --> [参数名称]`
 
-The adjustment tool allows for observation of the influence of some parameter value on schema operation and for selection of its optimal value. The overall approach is you define one or several adjusters for different parameters, then you click the control buttons Plus/Minus/Multiply/Divide to slightly vary the adjusted parameter, and you look at how the function plots and tables change. This should resemble as if you were slightly shifting different verniers and handles in your system and observing how this affects indications of various probes.
+调节工具可用于观察某个参数值对光路图运行的影响，并为其选择最优值。总体做法是：你为不同参数定义一个或多个调节器，然后点击控制按钮加/减/乘/除，轻微改变被调参数，并观察函数绘图和表格如何变化。这就像在系统中轻微移动不同的游标和手柄，并观察它如何影响各种探针的读数。
 
-A window displays a list of user-defined *adjusters*. Adjuster contains a reference to an element parameter or to a :ref:`global schema parameter <params_window>` (called "adjusted parameter", a parameter under adjustment) and :ref:`adjustment settings<adjust_settings>` defining how severely the adjusted parameter value changed by each adjusting iteration.
+窗口显示用户定义的 *调节器* 列表。调节器包含对某个元件参数或 :ref:`全局光路图参数 <params_window>` （称为“被调参数”，即正在调节的参数）的引用，以及 :ref:`调节设置<adjust_settings>` ，它定义每次调节迭代时被调参数值的变化幅度。
 
   .. image:: img/adjust.png
 
 .. _adjust_add:
 
-Create Adjuster
----------------
+创建调节器
+----------
 
-When you open the Adjustment window for the first time it will be empty; you have to click the :GUIPart:`Add Adjuster` button to create the first adjuster. A dialog appears where it's possible to choose an element and its parameter or a global schema parameter to make an adjuster for. 
+当你首次打开调节窗口时，它是空的；你必须点击 :GUIPart:`添加调节器` 按钮来创建第一个调节器。随后出现一个对话框，可在其中选择一个元件及其参数，或一个全局光路图参数来创建调节器。
 
-Parameters whose values are drawn in italic font are read-only because they are not directly editable and their values are calculated somehow (e.g., linked to a global schema parameter or driven by formula). It's possible to add adjusters to such parameters too; they will not be editable but will reflect changes of underlying value. To really change the parameter, you need to create an adjuster for its dependencies instead; they are listed after the parameter name. For example, in the picture below, parameter :param:`F1.F` is shown as `F = F0 = 10cm`, and this means it really takes value from the global parameter :param:`F0`, so you have to adjust that instead of :param:`F1.F`. Similarly, global parameter :param:`dL` is shown as `dL = f(F0) = 5mm`, and this means it depends on the the global parameter :param:`F0` too, so you again have to adjust that to get changes in :param:`dL`.
+以斜体显示值的参数是只读的，因为它们不能直接编辑，其值是以某种方式计算得出的（例如链接到全局光路图参数，或由公式驱动）。也可以为这类参数添加调节器；它们不可编辑，但会反映底层值的变化。要真正改变该参数，需要改为为其依赖项创建调节器；依赖项列在参数名之后。例如，在下图中，参数 :param:`F1.F` 显示为 `F = F0 = 10cm` ，这意味着它实际上取自全局参数 :param:`F0` 的值，因此你必须调节后者，而不是 :param:`F1.F` 。同样，全局参数 :param:`dL` 显示为 `dL = f(F0) = 5mm` ，这意味着它同样依赖于全局参数 :param:`F0` ，因此你也必须调节后者才能使 :param:`dL` 发生变化。
 
   .. image:: img/adjust_add.png
 
-A convenient way to add a new adjuster is to use the element :ref:`context menu <elem_opers_add_adjuster>`; then it is possible to quickly select an element and parameter to adjust, and the Adjustment window will be opened with an adjuster for this parameter automatically created. If there was already an open window then a new adjuster is added to that. A similar context menu is also available for :ref:`global schema parameters <params_window_adjust>`.
+添加新调节器的便捷方法是使用元件 :ref:`上下文菜单 <elem_opers_add_adjuster>` ；这样可以快速选择要调节的元件和参数，调节窗口随即打开，并自动为该参数创建一个调节器。如果已有打开的窗口，则向该窗口添加新调节器。:ref:`全局光路图参数 <params_window_adjust>` 也有类似的上下文菜单。
 
   .. image:: img/adjust_add_1.png
 
 .. _adjust_settings:
 
-Adjuster Settings
------------------
+调节器设置
+----------
 
-Adjuster settings define how severely  the adjusted parameter's value is changed in each adjusting iteration.
+调节器设置定义每次调节迭代时被调参数值的变化幅度。
 
   .. image:: img/adjust_settings.png
 
-Increment
-~~~~~~~~~
+增量
+~~~~
 
-It defines the count of units to increase or decrease the adjusted parameter value when you click the Plus or Minus buttons in the Adjustment window. This value is set in the same units of measurement as the adjusted parameter has. For example, when you select an adjuster for a parameter having a current magnitude of 100 mm then the increment 1 means 1 mm. While when you select another adjuster for an angular parameter then the increment 1 means 1 deg or 1 mrad depending on what unit was selected for the parameter.
+它定义在调节窗口中点击加或减按钮时，被调参数值增加或减少的单位数。该值采用与被调参数相同的计量单位。例如，当你为当前大小为 100 mm 的参数选择调节器时，增量 1 表示 1 mm。而当你为角度参数选择另一个调节器时，增量 1 表示 1 deg 或 1 mrad，取决于为该参数选择的单位。
 
-Multiplier
+乘数
+~~~~
+
+它定义在调节窗口中点击乘或除按钮时，被调参数值增大或减小的倍数。不强制设置，但将乘数设为大于 1 的值才有意义。否则，点击乘按钮时，被调参数值实际上会减小，这令人困惑。
+
+设为默认值
 ~~~~~~~~~~
 
-It defines the number of times to increase or decrease the adjusted parameter value when you click the Multiply or Divide buttons in the Adjustment window. It is not required but makes sense to set the multiplier to a value greater than 1. Otherwise, when you click the Multiply button, the adjusted parameter value will actually decrease which is confusing.
+如果设置了该标志，则提供的设置将被永久保存，并用于所有新创建的调节器。不仅在当前调节窗口中，在任何未来的窗口和光路图中都是如此。
 
-Set as default values
-~~~~~~~~~~~~~~~~~~~~~
+应用于所有调节器
+~~~~~~~~~~~~~~~~
 
-If the flag is set, then the provided settings will be stored permanently and used for all newly created adjusters. Not only in the current Adjustment window but in any future windows and schemas.
-
-Apply for all adjuster
-~~~~~~~~~~~~~~~~~~~~~~
-
-If the flag is set, then settings will be applied to all adjusters in the window, not only to the selected one.
+如果设置了该标志，则设置将应用于窗口中的所有调节器，而不仅是选中的那一个。

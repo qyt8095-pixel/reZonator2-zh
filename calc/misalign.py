@@ -3,7 +3,7 @@ import numpy as np
 # M_back: R = 30 mm, α = 0°
 # L_foc: L = 57 mm
 # M_foc: R = 50 mm, α = 7°, dYt = 1 mm, dVt = 0.0175
-# L: L = 300 mm Folding range
+# L: L = 300 mm 折叠程段
 # λ = 1000 nm 
 
 M_out = np.matrix([[1, 0], [0, 1]])
@@ -26,7 +26,7 @@ print(M0)
 
 E = M0[0, 2]
 F = M0[1, 2]
-print('Effective misalignment:\n', E, F)
+print('有效失调：\n', E, F)
 
 A = M0[0, 0]
 B = M0[0, 1]
@@ -34,4 +34,4 @@ C = M0[1, 0]
 D = M0[1, 1]
 E0 = ((1 - D)*E + B*F) / (2 - A - D)
 F0 = (C*E + (1 - A)*F) / (2 - A - D)
-print('Position of effective optical axis:\n', E0, F0)
+print('有效光轴位置：\n', E0, F0)

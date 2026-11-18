@@ -1,22 +1,22 @@
 .. index:: single: tilted interface
 
-Tilted Interface
-================
+倾斜界面
+========
 
 .. |n1| replace:: `n`\ :sub:`1`
 .. |n2| replace:: `n`\ :sub:`2`
 
-The element represents the flat boundary between two media having indexes of refraction |n1| and |n2|. Then the incident angle of the beam is set via the element's parameter `α`.
+该元件表示折射率为 |n1| 和 |n2| 的两种介质之间的平面边界。光束的入射角通过元件的参数 `α` 设定。
 
     .. image:: ElemTiltedInterface_1.png
 
-It is sometimes convenient to set the angle inside the |n2| media as if one would want to set `β` angle instead of `α`. However, there is no additional `β` parameter in the element, as it leads to ambiguity what angle should be considered. Instead, one can give the negative sign to the angle, and it forces |rezonator| to treat this angle as being inside of the |n2| media and calculate the first angle accordingly.
+有时将 |n2| 介质内的角度设定为 `β` 角而不是 `α` 角会更方便。但该元件没有额外的 `β` 参数，因为这会导致应以哪个角为准的歧义。取而代之，你可以给角度加上负号，这会迫使 |rezonator| 把该角度当作 |n2| 介质内的角度，并据此计算第一个角。
 
     .. image:: ElemTiltedInterface_2.png
 
 .. warning::
 
-    The left and the right adjacent elements of an interface element should be either :doc:`ElemEmptyRange` or :doc:`ElemMediaRange`. |rezonator| doesn't complain if they are not, but you can get incorrect results.
+    界面元件左右相邻的元件应为 :doc:`ElemEmptyRange` 或 :doc:`ElemMediaRange` 。如果不是，|rezonator| 不会报错，但你可能会得到不正确的结果。
 
 .. seeAlso::
 

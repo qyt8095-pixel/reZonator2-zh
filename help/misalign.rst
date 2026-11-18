@@ -1,7 +1,7 @@
 .. _misalign:
 
-Calculation of Misalignments
-============================
+失调计算
+========
 
 .. |r1| replace:: `r`\ :sub:`1`
 .. |r2| replace:: `r`\ :sub:`2`
@@ -13,16 +13,16 @@ Calculation of Misalignments
 .. |y_eff| replace:: `dy`\ :sub:`eff`
 .. |V_eff| replace:: `dV`\ :sub:`eff`
 
-Suppose we have an element whose axis is displaced from the optical system axis (the reference axis) by |dy1| and rotated by `dV`. We are interested in how this displacement and rotation (the misalignment) affects a ray passing through such element or a collection of elements. We measure rays with respect to the reference optical axis.
+假设有一个元件，其光轴相对于光学系统光轴（参考光轴）偏移了 |dy1| ，并旋转了 `dV` 。我们关心这种位移和旋转（失调）如何影响通过该元件或一组元件的光线。我们相对于参考光轴来测量光线。
 
   .. image:: img/misalign_calc.png
 
-Derivation of ABCDEF Ray Matrices
----------------------------------
+ABCDEF 光线矩阵的推导
+---------------------
 
-Lets introduce the follow symbols.
+引入以下符号。
 
-Input (|r1|) and output (|r2|) ray vectors with respect to the Reference axis:
+相对于参考光轴的输入（|r1| ）和输出（|r2| ）光线矢量：
 
   .. tex:
     r_1 = \begin{bmatrix} y_{1R} \\ V_{1R} \end{bmatrix}
@@ -30,7 +30,7 @@ Input (|r1|) and output (|r2|) ray vectors with respect to the Reference axis:
     r_2 = \begin{bmatrix} y_{2R} \\ V_{2R} \end{bmatrix}
   .. image:: img/misalign_eq_01.png
 
-Input (|e1|) and output (|e2|) ray vectors with respect to the Element axis:
+相对于元件光轴的输入（|e1| ）和输出（|e2| ）光线矢量：
 
   .. tex:
     e_1 = \begin{bmatrix} y_{1E} \\ V_{1E} \end{bmatrix}
@@ -38,7 +38,7 @@ Input (|e1|) and output (|e2|) ray vectors with respect to the Element axis:
     e_2 = \begin{bmatrix} y_{2E} \\ V_{2E} \end{bmatrix}
   .. image:: img/misalign_eq_02.png
 
-Misalignment vector at the input (|m1|) and output (|m2|):
+输入（|m1| ）和输出（|m2| ）处的失调矢量：
 
   .. tex:
     m_1 = \begin{bmatrix} dy_1 \\ dV \end{bmatrix}
@@ -46,9 +46,9 @@ Misalignment vector at the input (|m1|) and output (|m2|):
     m_2 = \begin{bmatrix} dy_2 \\ dV \end{bmatrix}
   .. image:: img/misalign_eq_03.png
 
-As usual, here we define `V` as a geometrical angle, not a :ref:`reduced slope <reduced_slope>`.
+与往常一样，这里我们将 `V` 定义为几何角，而不是 :ref:`约化斜率 <reduced_slope>` 。
 
-Assuming the misalignment angle is small, `r` and `e` vectors are related as
+假设失调角很小，`r` 矢量和 `e` 矢量之间的关系为
 
   .. tex:
     \begin{aligned}
@@ -57,13 +57,13 @@ Assuming the misalignment angle is small, `r` and `e` vectors are related as
     \end{aligned}
   .. image:: img/misalign_eq_04.png
 
-A ray vector measured with respect to the element axis is transformed in the usual way by the ABCD matrix `M` of the element:
+相对于元件光轴测量的光线矢量，由元件的 ABCD 矩阵 `M` 按常规方式变换：
 
   .. tex:
     e_2 = M \times e_1
   .. image:: img/misalign_eq_05.png
 
-Then expressing |e2| and |e1| from |r2| and |r1| we get
+然后由 |r2| 和 |r1| 表示 |e2| 和 |e1| ，得到
 
   .. tex:
     \begin{aligned}
@@ -72,13 +72,13 @@ Then expressing |e2| and |e1| from |r2| and |r1| we get
     \end{aligned}
   .. image:: img/misalign_eq_06.png
 
-The output misalignment vector |m2| is connected to |m1| by
+输出失调矢量 |m2| 与 |m1| 的关系为
 
   .. tex:
     m_2 = dM \times m_1
   .. image:: img/misalign_eq_07.png
 
-where `dM` is just a ray transformation matrix for :ref:`free space <elem_empty_range>` of length `L`. Then
+其中 `dM` 只是长度为 `L` 的 :ref:`自由空间 <elem_empty_range>` 的光线变换矩阵。于是
 
   .. tex:
     \begin{aligned}
@@ -88,7 +88,7 @@ where `dM` is just a ray transformation matrix for :ref:`free space <elem_empty_
     \end{aligned}
   .. image:: img/misalign_eq_08.png
 
-We can see that the effect of misalignment on a paraxial system is to add some correction vector to the usual matrix transformation. The correction vector is given by:
+可以看出，失调对近轴系统的影响，是在常规矩阵变换上附加一个修正矢量。修正矢量为：
 
   .. tex:
     \Delta r
@@ -104,7 +104,7 @@ We can see that the effect of misalignment on a paraxial system is to add some c
     \begin{bmatrix} dy_1 \\ dV \end{bmatrix}
   .. image:: img/misalign_eq_09.png
 
-Next we can rename |dy1| with just `dy`, since it is an element parameter, the same as `dV`. Then
+接下来可以将 |dy1| 简记为 `dy` ，因为它和 `dV` 一样，都是元件参数。于是
 
   .. tex:
     \begin{bmatrix} E \\ F \end{bmatrix} =
@@ -112,7 +112,7 @@ Next we can rename |dy1| with just `dy`, since it is an element parameter, the s
     \begin{bmatrix} dy \\ dV \end{bmatrix}
   .. image:: img/misalign_eq_10.png
 
-These results can be put into a convenient 3x3 matrix form by adding a third unity component to ray vectors:
+通过给光线矢量增加第三个单位分量，可以把这些结果写成方便的 3x3 矩阵形式：
 
   .. tex:
     \begin{bmatrix} Y_{2R} \\ V_{2R} \\ 1 \end{bmatrix} =
@@ -120,7 +120,7 @@ These results can be put into a convenient 3x3 matrix form by adding a third uni
     \begin{bmatrix} Y_{1R} \\ V_{1R} \\ 1 \end{bmatrix}
   .. image:: img/misalign_eq_11.png
 
-where `A`, `B`, `C`, `D` are components of the element ray matrix, and
+其中 `A` 、`B` 、`C` 、`D` 是元件光线矩阵的分量，并且
 
   .. tex:
     \begin{aligned}
@@ -129,10 +129,10 @@ where `A`, `B`, `C`, `D` are components of the element ray matrix, and
     \end{aligned}
   .. image:: img/misalign_eq_12.png
 
-Cascaded Misaligned Elements
-----------------------------
+级联失调元件
+------------
 
-When we have a system of several misaligned elements, their extended ray matrices can be multiplied as usual to produce a :ref:`round-trip <round_trip>` matrix of the whole system:
+当系统中有多个失调元件时，它们的扩展光线矩阵可以像往常一样相乘，得到整个系统的 :ref:`往返 <round_trip>` 矩阵：
 
   .. tex:
     \begin{bmatrix} A_0 & B_0 & E_0 \\ C_0 & D_0 & F_0 \\ 0 & 0 & 1 \end{bmatrix} =
@@ -140,7 +140,7 @@ When we have a system of several misaligned elements, their extended ray matrice
     \begin{bmatrix} A_1 & B_1 & E_1 \\ C_1 & D_1 & F_1 \\ 0 & 0 & 1 \end{bmatrix}
   .. image:: img/misalign_eq_13.png
 
-When we do the multiplication, it can be seen that the additional matrix components do not affect the basic ray vector transformation:
+相乘后可以看出，附加的矩阵分量不影响基本的光线矢量变换：
 
   .. tex:
     \begin{bmatrix}
@@ -150,7 +150,7 @@ When we do the multiplication, it can be seen that the additional matrix compone
     \end{bmatrix}
   .. image:: img/misalign_eq_14.png
 
-And transformation of `E` and `F` components can be written independently even not involving extended matrices:
+`E` 和 `F` 分量的变换也可以独立写出，甚至不需要用到扩展矩阵：
 
   .. tex:
     \begin{bmatrix}E_0 \\ F_0\end{bmatrix} =
@@ -159,7 +159,7 @@ And transformation of `E` and `F` components can be written independently even n
     \begin{bmatrix}E_2 \\ F_2\end{bmatrix}
   .. image:: img/misalign_eq_15.png
 
-So for an arbitrary number of elements, the full round-trip matrix of the system is calculated as
+因此，对于任意数量的元件，系统的完整往返矩阵按以下方式计算
 
   .. tex:
     \begin{bmatrix}
@@ -189,7 +189,7 @@ So for an arbitrary number of elements, the full round-trip matrix of the system
     \end{bmatrix}
   .. image:: img/misalign_eq_16.png
 
-Or it can be written as the conventional 2x2 round-trip matrix plus an additional misalignment vector calculated independently:
+也可以写成常规 2x2 往返矩阵加一个独立计算的附加失调矢量：
 
   .. tex:
     \begin{aligned}
@@ -205,14 +205,14 @@ Or it can be written as the conventional 2x2 round-trip matrix plus an additiona
     \end{aligned}
   .. image:: img/misalign_eq_17.png
 
-Effective Optical Axis
-----------------------
+有效光轴
+--------
 
-A system with misaligned elements having the overall matrix `A`, `B`, `C`, `D` and the overall misalignment vector `E`, `F` (here and forward we omit the subscript 0 for shortness) can be converted into an effectively aligned system by translation of the system to the distance |y_eff| from the reference optical axis and rotation it to the angle |V_eff|.
+一个具有总矩阵 `A` 、`B` 、`C` 、`D` 和总失调矢量 `E` 、`F` 的失调元件系统（以下为简便起见省略下标 0），可以通过将系统平移到距参考光轴 |y_eff| 处，并旋转 |V_eff| 角，转换为一个等效对准的系统。
 
   .. image:: img/misalign_overall_axis.png
 
-Here the expressions for |y_eff| and |V_eff| has been derived by solving a system of linear equations for `E` and `F` expressed via element's matrix components and element's misalignment parameters (see above):
+这里 |y_eff| 和 |V_eff| 的表达式，是通过求解以元件矩阵分量和元件失调参数表示 `E` 和 `F` 的线性方程组得到的（见上文）：
 
   .. tex:
     \begin{aligned}
@@ -221,16 +221,16 @@ Here the expressions for |y_eff| and |V_eff| has been derived by solving a syste
     \end{aligned}
   .. image:: img/misalign_eq_18.png
 
-The vector (|y_eff|, |V_eff|) gives a new effective axis position of the misaligned system with respect to the reference optical axis. Such system looks as if it is perfectly aligned even though its internal elements are misaligned.
+矢量（|y_eff| ，|V_eff| ）给出了失调系统相对于参考光轴的新有效光轴位置。这样的系统看起来像是完全对准的，尽管其内部元件是失调的。
 
-Effective Optical Axis of Resonator
------------------------------------
+谐振腔的有效光轴
+----------------
 
-A resonator can be unwrapped to into an equivalent periodic system, and each period (round-trip) treated as a single element with its own effective axis. Then each round-trip will look like a perfectly aligned system. The problem is this effective axis does not come to itself after one round-trip. So a beam passing through the resonator does not reproduce itself after the round-trip. Hence the resonator is not stable.
+谐振腔可以展开为一个等效周期系统，每个周期（往返）被视为一个具有各自有效光轴的单个元件。这样，每个往返看起来都像一个完全对准的系统。问题在于，这个有效光轴经过一个往返后并不能回到自身。因此，通过谐振腔的光束经过往返后不能自我再现。所以谐振腔是不稳定的。
 
   .. image:: img/misalign_resonator_axis.png
 
-So a condition for the effective axis of the resonator should be different from the one for the single-pass system and match the condition of the :ref:`self-conformed beam <self_conformed_beam>` but account for the misalignment of the resonator round-trip:
+因此，谐振腔有效光轴的条件应与单程系统的条件不同，它应与 :ref:`自洽光束 <self_conformed_beam>` 的条件相符，但要计入谐振腔往返的失调：
 
   .. tex:
     \begin{aligned}
@@ -247,7 +247,7 @@ So a condition for the effective axis of the resonator should be different from 
     \end{aligned}
   .. image:: img/misalign_eq_19.png
 
-Solving the equation we get a position of an "axial ray" - a ray reproducing itself after the round-trip in resonator with misaligned elements. This axial ray forms the effective axis of the resonator.
+求解该方程，得到一条“轴向光线”的位置——即在具有失调元件的谐振腔中经过往返后自我再现的光线。这条轴向光线构成了谐振腔的有效光轴。
 
   .. tex:
     \begin{aligned}
@@ -256,10 +256,10 @@ Solving the equation we get a position of an "axial ray" - a ray reproducing its
     \end{aligned}
   .. image:: img/misalign_eq_20.png
 
-The important note is that, unlike the effective axis of the single-pass system, which is a straight line passing through all elements, the effective axis of the resonator is a series of segments. In general, segments even can be curved, if we consider a non-linear element. At each element of the resonator, we can calculate its own (|y_eff|, |V_eff|) defining where the self-conformed (stable) ray passes through the element.
+需要注意的是，与单程系统的有效光轴不同——后者是一条通过所有元件的直线——谐振腔的有效光轴是一系列线段。一般来说，如果考虑非线性元件，这些线段甚至可以是弯曲的。在谐振腔的每个元件处，都可以计算其各自的（|y_eff| ，|V_eff| ），它定义了自洽（稳定）光线通过该元件的位置。
 
   .. image:: img/misalign_resonator_axis_1.png
 
 .. seeAlso::
 
-  - :doc:`Misalignments (custom function) <func_misalign>`
+  - :doc:`失调（自定义函数） <func_misalign>`

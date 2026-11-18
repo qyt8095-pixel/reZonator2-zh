@@ -125,7 +125,7 @@ bool CustomTableFunction::prepare()
         };
         for (const auto &c : columns)
             if (c.label == col.label) {
-                showError("Duplicated column label " + col.label);
+                showError("重复的列标签 " + col.label);
                 return false;
             }
         columns << col;

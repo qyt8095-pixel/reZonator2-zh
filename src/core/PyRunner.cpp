@@ -4,7 +4,7 @@
 
 PyRunner::PyRunner() {}
 PyRunner::~PyRunner() {}
-bool PyRunner::load(const ModuleProps&) { errorLog << "Not emplemented"; return false; }
+bool PyRunner::load(const ModuleProps&) { errorLog << "未实现"; return false; }
 PyRunner::FuncResult PyRunner::run(const QString&, const Args&, const ResultSpec&) { return {}; }
 
 #else
@@ -67,7 +67,7 @@ PyRunner::PyRunner()
     config.home = (wchar_t*)PyMem_RawCalloc(homePath.size() + 1, sizeof(wchar_t));
     if (!config.home) {
         qCritical() << "Unable to allocate memory for PYTHONHOME";
-        initError = "Unable to allocate memory for PYTHONHOME";
+        initError = "无法为 PYTHONHOME 分配内存";
         errorLog << initError;
         PyConfig_Clear(&config);
         return;
@@ -80,7 +80,7 @@ PyRunner::PyRunner()
     PyStatus status = Py_InitializeFromConfig(&config);
     if (PyStatus_Exception(status)) {
         qCritical() << "Failed to initialize Python:" << status.func << status.err_msg;
-        initError = QString("Failed to initialize Python: %1").arg(status.err_msg);
+        initError = QString("初始化 Python 失败：%1").arg(status.err_msg);
         errorLog << initError;
         PyConfig_Clear(&config);
         return;
@@ -158,7 +158,7 @@ bool PyRunner::load(const ModuleProps &props)
     if (!errorLog.isEmpty()) return false;
     
     if (moduleName.isEmpty()) {
-        handleError("Custom module name is not provided");
+        handleError("未提供自定义模块名");
         return false;
     }
 
@@ -177,7 +177,7 @@ bool PyRunner::load(const ModuleProps &props)
             // This is expected, clean the exception
             refs << TmpRef{"ModuleNotFoundError", PyErr_GetRaisedException()};
         } else {
-            handleError("Failed to find existing custom module");
+            handleError("未找到已有的自定义模块");
             return false;
         }
     } else {
@@ -186,28 +186,28 @@ bool PyRunner::load(const ModuleProps &props)
         // It replaces only attributes that exist in the new code
         // If the new code doesn't contain docstring, the old doc is returned
         if (PyObject_SetAttrString(pOldModule, "__doc__", Py_None) < 0) {
-            handleError("Failed to clean existing custom module");
+            handleError("无法清理已有的自定义模块");
             return false;
         }
     }
     
     auto pCompiled = Py_CompileString(bCode.constData(), szModuleName, Py_file_input);
     if (!pCompiled) {
-        handleError("Failed to compile custom code");
+        handleError("编译自定义代码失败");
         return false;
     }
     refs << TMP_REF(pCompiled);
     
     auto pModule = PyImport_ExecCodeModule(szModuleName, pCompiled);
     if (!pModule) {
-        handleError("Failed to execute custom module");
+        handleError("执行自定义模块失败");
         return false;
     }
     refs << TMP_REF(pModule);
     
     for (auto it = props.consts.cbegin(); it != props.consts.cend(); it++) {
         if (PyModule_AddIntConstant(pModule, it.key(), it.value()) < 0) {
-            handleError(QString("Failed to add module constant %1=%2").arg(it.key()).arg(it.value()));
+            handleError(QString("添加模块常量 %1=%2 失败").arg(it.key()).arg(it.value()));
             return false;
         }
     }
@@ -229,13 +229,13 @@ bool PyRunner::load(const ModuleProps &props)
     
         auto pFunc = PyObject_GetAttrString(pModule, bFuncName.constData());
         if (!pFunc) {
-            handleError("Failed to get function " + funcName);
+            handleError("无法获取函数 " + funcName);
             return false;
         }
         _refs << TmpRef{funcName, pFunc};
 
         if (!PyCallable_Check(pFunc)) {
-            handleError("The object is not callable: " + funcName);
+            handleError("该对象不可调用：" + funcName);
             return false;
         }
         _funcRefs.insert(funcName, pFunc);
@@ -252,7 +252,7 @@ bool PyRunner::load(const ModuleProps &props)
         _refs << TmpRef{funcName, pFunc};
 
         if (!PyCallable_Check(pFunc)) {
-            handleError("The object is not callable: " + funcName);
+            handleError("该对象不可调用：" + funcName);
             return false;
         }
         _funcRefs.insert(funcName, pFunc);
@@ -266,7 +266,7 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
     if (!errorLog.isEmpty()) return {};
 
     if (!_funcRefs.contains(funcName)) {
-        errorLog << "Function not found: " + funcName;
+        errorLog << "未找到函数：" + funcName;
         return {};
     }
     auto pFunc = (PyObject*)_funcRefs[funcName];
@@ -275,7 +275,7 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
 
     auto pArgs = PyTuple_New(args.size());
     if (!pArgs) {
-        handleError("Failed to allocate agrs", funcName);
+        handleError("分配参数失败", funcName);
         return {};
     }
     refs << TMP_REF(pArgs);
@@ -297,11 +297,11 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
         }
         if (pArg) {
             if (PyTuple_SetItem(pArgs, i, pArg) < 0) {
-                handleError(QString("Failed to set argument %1").arg(i), funcName);
+                handleError(QString("设置参数 %1 失败").arg(i), funcName);
                 return {};
             }
         } else {
-            handleError("Required argument is not provided");
+            handleError("未提供必需的参数");
             return {};
         }
     }
@@ -310,7 +310,7 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
     
     auto pResult = PyObject_CallObject(pFunc, pArgs);
     if (!pResult) {
-        handleError("Failed to call function", funcName);
+        handleError("调用函数失败", funcName);
         return {};
     }
     if (Py_IsNone(pResult)) {
@@ -336,20 +336,20 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
         for (auto i = 0; i < resultCount; i++) {
             auto pItem = PyList_GetItem(pResult, i);
             if (!pItem) {
-                handleError(QString("Unable to get result[%1]").arg(i), funcName);
+                handleError(QString("无法获取结果[%1]").arg(i), funcName);
                 return {};
             }
             resultItems << pItem;
         }
     } else {
-        handleError("Bad result type, dict or list expected", funcName);
+        handleError("结果类型错误，应为 dict 或 list", funcName);
         return {};
     }
     
     for (int i = 0; i < resultItems.size(); i++) {
         auto pItem = resultItems.at(i);
         if (!PyDict_Check(pItem)) {
-            handleError(QString("result[%1]: bad type, dict expected").arg(i), funcName);
+            handleError(QString("结果[%1]：类型错误，应为 dict").arg(i), funcName);
             return {};
         }
         Record rec;
@@ -358,16 +358,16 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
             const char *k = keyBytes.constData();
             #define CHECK_E(cond, msg) \
                 if (!cond) { \
-                    handleError(QString("result[%1]['%2']: %3").arg(i).arg(k, msg), funcName); \
+                    handleError(QString("结果[%1]['%2']：%3").arg(i).arg(k, msg), funcName); \
                     return {}; \
                 }
             auto pKey = PyUnicode_FromString(k);
-            CHECK_E(pKey, "failed to convert key to PyObject");
+            CHECK_E(pKey, "无法将键转换为 PyObject");
             refs << TMP_REF(pKey);
             PyObject *pField = nullptr;
             if (PyDict_Contains(pItem, pKey)) {
                 pField = PyDict_GetItemString(pItem, k);
-                CHECK_E(pField, "failed to get field");
+                CHECK_E(pField, "无法获取字段");
                 if (pField == Py_None)
                     pField = nullptr;
             }
@@ -376,7 +376,7 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
                     rec[k] = QString();
                     continue;
                 }
-                CHECK_E(false, "field not found");
+                CHECK_E(false, "未找到字段");
             }
             switch (f.value()) {
             case ftNumber:
@@ -384,40 +384,40 @@ PyRunner::FuncResult PyRunner::run(const QString &funcName, const Args &args, co
                     rec[k] = PyFloat_AsDouble(pField);
                 else if (PyLong_Check(pField))
                     rec[k] = double(PyLong_AsLong(pField));
-                else CHECK_E(false, "number expected");
+                else CHECK_E(false, "应为数字");
                 break;
             case ftNumberArray: {
-                CHECK_E(PyList_Check(pField), "list expected");
+                CHECK_E(PyList_Check(pField), "应为列表");
                 auto listSize = PyList_Size(pField);
                 QVector<double> numbers;
                 numbers.reserve(listSize);
                 for (Py_ssize_t j = 0; j < listSize; j++) {
                     auto pItem = PyList_GetItem(pField, j);
-                    CHECK_E(pItem, QString("failed to get list item %1").arg(j));
+                    CHECK_E(pItem, QString("无法获取列表项 %1").arg(j));
                     if (PyFloat_Check(pItem))
                         numbers.append(PyFloat_AsDouble(pItem));
                     else if (PyLong_Check(pItem))
                         numbers.append(double(PyLong_AsLong(pItem)));
-                    else CHECK_E(false, QString("list item %1 is not a number").arg(j));
+                    else CHECK_E(false, QString("列表项 %1 不是数字").arg(j));
                 }
                 rec[k] = QVariant::fromValue(numbers);
                 break;
             }
             case ftString:
             case ftStringOptional:
-                CHECK_E(PyUnicode_Check(pField), "string expected");
+                CHECK_E(PyUnicode_Check(pField), "应为字符串");
                 rec[k] = QString::fromUtf8(PyUnicode_AsUTF8(pField));
                 break;
             case ftUnitDim: {
-                CHECK_E(PyLong_Check(pField), "dimension expected");
+                CHECK_E(PyLong_Check(pField), "应为维度");
                 auto dims = Z::Dims::dims();
                 int dim = PyLong_AsLong(pField);
-                CHECK_E((dim >= 0 && dim < dims.size()), "bad dimension");
+                CHECK_E((dim >= 0 && dim < dims.size()), "维度错误");
                 rec[k] = QVariant::fromValue(dims.at(dim));
                 break;
             }
             case ftMatrix:
-                CHECK_E(PyObject_TypeCheck(pField, PyClass::Matrix::type()), "Matrix expected");
+                CHECK_E(PyObject_TypeCheck(pField, PyClass::Matrix::type()), "应为矩阵");
                 auto m = (PyClass::Matrix::Self*)pField;
                 rec[k] = QVariant::fromValue(m->matrix);
                 break;
@@ -437,7 +437,7 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
     if (funcName.isEmpty())
         errorLog << msg;
     else
-        errorLog << msg + QString(" (function: %1)").arg(funcName);
+        errorLog << msg + QString("（函数：%1）").arg(funcName);
     
     auto exc = PyErr_GetRaisedException();
     if (!exc) {
@@ -447,7 +447,7 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
         
     auto traceback = PyImport_ImportModule("traceback");
     if (!traceback) {
-        errorLog << "Unable to import traceback module";
+        errorLog << "无法导入 traceback 模块";
         PyErr_Print();
         return;
     }
@@ -455,7 +455,7 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
     
     auto format = PyObject_GetAttrString(traceback, "format_exception");
     if (!format) {
-        errorLog << "Unable to import traceback.format_exception";
+        errorLog << "无法导入 traceback.format_exception";
         PyErr_Print();
         return;
     }
@@ -463,14 +463,14 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
     
     auto args = PyTuple_New(1);
     if (!args) {
-        errorLog << "Failed to allocate args for format_exception";
+        errorLog << "为 format_exception 分配参数失败";
         PyErr_Print();
         return;
     }
     refs << TMP_REF(args);
                     
     if (PyTuple_SetItem(args, 0, exc) < 0) {
-        errorLog << "Failed to init args for format_exception";
+        errorLog << "初始化 format_exception 的参数失败";
         PyErr_Print();
         return;
     }
@@ -478,7 +478,7 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
 
     auto items = PyObject_CallObject(format, args);
     if (!items) {
-        errorLog << "Failed to call format_exception";
+        errorLog << "调用 format_exception 失败";
         PyErr_Print();
         return;
     }
@@ -486,7 +486,7 @@ void PyRunner::handleError(const QString& msg, const QString &funcName)
 
     auto iter = PyObject_GetIter(items);
     if (!iter) {
-        errorLog << "Failed to get iterator for exception lines";
+        errorLog << "获取异常行迭代器失败";
         PyErr_Print();
         return;
     }

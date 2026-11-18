@@ -1,51 +1,51 @@
 .. index:: single: Element (Python)
 
-Class: Element
-==============
+类：Element
+===========
 
-Represents an optical :doc:`element <elements>` in the schema.
+表示光路图中的光学 :doc:`元件 <elements>` 。
 
 .. note::
 
-  Element objects cannot be created directly; use the :ref:`schema.elem() <py_method_schema_elem>` function to obtain them.
+  Element 对象不能直接创建；请使用 :ref:`schema.elem() <py_method_schema_elem>` 函数来获取它们。
 
-Properties
-----------
+属性
+----
 
-``label`` (str, read-only)
-  Element's :ref:`label <elem_props_label>`.
+``label`` (str, 只读)
+  元件的 :ref:`标签 <elem_props_label>` 。
 
-``index`` (int, read-only)
-  Element's 1-based index in schema (or None if not found). Unlike regular Python lists, elements in schema are indexed starting from 1 to be consistent with how they are numbered in the :doc:`schema_elems`.
+``index`` (int, 只读)
+  元件在光路图中的 1 起始索引（未找到时为 None）。与常规 Python 列表不同，光路图中的元件从 1 开始编号，以与它们在 :doc:`schema_elems` 中的编号方式保持一致。
 
-``length`` (float, read-only)
-    Length parameter in meters (None if element has no length).
+``length`` (float, 只读)
+    以米为单位的长度参数（元件没有长度时为 None）。
 
-``axial_length`` (float, read-only)
-    :ref:`Axial length <axial_length>` in meters (None if element has no length).
+``axial_length`` (float, 只读)
+    以米为单位的 :ref:`轴向长度 <axial_length>` （元件没有长度时为 None）。
 
-``optical_path`` (float, read-only)
-    Optical path length in meters (None if element has no length).
+``optical_path`` (float, 只读)
+    以米为单位的光程（元件没有长度时为 None）。
 
-``ior`` (float, read-only)
-    Index of refraction (None if not applicable).
+``ior`` (float, 只读)
+    折射率（不适用时为 None）。
 
-``offset`` (float, read/write)
-    Offset inside the element in meters (None if element has no length). The offset value is used for elements having length when the round-trip is :ref:`calculated <calc_round_trip_subrange>` with ``inside=True``. See :ref:`schema.round_trip() <py_method_schema_round_trip>`.
+``offset`` (float, 可读/写)
+    元件内部以米为单位的偏移量（元件没有长度时为 None）。当往返以 ``inside=True`` :ref:`计算 <calc_round_trip_subrange>` 时，偏移量值用于具有长度的元件。参见 :ref:`schema.round_trip() <py_method_schema_round_trip>` 。
 
-``prev`` (Element, read-only)
-    Previous element respecting :ref:`round-trip <round_trip>` rules. The property also ignores :ref:`disabled <elem_props_lock>` elements because they do not participate in the round-trip.
+``prev`` (Element, 只读)
+    遵循 :ref:`往返 <round_trip>` 规则的前一个元件。该属性还会忽略 :ref:`禁用 <elem_props_lock>` 的元件，因为它们不参与往返。
 
-``next`` (Element, read-only)
-    Next element respecting :ref:`round-trip <round_trip>` rules. The property also ignores :ref:`disabled <elem_props_lock>` elements because they do not participate in the round-trip.
+``next`` (Element, 只读)
+    遵循 :ref:`往返 <round_trip>` 规则的下一个元件。该属性还会忽略 :ref:`禁用 <elem_props_lock>` 的元件，因为它们不参与往返。
 
-``disabled`` (bool, read-only)
-    Whether the element is :ref:`disabled <elem_props_lock>`.
+``disabled`` (bool, 只读)
+    元件是否 :ref:`禁用 <elem_props_lock>` 。
 
 .. #######################################################################
 
-Methods
--------
+方法
+----
 
 .. index:: single: param (Python)
 .. _py_method_elem_param:
@@ -53,18 +53,18 @@ Methods
 ``param(label, default=None)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Get element parameter value by label. This method gives access to both predefined and :ref:`custom <custom_params>` parameters of an element.
+按标签获取元件参数值。此方法可访问元件的预定义参数和 :ref:`自定义 <custom_params>` 参数。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
-- ``default`` (float, optional) - Default value if parameter not found
+- ``label`` (str) - 参数标签
+- ``default`` (float, optional) - 未找到参数时的默认值
 
-Returns:
+返回值：
 
-- float - Parameter value in SI units, or None/default if not found
+- float - 以 SI 单位表示的参数值，未找到时为 None/默认值
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -80,19 +80,19 @@ Example:
 ``set_param(label, value)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Set element parameter value by label.
+按标签设置元件参数值。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
-- ``value`` (float) - Parameter value in SI units
+- ``label`` (str) - 参数标签
+- ``value`` (float) - 以 SI 单位表示的参数值
 
-Raises:
+引发：
 
-- ``KeyError`` - If parameter is not found
-- ``ValueError`` - If value is invalid
+- ``KeyError`` - 未找到参数时
+- ``ValueError`` - 值无效时
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -107,15 +107,15 @@ Example:
 ``matrix(plane)``
 ~~~~~~~~~~~~~~~~~
 
-Return element's matrix in the given plane, or in T plane if the argument is not provided.
+返回元件在给定平面内的矩阵；如果未提供参数，则返回 T 平面内的矩阵。
 
-Arguments:
+参数：
 
-- ``plane`` - :ref:`Work plane <work_plane>` ('T', 'S', :ref:`Z.PLANE_T <py_const_plane_t>`, or :ref:`Z.PLANE_S <py_const_plane_s>`)
+- ``plane`` - :ref:`工作平面 <work_plane>` ('T', 'S', :ref:`Z.PLANE_T <py_const_plane_t>`, or :ref:`Z.PLANE_S <py_const_plane_s>`)
 
-Raises:
+引发：
 
-- ``ValueError`` - If invalid plane name
+- ``ValueError`` - 平面名称无效时
 
 
 .. #######################################################################
@@ -126,7 +126,7 @@ Raises:
 ``lock()``
 ~~~~~~~~~~
 
-Disable element events and backup parameter values. Used when making temporary changes.
+禁用元件事件并备份参数值。用于进行临时更改时。
 
 .. #######################################################################
 
@@ -136,13 +136,13 @@ Disable element events and backup parameter values. Used when making temporary c
 ``unlock()``
 ~~~~~~~~~~~~
 
-Enable element events and restore backed up parameter values.
+启用元件事件并恢复备份的参数值。
 
 .. note::
 
-  Use ``Element.lock()`` and ``Element.unlock()`` methods when making temporary parameter changes (e.g., during :doc:`plot function <custom_plot>` calculation) to ensure proper restoration and also to prevent the UI from unnecessary updates. UI updates can significantly slow down the application when happen too often.
+  在进行临时参数更改时（例如在 :doc:`绘图函数 <custom_plot>` 计算期间），请使用 ``Element.lock()`` 和 ``Element.unlock()`` 方法，以确保正确恢复，并防止界面进行不必要的更新。界面更新过于频繁时会显著降低应用程序的速度。
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -165,17 +165,17 @@ Example:
 ``param_ref(label)``
 ~~~~~~~~~~~~~~~~~~~~
 
-Create a :doc:`ParamRef <py_param_ref>` object for more convenient implementation of the lock-unlock pattern in plotting functions.
+创建一个 :doc:`ParamRef <py_param_ref>` 对象，以便在绘图函数中更方便地实现锁定-解锁模式。
 
-Arguments:
+参数：
 
-- ``label`` (str) - Parameter label
+- ``label`` (str) - 参数标签
 
-Raises:
+引发：
 
-- ``KeyError`` - If parameter is not found
+- ``KeyError`` - 未找到参数时
 
-Example:
+示例：
 
 .. code-block:: python
 
@@ -194,4 +194,4 @@ Example:
 
   - :doc:`py_api`
   - :doc:`elem_props`
-  - :ref:`Example - Basic Element Manipulation <py_example_basic_elem_manipulation>`
+  - :ref:`示例 - 基本元件操作 <py_example_basic_elem_manipulation>`

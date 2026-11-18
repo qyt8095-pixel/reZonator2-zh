@@ -1,52 +1,52 @@
 .. _schema_elems:
 
-Elements List
-=============
+元件列表
+========
 
-All elements containing in the schema are presented in the elements list. The elements list consist of several columns. Every element occupies its own row in the list, and each column contains following information about an element.
+方案中包含的所有元件都显示在元件列表中。元件列表由若干列组成。每个元件在列表中占据自己的一行，每列包含关于该元件的以下信息。
 
-Columns
--------
+列
+--
 
-Typ
-~~~
+类型
+~~~~
 
-The column shows a small image (icon) indicating an element type — distance, mirror, etc. With help of the :doc:`catalog`, you can clarify which image is corresponds to the specific element type.
+该列显示一个小图像（图标），表示元件类型——距离、镜面等。借助 :doc:`目录 <catalog>` ，你可以弄清哪个图像对应于具体的元件类型。
 
-Label
-~~~~~
+标签
+~~~~
 
-A short name or an :ref:`element's identifier <elem_props_label>`. That is how elements are commonly labeled on optical drawings.
+简称或 :ref:`元件标识符 <elem_props_label>` 。这就是元件在光学图纸上通常的标注方式。
 
-Parameters
-~~~~~~~~~~
+参数
+~~~~
 
-A string describing magnitudes of all element's parameters. If some parameters are linked to :ref:`global parameters <params_window>`, then the global parameter label is also displayed in the row, e.g., `R = L1 = 100 mm` - this means that the parameter :param:`R` of the element is linked to the global parameter :param:`L1` and that gives the value `100mm`.
+一个字符串，描述元件所有参数的量值。如果某些参数链接到了 :ref:`全局参数 <params_window>` ，则全局参数标签也会显示在行中，例如，`R = L1 = 100 mm`——这表示元件的参数 :param:`R` 链接到了全局参数 :param:`L1` ，其值为 `100mm` 。
 
-Title
-~~~~~
+标题
+~~~~
 
-A name or a :ref:`short description <elem_props_title>` of an element
+元件的名称或 :ref:`简短描述 <elem_props_title>`
 
-Marker
-~~~~~~
+标记
+~~~~
 
-The column shows an icon indicating some additional information about the element.
+该列显示一个图标，表示关于元件的附加信息。
 
-The *exclamation icon* shows that some parameter of the element is in inconsistent state, probably because the global parameter it is :ref:`linked to <elem_props_link>` has an invalid formula. Hover the mouse over the icon to see a tooltip with the error message.
+*感叹号图标* 表示元件的某个参数处于不一致状态，可能是因为它 :ref:`链接到的 <elem_props_link>` 全局参数的公式无效。将鼠标悬停在图标上可看到带有错误信息的提示框。
 
   .. image:: img/elems_table_invalid.png
 
-The *stop icon* shows that the element is :ref:`blocked <elem_props_lock>`. If an element is blocked then it is not taken into account in round-trip calculation and it can not be chosen as function parameter.
+*停止图标* 表示元件被 :ref:`禁用 <elem_props_lock>` 。如果元件被禁用，则在往返计算中不考虑它，也不能将其选作函数参数。
 
   .. image:: img/elems_table_locked.png
 
 
-Context Menu
-------------
+上下文菜单
+----------
 
-The context menu of the elements list includes :ref:`some commands <elem_opers>` for elements.
+元件列表的上下文菜单包括针对元件的 :ref:`一些命令 <elem_opers>` 。
 
 .. seeAlso::
 
-  - :doc:`layout`
+  - :doc:`布局 <layout>`

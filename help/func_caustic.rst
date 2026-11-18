@@ -1,42 +1,42 @@
 .. _func_caustic:
 .. index:: single: caustic (function)
 
-Caustic
-=======
+焦散线
+======
 
-:menuSelection:`Functions --> Caustic`
+:menuSelection:`函数 --> 焦散线`
 
-The function plots beam radius and wavefront curvature radius along specified element.
+该函数沿指定元件绘制光束半径和波前曲率半径。
 
-Parameters
-----------
+参数
+----
 
     .. image:: img/func_caustic_params.png
 
-Element
-~~~~~~~
+元件
+~~~~
 
-The selector allows you to specify an element along which the caustic should be plotted. Only elements having the length parameter can be selected. These are empty ranges, crystals, etc. The length parameter is usually called :param:`L`.
+该选择器让你指定沿哪个元件绘制焦散线。只有具有长度参数的元件才能被选择。这些元件是自由空间、晶体等。长度参数通常称为 :param:`L` 。
 
-Plot accuracy
-~~~~~~~~~~~~~
+绘图精度
+~~~~~~~~
 
-Fields allow you to set a number of points in the resulting graph. A points count can be input directly in the “Number of points” field. Instead, it is possible to specify a distance between points (plotting step) in the field “With step”.
+这些字段让你设置结果图形中的点数。点数可以直接输入到“点数”字段中。也可以在“按步长”字段中指定点与点之间的距离（绘图步长）。
 
-The “Plottable length” value in the dialog shows the longest :ref:`geometrical path <axial_length>` a beam can travel in the element. This becomes a plot’s horizontal range. For some elements (e.g., :doc:`matrix/ElemBrewsterPlate`) the plottable length is greater than the element length because there is an angle between the optical axis and the direction the length is measured along.
+对话框中的“可绘长度”值表示光束在该元件内可以走过的最长 :ref:`几何路径 <axial_length>` 。它成为绘图的横向范围。对于某些元件（例如 :doc:`matrix/ElemBrewsterPlate` ），可绘长度大于元件长度，因为光轴与长度测量方向之间存在夹角。
 
-Additional Parameters
----------------------
+附加参数
+--------
 
 .. _func_caustic_aux_params:
 
-:menuSelection:`View --> Function Params`
+:menuSelection:`视图 --> 函数参数`
 
-In the tab you can select what should be plotted - beam radius or wavefront curvature radius. The plot remembers different units of measurement for each plotting mode.
+在这个选项卡中，你可以选择要绘制的内容——光束半径或波前曲率半径。绘图会为每种绘图模式记住不同的度量单位。
 
     .. image:: img/func_caustic_aux_params.png
 
-If there is a waist inside the element, the graph of beam radius usually requires fewer points than the wavefront curvature graph to be accurate. It is due to wavefront curvature radius changes quickly in the near-field zone and can not be approximated with a few points as it can be in the far-field zone.
+如果元件内部有束腰，光束半径的图形通常比波前曲率图形需要更少的点就能达到准确。这是因为波前曲率半径在近场区变化很快，不能像在远场区那样用几个点来近似。
 
     .. image:: img/func_caustic_r_1.png
 
@@ -44,31 +44,31 @@ If there is a waist inside the element, the graph of beam radius usually require
 
 .. _func_caustic_spec_points:
 
-Special Points
---------------
+特殊点
+------
 
-:menuSelection:`View --> Special Points`
+:menuSelection:`视图 --> 特殊点`
 
-The function calculates the beam radius at the beginning and end of the plotting range. In addition, if there is a waist in the plot, its position and radius are also displayed. See the yellow-highlighted values. Beam’s Rayleigh distance (`z`\ :sub:`0`) and half of the spread angle (`V`\ :sub:`S`) in radians and degrees are also calculated based on the founded waist size.
+该函数计算绘图范围起点和终点处的光束半径。此外，如果图中存在束腰，还会显示其位置和半径。见黄色高亮的值。光束的瑞利距离（`z`\ :sub:`0` ）和发散角之半（`V`\ :sub:`S` ），以弧度和度为单位，也会根据找到的束腰尺寸计算出来。
 
   .. image:: img/func_caustic_spec_points.png
 
 
 .. _func_caustic_aux_cmds:
 
-Additional Commands of Plot Window
-----------------------------------
+绘图窗口的附加命令
+------------------
 
-Show Beam Shape
-~~~~~~~~~~~~~~~
+显示光束形状
+~~~~~~~~~~~~
 
-:menuSelection:`View --> Beam Shape`
+:menuSelection:`视图 --> 光束形状`
 
-The function can schematically render the beam cross section at the :ref:`cursor <cursor>` position to visualize beam astigmatism.
+该函数可以在 :ref:`光标 <cursor>` 位置示意性地渲染光束截面，以可视化光束像散。
 
-The beam shape panel can be moved over the plot by the mouse. It can also be resized when you click the mouse near its border shown as a thin dotted line when the mouse is above the panel.
+光束形状面板可以用鼠标在绘图上移动。当鼠标位于面板上方时，靠近其边框（显示为细虚线）处点击鼠标，还可以调整其大小。
 
-The beam shape image can be copied separately from the whole plot; use its context menu.
+光束形状图像可以与整个绘图分开复制；请使用它的上下文菜单。
 
   .. image:: img/func_caustic_shape.png
 

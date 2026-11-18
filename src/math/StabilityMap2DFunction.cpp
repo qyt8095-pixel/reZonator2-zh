@@ -75,13 +75,13 @@ bool StabilityMap2DFunction::checkArg(Z::Variable* arg)
 {
     if (!arg->element)
     {
-        setError(QString("No variable element is set (StabilityMap2DFunction.%1.element == null)")
+        setError(QString("未设置可变元件 (StabilityMap2DFunction.%1.element == null)")
                  .arg(arg == &_paramX ? "X" : "Y"));
         return false;
     }
     if (!arg->parameter)
     {
-        setError(QString("No variable parameter is set (StabilityMap2DFunction.%1.parameter == null)")
+        setError(QString("未设置可变参数 (StabilityMap2DFunction.%1.parameter == null)")
                  .arg(arg == &_paramX ? "X" : "Y"));
         return false;
     }

@@ -1,22 +1,22 @@
 .. index:: single: spherical interface
 
-Spherical Interface
-===================
+球面界面
+========
 
 .. |n1| replace:: `n`\ :sub:`1`
 .. |n2| replace:: `n`\ :sub:`2`
 
-The element represents the spherical boundary of curvature `R` between two media having indexes of refraction |n1| and |n2|. The beam is considered coming normally at the boundary.
+该元件表示两种介质之间曲率为 `R` 的球面边界，两种介质的折射率分别为 |n1| 和 |n2| 。光束被认为正入射到该边界上。
 
-An interface can be concave or convex depending on the sign of the radius of curvature. The positive direction of the curvature is from left to right, and it corresponds to the primary beam :ref:`propagation direction <propagation_dir>` in the schema.
+界面可以是凹的或凸的，取决于曲率半径的符号。曲率的正方向是从左到右，与方案中主光束的 :ref:`传播方向 <propagation_dir>` 一致。
 
   .. image:: ElemSphericalInterface.png
 
 .. note::
-  Since |rezonator| 2.1 the `standard sign convention <https://en.wikipedia.org/wiki/Radius_of_curvature_(optics)>`_ is used for the interface ROC. Older files are converted automatically when opened. In the older app versions, you will not be able to load files saved in 2.1 or paste elements via Clipboard.
+  自 |rezonator| 2.1 起，界面 ROC 使用 `标准符号约定 <https://en.wikipedia.org/wiki/Radius_of_curvature_(optics)>`_。旧文件在打开时会自动转换。在旧版本应用中，你将无法加载 2.1 保存的文件，也无法通过剪贴板粘贴元件。
 
 .. warning::
-  The left and the right adjacent elements of an interface element should be either :doc:`ElemEmptyRange` or :doc:`ElemMediaRange`. |rezonator| doesn't complain if they are not, but you can get incorrect results.
+  界面元件左右相邻的元件应该是 :doc:`ElemEmptyRange` 或 :doc:`ElemMediaRange` 。如果不是，|rezonator| 不会报错，但你可能会得到不正确的结果。
 
 .. seeAlso::
 

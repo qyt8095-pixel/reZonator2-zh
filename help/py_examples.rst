@@ -1,16 +1,16 @@
-Python API Examples
-===================
+Python API 示例
+===============
 
-This page provides some complete working examples of using the :doc:`py_api` in |rezonator|.
+本页提供一些在 |rezonator| 中使用 :doc:`Python API <py_api>` 的完整可运行示例。
 
 .. #######################################################################
 
 .. _py_example_basic_ray_tracing:
 
-Basic Ray Tracing
------------------
+基本光线追迹
+------------
 
-Use :doc:`custom_script` to run the example.
+使用 :doc:`自定义脚本 <custom_script>` 运行该示例。
 
 .. code-block:: python
 
@@ -41,10 +41,10 @@ Use :doc:`custom_script` to run the example.
 
 .. _py_example_basic_schema_access:
 
-Basic Schema Access
--------------------
+基本方案访问
+------------
 
-This example demonstrates how to access basic schema information, global constants, and iterate through elements. Use :doc:`custom_script` to run the example.
+本示例演示如何访问基本方案信息、全局常量，以及如何遍历元件。使用 :doc:`自定义脚本 <custom_script>` 运行该示例。
 
 .. code-block:: python
 
@@ -72,10 +72,10 @@ This example demonstrates how to access basic schema information, global constan
 
 .. _py_example_basic_elem_manipulation:
 
-Basic Element Manipulation
---------------------------
+基本元件操作
+------------
 
-Use :doc:`custom_script` to run the example.
+使用 :doc:`自定义脚本 <custom_script>` 运行该示例。
 
 .. code-block:: python
 
@@ -110,10 +110,10 @@ Use :doc:`custom_script` to run the example.
 
 .. _py_example_round_trip:
 
-Round Trip and Beam Properties
-------------------------------
+往返与光束特性
+--------------
 
-This example shows how to calculate round-trip matrices, stability parameters, and beam properties for both tangential and sagittal planes. Use :doc:`custom_script` to run the example.
+本示例展示如何计算切向和弧矢平面的往返矩阵、稳定参数和光束特性。使用 :doc:`自定义脚本 <custom_script>` 运行该示例。
 
 .. code-block:: python
 
@@ -168,10 +168,10 @@ This example shows how to calculate round-trip matrices, stability parameters, a
 
 .. _py_example_aper_ratio:
 
-Apertures Loss Estimation
--------------------------
+孔径损耗估计
+------------
 
-An example of usage of custom element parameters to calculate the aperture-to-beam-size ratio at elements as an indicator of possible beam clipping risk. Use :doc:`custom_table` to run the example.
+一个使用自定义元件参数计算各元件处孔径与光束尺寸之比的示例，该比值可作为可能的光束截断风险指标。使用 :doc:`自定义表格 <custom_table>` 运行该示例。
 
 .. code-block:: python
 
@@ -231,10 +231,10 @@ An example of usage of custom element parameters to calculate the aperture-to-be
 
 .. _py_example_custom_caustic:
 
-Custom Caustic Function
------------------------
+自定义焦散线函数
+----------------
 
-This example demonstrates creating a custom plot function that calculates beam radius along an element and displays it as a caustic plot. Use :doc:`custom_plot` to run the example.
+本示例演示如何创建自定义绘图函数，计算沿元件的光束半径，并将其显示为焦散线图。使用 :doc:`自定义绘图 <custom_plot>` 运行该示例。
 
 .. code-block:: python
 
@@ -288,10 +288,10 @@ This example demonstrates creating a custom plot function that calculates beam r
 
     return (x, y)
 
-More examples
--------------
+更多示例
+--------
 
-See built-in examples to get more insight of how to use Python API for carrying out custom calculation. Use the :menuSelection:`File --> Open Example` menu command and type "python" in the filter field.
+查看内置示例，以进一步了解如何使用 Python API 进行自定义计算。使用 :menuSelection:`文件 --> 打开示例` 菜单命令，并在筛选字段中输入“python”。
 
   .. image:: img/open_example_py.png
 

@@ -2,12 +2,12 @@
 .. _elem_save_custom_lib:
 .. index:: single: save element (command)
 
-Save to Custom Library
-----------------------
+保存到自定义库
+--------------
 
-:menuSelection:`Element --> Save to Custom Library...`
+:menuSelection:`元件 --> 保存到自定义库...`
 
-Save the selected element as a preset into the :doc:`elem_library`. Current element parameter values are used for the preset. If some parameters are linked to :ref:`global parameters <params_window>`, only the parameter value is stored in the library, not the link. Because global parameters are related to the current schema but the library is not.
+将选定元件作为预设保存到 :doc:`elem_library` 中。预设使用元件当前的参数值。如果某些参数链接到了 :ref:`全局参数 <params_window>` ，库中只存储参数值，不存储链接。因为全局参数属于当前方案，而库不属于当前方案。
 
     .. image:: img/catalog_custom.png
 

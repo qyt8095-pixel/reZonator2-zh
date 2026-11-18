@@ -13,7 +13,7 @@ void BeamVariationFunction::calculate(CalculationMode calcMode)
 
     if (!_pos.element)
     {
-        setError("BeamVariationFunction.pos.element is not set");
+        setError("BeamVariationFunction.pos.element 未设置");
         return;
     }
 

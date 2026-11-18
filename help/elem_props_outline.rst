@@ -1,17 +1,17 @@
 .. _elem_props_outline:
 
-Element Properties: Outline
-===========================
+元件属性：轮廓
+==============
 
-:menuSelection:`Element --> Properties --> Outline`
+:menuSelection:`元件 --> 属性 --> 轮廓`
 
   .. image:: img/elem_props_outline.png
 
-It’s a diagrammatic representation of an element that contains its parameter labels. The outline is used as a reference information to display the meaning of the element parameters.
+它是元件的图解表示，包含其参数标注。轮廓用作参考信息，显示元件参数的含义。
 
 .. seeAlso::
 
     - :doc:`elem_matrs`
     - :doc:`elem_props`
-    - :ref:`Element Properties: Parameters <elem_props_params>`
-    - :ref:`Element Properties: Options <elem_props_options>`
+    - :ref:`元件属性：参数 <elem_props_params>`
+    - :ref:`元件属性：选项 <elem_props_options>`

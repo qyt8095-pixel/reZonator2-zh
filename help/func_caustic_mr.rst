@@ -1,73 +1,73 @@
 .. _func_caustic_mr:
 .. index:: single: multirange caustic (function)
 
-Multirange Caustic
-==================
+多段焦散线
+==========
 
-:menuSelection:`Functions --> Multirange Caustic`
+:menuSelection:`函数 --> 多段焦散线`
 
-The function is just like the function :doc:`func_caustic` but allows you to plot the caustic along several elements at the same time.
+该函数与 :doc:`func_caustic` 函数相同，但允许你同时沿多个元件绘制焦散线。
 
-Parameters
-----------
+参数
+----
 
-Elements
+元件
+~~~~
+
+应沿其绘制焦散线的元件列表。列表中只显示具有长度参数的元件，如空段、晶体等。长度参数通常称为 :param:`L` 。列表右侧有按钮，可让你快速选中或取消选中元件。
+
+绘图精度
 ~~~~~~~~
 
-A list of elements along which the caustic should be plotted. Only elements having the parameter Length are presented in the list. These are empty ranges, crystals, etc. The length parameter is usually called :param:`L`. There are buttons at the right of the list allowing you quickly select or deselect elements.
+这些字段用于设置结果图形中的点数。点数可以直接在“点数”字段中输入。也可以在“按步长”字段中指定点之间的距离（绘图步长）。
 
-Plot accuracy
-~~~~~~~~~~~~~
+对话框中的“可绘长度”值显示光束在元件中能走过的最长 :ref:`几何路径 <axial_length>` 。这成为绘图的水平范围。对于某些元件（例如 :doc:`matrix/ElemBrewsterPlate` ），可绘长度大于元件长度，因为光轴与长度测量方向之间存在夹角。
 
-Fields allow you to set a number of points in the resulting graph. A points count can be input directly in the “Number of points” field. Instead, it is possible to specify a distance between points (plotting step) in the field “With step”.
+对所有元件使用这些设置
+~~~~~~~~~~~~~~~~~~~~~~
 
-The “Plottable length” value in the dialog shows the longest :ref:`geometrical path <axial_length>` a beam can travel in the element. This becomes a plot’s horizontal range. For some elements (e.g., :doc:`matrix/ElemBrewsterPlate`) the plottable length is greater than the element length because there is an angle between the optical axis and the direction the length is measured along.
-
-Use these settings for all elements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use the same number of points for each element. When you do not want to set different point numbers for elements, you just have to set this flag and specify the desired number of points only once. In this case, the same value of the parameter “Number of points” or “With step” will be used for all the elements.
+对每个元件使用相同的点数。当你不想为元件设置不同的点数时，只需设置该标志并仅指定一次所需的点数。在这种情况下，参数“点数”或“按步长”的相同值将用于所有元件。
 
   .. image:: img/func_caustic_mr_params.png
 
-Additional Parameters
----------------------
+附加参数
+--------
 
-:menuSelection:`View --> Function Params`
+:menuSelection:`视图 --> 函数参数`
 
-The function has the same plotting modes as the :ref:`caustic <func_caustic_aux_params>` function has.
+该函数与 :ref:`焦散线 <func_caustic_aux_params>` 函数具有相同的绘图模式。
 
-Special Points
---------------
+特殊点
+------
 
-:menuSelection:`View --> Special Points`
+:menuSelection:`视图 --> 特殊点`
 
-The function calculates the same values as the :ref:`caustic <func_caustic_spec_points>` function does, but for each element separately.
+该函数计算与 :ref:`焦散线 <func_caustic_spec_points>` 函数相同的值，但针对每个元件分别计算。
 
 .. _func_caustic_mr_aux_cmds:
 
-Additional Commands of Plot Window
-----------------------------------
+绘图窗口的附加命令
+------------------
 
-The function has the same commands as the :ref:`caustic <func_caustic_aux_cmds>` function has and adds some new commands.
+该函数与 :ref:`焦散线 <func_caustic_aux_cmds>` 函数具有相同的命令，并增加了一些新命令。
 
 .. _func_caustic_mr_elem_edges:
 
-Toggle Element Edge Markers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+切换元件边缘标记
+~~~~~~~~~~~~~~~~
 
-:menuSelection:`View --> Element Edge Markers`
+:menuSelection:`视图 --> 元件边缘标记`
 
-The command toggles the visibility of vertical lines that are drawn between neighbor plotting ranges (elements).
+该命令切换相邻绘图范围（元件）之间绘制的竖直线的可见性。
 
   .. image:: img/func_caustic_mr_elem_edges.png
 
-Element Bound Markers Format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+元件边界标记格式
+~~~~~~~~~~~~~~~~
 
-:menuSelection:`Format --> Element Edge Markers Format`
+:menuSelection:`格式 --> 元件边缘标记格式`
 
-The command changes the appearance of element edge markers for the current function window. A default appearance which is applied to all newly opened function windows, is controlled via :ref:`application settings <app_settings_lines>`.
+该命令更改当前函数窗口中元件边缘标记的外观。应用于所有新打开的函数窗口的默认外观由 :ref:`应用程序设置 <app_settings_lines>` 控制。
 
 .. seeAlso::
 

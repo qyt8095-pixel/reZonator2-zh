@@ -1,19 +1,19 @@
 .. index:: single: tilted crystal
 
-Tilted Plane-parallel Crystal
-=============================
+倾斜平行晶体
+============
 
-The tilted plane-parallel crystal is characterized by its length `L`, index of refraction `n`, and beam falling angle `α`. The element is similar to :doc:`ElemBrewsterCrystal`, but the falling angle is not fixed and can be set via the element parameter.
+倾斜平行晶体由其长度 `L` 、折射率 `n` 和光束入射角 `α` 表征。该元件与 :doc:`ElemBrewsterCrystal` 相似，但入射角不固定，可以通过元件参数设置。
 
-Full element
+完整元件
 
     .. image:: ElemTiltedCrystal.png
 
-Left half-pass
+左半程
 
     .. image:: ElemTiltedCrystal_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemTiltedCrystal_right.png
 

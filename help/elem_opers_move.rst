@@ -1,16 +1,16 @@
 .. _elem_opers_move:
 .. index:: single: move element (command)
 
-Move Selected
-=============
+移动所选元件
+============
 
-:menuSelection:`Element --> Move Selected Up`
+:menuSelection:`元件 --> 上移所选元件`
 
-:menuSelection:`Element --> Move Selected Down`
+:menuSelection:`元件 --> 下移所选元件`
 
-Move the selected element up or down over the list.
+在列表中上移或下移所选元件。
 
-  .. note:: Moving of several element is not supported. So don't use multi-selection with the command to avoid confusions.
+  .. note:: 不支持移动多个元件。所以不要对该命令使用多选，以免造成混淆。
 
 .. seeAlso::
 

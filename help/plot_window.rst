@@ -1,71 +1,71 @@
 .. _plot_window:
 .. index:: single: plot window
 
-Plot Window
-===========
+绘图窗口
+========
 
-Results of calculations of most functions are represented as graphs in a special plot window. The name of the function is shown in the window's title bar and on its button on the Windows panel of the project window. For example, “Caustic”, “Stability map”. Windows for the same function are incrementally numbered.
+大多数函数的计算结果以图形形式显示在专门的绘图窗口中。函数名称显示在窗口标题栏和项目窗口的窗口面板上的按钮上。例如，“焦散线”、“稳定性图”。同一函数的窗口按顺序编号。
 
   .. image:: img/plot_window.png
 
-Window Components
------------------
+窗口组件
+--------
 
-Plot (1)
+绘图 (1)
 ~~~~~~~~
 
-It is the main part of the plot window showing graphs. It is can show various parts: coordinate axes, coordinate grids, legend, title, cursor, stability boundary lines (for :doc:`stability map <func_stabmap>`), element edge lines (for :doc:`multicaustic <func_caustic_mr>`). Click a plot part to select it. The selected part is highlighted with a color and thicker line and has its own context menu. Also, the values of the selected graph are shown in the data table.
+它是绘图窗口的主要部分，显示图形。它可以显示各个部分：坐标轴、坐标网格、图例、标题、光标、稳定性边界线（对应 :doc:`稳定性图 <func_stabmap>` ）、元件边缘线（对应 :doc:`多重焦散线 <func_caustic_mr>` ）。单击绘图的一部分可将其选中。选中的部分以颜色和较粗的线条突出显示，并有自己的上下文菜单。此外，选中图形的值显示在数据表中。
 
 .. --------------------------------------------------------------------------
 
 .. _plot_window_data_table:
 
-Data Table (2)
-~~~~~~~~~~~~~~
+数据表 (2)
+~~~~~~~~~~
 
-:menuSelection:`View --> Data Table`
+:menuSelection:`视图 --> 数据表`
 
-The table demonstrates a bulk of values that was used to plot the selected graph. The table can be useful if you need to copy a part of values; use the table's context menu. The table is not editable. Precision of displayed values is controlled by the :ref:`application settings <app_settings_format_precision>`.
+该表显示用于绘制选中图形的大量数值。如果需要复制部分数值，该表很有用；请使用表格的上下文菜单。该表不可编辑。显示数值的精度由 :ref:`应用程序设置 <app_settings_format_precision>` 控制。
 
 .. --------------------------------------------------------------------------
 
-Additional Parameters (3)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+附加参数 (3)
+~~~~~~~~~~~~
 
-:menuSelection:`View --> Function Params`
+:menuSelection:`视图 --> 函数参数`
 
-Some functions, like :doc:`func_caustic`, have an additional set of parameters controlling what should be displayed on the plot. These parameters are described in a particular function documentation in the section "Additional Parameters".
+某些函数，例如 :doc:`func_caustic` ，有一组附加参数，控制应在绘图上显示的内容。这些参数在具体函数文档的“附加参数”一节中描述。
 
 .. --------------------------------------------------------------------------
 
 .. _plot_window_spec_points:
 
-Special Points (4)
-~~~~~~~~~~~~~~~~~~
-
-:menuSelection:`View --> Special Points`
-
-The panel displays a set of values that are somehow notable for the current function. Special points are calculated automatically when this panel is visible and the function is recalculated. What is displayed in the panel is described in a particular function documentation in the section "Special Points". Precision of displayed values is controlled by the :ref:`application settings <app_settings_format_precision>`.
-
-.. --------------------------------------------------------------------------
-
-Cursor (5)
+特殊点 (4)
 ~~~~~~~~~~
 
-:menuSelection:`View --> Cursor`
+:menuSelection:`视图 --> 特殊点`
 
-The cursor is one or two crossing lines that can be dragged by the mouse. The cursor panel shows coordinates of the cross point of the cursor and the function values (in T and S planes) calculated at the point under the cursor. See :doc:`plot_cursor`.
+该面板显示一组对当前函数有某种特殊意义的值。特殊点在该面板可见且函数重新计算时自动计算。面板中显示的内容在具体函数文档的“特殊点”一节中描述。显示数值的精度由 :ref:`应用程序设置 <app_settings_format_precision>` 控制。
 
 .. --------------------------------------------------------------------------
 
-Status Bar (6)
-~~~~~~~~~~~~~~
+光标 (5)
+~~~~~~~~
 
-The status bar displays:
+:menuSelection:`视图 --> 光标`
 
-- Units of measurement for X and Y axes. Right-click the label to change units. Or use the context menu of the respective axis.
-- Number of points in the selected graph. Click a graph on the plot to select it.
-- Additional information or context messages depending on a particular function type.
+光标是一条或两条可由鼠标拖动的交叉线。光标面板显示光标交点的坐标，以及在光标所在点计算的函数值（T 和 S 平面）。见 :doc:`plot_cursor` 。
+
+.. --------------------------------------------------------------------------
+
+状态栏 (6)
+~~~~~~~~~~
+
+状态栏显示：
+
+- X 和 Y 轴的计量单位。右键单击标签可更改单位。或使用相应轴的上下文菜单。
+- 选中图形中的点数。单击绘图上的图形可将其选中。
+- 取决于具体函数类型的附加信息或上下文消息。
 
 .. seeAlso::
 

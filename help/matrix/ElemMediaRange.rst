@@ -1,12 +1,12 @@
 .. _ElemMediumRange:
 .. _elem_medium_range:
 
-Space Filled With Medium
-========================
+充满介质的空间
+==============
 
-This element is a distance between two reference planes in a medium with an index of refraction `n`. The element has the same matrix as :doc:`ElemEmptyRange`, but the index of refraction affects beam radius in the medium.
+该元件是折射率为 `n` 的介质中两个参考面之间的距离。该元件与 :doc:`ElemEmptyRange` 具有相同的矩阵，但折射率会影响介质中的光束半径。
 
-Unlike :doc:`ElemPlate`, this element doesn't imply any interfaces. To get proper results, you should put appropriate interface elements at both sides of the medium.
+与 :doc:`ElemPlate` 不同，该元件不包含任何界面。要得到正确的结果，你应在介质两侧放置适当的界面元件。
 
     .. image:: ElemMediaRange.png
 

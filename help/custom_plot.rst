@@ -1,21 +1,21 @@
-Custom Plot Function
-====================
+自定义绘图函数
+==============
 
-:menuSelection:`Functions --> Create Custom Plot Function`
+:menuSelection:`函数 --> 创建自定义绘图函数`
 
-The Custom Plot Function allows you to perform arbitrary user calculations using the provided :doc:`py_api` and output the results as graphs in a :doc:`plot window <plot_window>` rather than in text form like the simpler :doc:`custom_script` function does.  This powerful feature enables you to analyze your optical schema, perform custom computations, and visualize results graphically, making it ideal for visualizing dependencies, trends, and relationships between optical parameters.
+自定义绘图函数允许你使用提供的 :doc:`py_api` 进行任意用户计算，并将结果以图形形式输出到 :doc:`绘图窗口 <plot_window>` 中，而不是像更简单的 :doc:`custom_script` 函数那样以文本形式输出。这一强大功能使你能够分析光学方案、执行自定义计算并以图形方式可视化结果，非常适合可视化光学参数之间的依赖关系、趋势和关系。
 
-For custom functions, the plot window shows an additional command :menuSelection:`Plot --> Show Code` and the respective button with the Python icon on the toolbar. The command opens a code editor window to change the code of your script. This window can be safely closed because the code is actually stored in the plot window, not in the code window. However, if you close the plot window itself, then the function code *will be lost*.
+对于自定义函数，绘图窗口会显示一个附加命令 :menuSelection:`绘图 --> 显示代码` ，以及工具栏上相应的 Python 图标按钮。该命令打开一个代码编辑器窗口，用于更改脚本代码。这个窗口可以安全关闭，因为代码实际存储在绘图窗口中，而不是代码窗口中。但是，如果你关闭绘图窗口本身，函数代码 *将会丢失* 。
 
-Code Module
------------
+代码模块
+--------
 
-A custom function is a user-defined Python module. The first line of the module docstring will be used as a human-readable function name and displayed in the function window headers. This allows you to give your custom plot function a meaningful title. In the plot's title, this name will be substituted instead of the ``{func_name}`` text variable.
+自定义函数是一个用户定义的 Python 模块。模块文档字符串的第一行将用作人类可读的函数名称，并显示在函数窗口标题中。这使你可以为自定义绘图函数指定一个有意义的标题。在绘图标题中，该名称将替代 ``{func_name}`` 文本变量。
 
 ``figure()``
 ~~~~~~~~~~~~
 
-The code module must contain a ``figure()`` function that configures the plot properties. This function is called before each recalculation, which allows you to dynamically change plot properties (such as axis titles based on selected elements) without reopening the window.
+代码模块必须包含一个 ``figure()`` 函数，用于配置绘图属性。每次重新计算之前都会调用该函数，这使你可以动态更改绘图属性（例如根据所选元件更改坐标轴标题），而无需重新打开窗口。
 
 .. code-block:: python
 
@@ -27,17 +27,17 @@ The code module must contain a ``figure()`` function that configures the plot pr
       'y_title': 'Beam radius'
     }
 
-The function should return a dictionary with the following keys:
+该函数应返回一个包含以下键的字典：
 
-- ``x_dim`` - Value dimension for the X-axis (:ref:`Z.DIM_LINEAR <py_const_dim_linear>`, :ref:`Z.DIM_ANGULAR <py_const_dim_angular>`, :ref:`Z.DIM_NONE <py_const_dim_none>`)
-- ``x_title`` - Default title for the X-axis. It can include element labels or parameter descriptions and will be substituted instead of the ``{default_title}`` text variable.
-- ``y_dim`` - Value dimension for the Y-axis
-- ``y_title`` - Default title for the Y-axis
+- ``x_dim`` - X 轴的值量纲（:ref:`Z.DIM_LINEAR <py_const_dim_linear>` 、:ref:`Z.DIM_ANGULAR <py_const_dim_angular>` 、:ref:`Z.DIM_NONE <py_const_dim_none>` ）
+- ``x_title`` - X 轴的默认标题。它可以包含元件标签或参数描述，并将替代 ``{default_title}`` 文本变量。
+- ``y_dim`` - Y 轴的值量纲
+- ``y_title`` - Y 轴的默认标题
 
 ``calculate()``
 ~~~~~~~~~~~~~~~
 
-The code must also contain a ``calculate()`` function that performs the actual calculations and generates the data to plot. This function is called without arguments when you press the :guilabel:`Run` button, or use the :menuSelection:`Script --> Run` menu command, or refresh the plot window via :menuSelection:`Plot --> Update`.
+代码还必须包含一个 ``calculate()`` 函数，用于执行实际计算并生成要绘制的数据。当你按下 :guilabel:`运行` 按钮，或使用 :menuSelection:`脚本 --> 运行` 菜单命令，或通过 :menuSelection:`绘图 --> 更新` 刷新绘图窗口时，将无参数调用该函数。
 
 .. code-block:: python
 
@@ -53,31 +53,31 @@ The code must also contain a ``calculate()`` function that performs the actual c
       }
     ]
 
-The function should return a list of graph line data, where each line is represented as a dictionary with keys:
+该函数应返回图形线条数据列表，其中每条线条由一个包含以下键的字典表示：
 
-- ``label`` - A name displayed in the legend; also, it is a key for combining several lines into a single multi-segment graph
-- ``x`` - List or array of X-coordinate values
-- ``y`` - List or array of Y-coordinate values (must have the same length as ``x``)
+- ``label`` - 图例中显示的名称；同时，它也是将多条线条组合成单个多段图形的键
+- ``x`` - X 坐标值列表或数组
+- ``y`` - Y 坐标值列表或数组（长度必须与 ``x`` 相同）
 
-Output
-~~~~~~
+输出
+~~~~
 
-All calculations in |rezonator| are performed in SI units (meters, radians, etc.). All parameter values provided to scripts are in SI units as well. For custom plot functions, you should return calculated X and Y values in SI units without any conversion. Because the plot window has built-in capability to choose and display units according to the axes' dimension types (``x_dim`` and ``y_dim`` properties defined in the ``figure()`` function). The user can select preferred units through the plot window interface.
+|rezonator| 中的所有计算均以 SI 单位（米、弧度等）进行。提供给脚本的所有参数值也以 SI 单位表示。对于自定义绘图函数，你应返回 SI 单位的计算 X 值和 Y 值，无需任何转换。因为绘图窗口具有内置功能，可根据坐标轴的量纲类型（``figure()`` 函数中定义的 ``x_dim`` 和 ``y_dim`` 属性）选择和显示单位。用户可以通过绘图窗口界面选择首选单位。
 
-The results from the ``calculate()`` function are automatically displayed as graphs in a :doc:`plot_window`. You can return multiple dictionaries to display several lines on the same plot. Dictionaries with the same ``label`` become parts of a single multi-segment graph. You can use NaN (as ``float('nan')``) for Y values where the function is undefined or the resonator is unstable. A single line containing NaN values will be broken into several segments and also become a multi-segment graph. Line labels "T" and "S" are treated additionally so that a special :ref:`graph format <app_settings_lines>` for tangential and sagittal planes gets applied.
+``calculate()`` 函数的结果会自动显示为 :doc:`plot_window` 中的图形。你可以返回多个字典，在同一绘图上显示多条线条。具有相同 ``label`` 的字典成为单个多段图形的组成部分。你可以在函数未定义或谐振腔不稳定的位置使用 NaN（写作 ``float('nan')`` ）作为 Y 值。包含 NaN 值的单条线条会被拆分为多个段，也成为多段图形。线条标签 "T" 和 "S" 会被特殊处理，以便应用针对子午面和弧矢面的特殊 :ref:`图形格式 <app_settings_lines>` 。
 
-For simple text output or debugging, use :doc:`custom_script`. For tabular data presentation, consider :doc:`custom_table`.
+对于简单的文本输出或调试，请使用 :doc:`custom_script` 。对于表格数据展示，请考虑 :doc:`custom_table` 。
 
 .. _custom_plot_lock:
 
-Element Locking
----------------
+元件锁定
+--------
 
-When your calculation varies element parameters (e.g., in a parameter sweep), you should lock the element before modifying it and unlock it afterward. This approach:
+当你的计算改变元件参数时（例如在参数扫描中），你应在修改元件之前锁定它，之后再解锁。这种方法：
 
-- Preserves the original parameter value for automatic restoration
-- Disables UI updates during calculations for better performance
-- Prevents recalculation of other functions while parameters change
+- 保留原始参数值以便自动恢复
+- 在计算期间禁用界面更新，以获得更好的性能
+- 防止参数变化时重新计算其他函数
 
 .. code-block:: python
 
@@ -89,9 +89,9 @@ When your calculation varies element parameters (e.g., in a parameter sweep), yo
   finally:
       elem.unlock()
 
-Always use a try/finally block to ensure the element is unlocked even if an error occurs.
+始终使用 try/finally 块，以确保即使发生错误也能解锁元件。
 
-A more convenient way is the usage of Python's ``with`` block and the intended :ref:`Element.param_ref() <py_method_elem_param_ref>` or :ref:`schema.param_ref() <py_method_schema_param_ref>` methods returning the :doc:`ParamRef <py_param_ref>` object, which allows for automatically locking/unlocking and parameter value restoring:
+更方便的方法是使用 Python 的 ``with`` 块，以及 :ref:`Element.param_ref() <py_method_elem_param_ref>` 或 :ref:`schema.param_ref() <py_method_schema_param_ref>` 方法返回的 :doc:`ParamRef <py_param_ref>` 对象，它允许自动锁定/解锁和参数值恢复：
 
 .. code-block:: python
 
@@ -100,22 +100,22 @@ A more convenient way is the usage of Python's ``with`` block and the intended :
       r.set_value(value)
       # Perform calculations...
 
-Custom Library
---------------
+自定义库
+--------
 
-You can save your code for later usage into a :ref:`custom code library <custom_func_lib>` using the :menuSelection:`Script --> Save to Custom Library` menu command. This allows you to build a collection of reusable calculation scripts for common tasks
+你可以使用 :menuSelection:`脚本 --> 保存到自定义库` 菜单命令，将代码保存到 :ref:`自定义代码库 <custom_func_lib>` 中以供日后使用。这使你可以为常见任务建立可复用计算脚本的集合
 
-Custom Parameters
------------------
+自定义参数
+----------
 
-Custom parameters are arbitrary parameters that you can add to any element in addition to its predefined parameters. They are especially useful for custom table functions because they allow you to calculate or track properties that are not covered by the element's default parameters.
+自定义参数是你可以在任何元件上添加的任意参数，是元件预定义参数之外的补充。它们对自定义表格函数特别有用，因为它们允许你计算或跟踪元件默认参数未涵盖的属性。
 
-You can add custom parameters to elements through the element properties dialog, and then access them in your calculations using the :ref:`Element.param()<py_method_elem_param>` method. This provides flexibility to extend elements with project-specific data or properties specific to your custom calculations.
+你可以通过元件属性对话框向元件添加自定义参数，然后在计算中使用 :ref:`Element.param() <py_method_elem_param>` 方法访问它们。这提供了灵活性，可以用项目特定的数据或针对你自定义计算的属性来扩展元件。
 
-Example Projects
-----------------
+示例项目
+--------
 
-Open complete working examples ``custom_plot.rez`` and ``misalign.rez`` available via :menuSelection:`File --> Open Example` to see how custom plot functions work in practice and use it as a template for your own calculations. Use the "custom plot" filter in the Open Example dialog to see available examples for the subject.
+通过 :menuSelection:`文件 --> 打开示例` 打开完整的工作示例 ``custom_plot.rez`` 和 ``misalign.rez`` ，了解自定义绘图函数在实践中的工作方式，并将其用作你自己计算的模板。在“打开示例”对话框中使用 "custom plot" 筛选器查看该主题的可用示例。
 
 .. seeAlso::
 
@@ -124,4 +124,4 @@ Open complete working examples ``custom_plot.rez`` and ``misalign.rez`` availabl
   - :doc:`custom_funcs`
   - :doc:`custom_script`
   - :doc:`custom_table`
-  - :ref:`Example - Custom Caustic Function <py_example_custom_caustic>`
+  - :ref:`示例 - 自定义焦散线函数 <py_example_custom_caustic>`

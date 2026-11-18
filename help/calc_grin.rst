@@ -1,5 +1,5 @@
-GRIN Lens Assessment
-====================
+GRIN 透镜评估
+=============
 
 .. |n0| replace:: `n`\ :sub:`0`
 .. |n2| replace:: `n`\ :sub:`2`
@@ -10,27 +10,27 @@ GRIN Lens Assessment
 .. |r3| replace:: `r`\ :sub:`3`
 .. |v3| replace:: `V`\ :sub:`3`
 
-:menuselection:`Tools --> GRIN Lens Assessment`
+:menuselection:`工具 --> GRIN 透镜评估`
 
-The tool *GRIN Lens Assessment* allows for calculation of GRIN-lens focal range `F` from known length `L`, axial IOR |n0|, and gradient constant |n2|.
+工具 *GRIN 透镜评估* 可以根据已知的长度 `L` 、轴向折射率 |n0| 和梯度常数 |n2| 计算 GRIN 透镜的焦距范围 `F` 。
 
-Or it's possible to calculate gradient constant |n2| from known focal range `F`, length `L`, and axial IOR |n0|. In any case, `L` and |n0| are always input parameters. 
+也可以根据已知的焦距范围 `F` 、长度 `L` 和轴向折射率 |n0| 计算梯度常数 |n2| 。无论哪种情况，`L` 和 |n0| 始终是输入参数。
 
   .. image:: img/calc_grin.png
 
-Buttons on the toolbar define which of the values |n2| or `F` calculated when we change one of `L` or |n0|.
+工具栏上的按钮决定了当我们改变 `L` 或 |n0| 中的一个时，计算 |n2| 和 `F` 中的哪一个值。
  
-Because |n2| and `F` are free parameters here, then when one of them changes, the other is calculated independently on which button pressed on the toolbar.
+因为在这里 |n2| 和 `F` 都是自由参数，所以当其中一个改变时，另一个会被计算出来，与工具栏上按下哪个按钮无关。
 
   
-Focus Range Assessment
-----------------------
+焦距范围评估
+------------
 
-A geometric approach used to estimate the focus range of the GRIN-lens. It's done according to the book "Quantum Electronics" by A. Yariv, see chapter 6.4 "Rays in lenslike media" (there is no exact algorithm there but the final formula is given).
+一种用于估算 GRIN 透镜焦距范围的几何方法。它依据 A. Yariv 的著作 "Quantum Electronics"，见第 6.4 章 "Rays in lenslike media"（其中没有给出精确算法，但给出了最终公式）。
 
   .. image:: img/calc_grin_draw.png
   
-We have a :doc:`matrix/ElemGrinLens` and a parallel input ray (|r1|, |v1|) entering it. Then an output ray (|r2|, |v2|) can be calculated with :ref:`ray vector transformation <ray_vector>` formula: 
+我们有一个 :doc:`matrix/ElemGrinLens` 和一束进入它的平行入射光线（|r1| 、|v1| ）。然后可以用 :ref:`光线矢量变换 <ray_vector>` 公式计算出射光线（|r2| 、|v2| ）：
 
   .. tex:
     \begin{aligned}
@@ -47,7 +47,7 @@ We have a :doc:`matrix/ElemGrinLens` and a parallel input ray (|r1|, |v1|) enter
     \end{aligned}
   .. image:: img/calc_grin_f1.png
 
-Then similarly, we can express the ray (|r3|, |v3|) from the ray (|r2|, |v2|) and matrix of the :doc:`free space <matrix/ElemEmptyRange>`:
+然后类似地，我们可以根据光线（|r2| 、|v2| ）和 :doc:`自由空间 <matrix/ElemEmptyRange>` 的矩阵表示光线（|r3| 、|v3| ）：
 
   .. tex:
     \begin{aligned}
@@ -62,17 +62,17 @@ Then similarly, we can express the ray (|r3|, |v3|) from the ray (|r2|, |v2|) an
     \end{aligned}
   .. image:: img/calc_grin_f2.png
 
-Then combining these two expressions and solving against `F`, we can get the final formula:
+然后把这两个表达式联立起来对 `F` 求解，可以得到最终公式：
 
   .. tex: F = \frac 1 {n_0 \gamma} \frac {\cos(\gamma L)}{\sin(\gamma L)} = \frac 1 {n_0 \gamma \tan(\gamma L)}
   .. image:: img/calc_grin_f0.png
 
-Negative lens
-^^^^^^^^^^^^^
+负透镜
+^^^^^^
 
   .. image:: img/calc_grin_draw_neg.png
 
-In a similar way we can get the focal length of negative thermal lens:
+用类似的方法可以得到负热透镜的焦距：
 
   .. tex:
     \begin{aligned}
@@ -89,7 +89,7 @@ In a similar way we can get the focal length of negative thermal lens:
     \end{aligned}
   .. image:: img/calc_grin_f1_neg.png
 
-It can be seen from the figure that vector radius |r3| is doubled after passing the focal length:
+从图中可以看出，光线矢量的半径 |r3| 在经过焦距后加倍：
 
   .. tex:
     \begin{aligned}
@@ -104,13 +104,12 @@ It can be seen from the figure that vector radius |r3| is doubled after passing 
     \end{aligned}
   .. image:: img/calc_grin_f2_neg.png
 
-So combining these two expressions and solving against `F`, we get a formula which is quite similar to that of positive lens:
+因此把这两个表达式联立起来对 `F` 求解，得到的公式与正透镜的公式非常相似：
 
   .. tex: F = - \frac 1 {n_0 \gamma} \frac {\cosh(\gamma L)}{\sinh(\gamma L)} = - \frac 1 {n_0 \gamma \tanh(\gamma L)}
   .. image:: img/calc_grin_f0_neg.png
 
-Gradient Constant Assessment
-----------------------------
+梯度常数评估
+------------
 
-There is no such simple formula for gradient index |n2|, so it's computed via numerical solution of the above formula against |n2| having known `F`, `L`, and |n0|.
-
+梯度折射率 |n2| 没有这样简单的公式，因此是在已知 `F` 、`L` 和 |n0| 的情况下，通过对上述公式关于 |n2| 的数值求解来计算的。

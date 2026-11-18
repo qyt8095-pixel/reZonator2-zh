@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #
-# Script produces validation data for
-# Gauss Calculator Tool tests (../src/test/test_GaussCalculator.cpp).
-# Tool explanation with formulas is in GaussCalculator.md file.
+# 本脚本为高斯光束计算器工具测试（../src/test/test_GaussCalculator.cpp）生成验证数据。
+# 该工具的公式说明见 GaussCalculator.md 文件。
 #
 
 from math import *
@@ -15,12 +14,12 @@ NAMES = ['mi', 'wl', 'w0', 'z0', 'Vs',
 
 def change_W0():
   print('\n----------------------------------')
-  print('Change waist:')
+  print('改变束腰：')
   wl = 980e-9
   z = 0.1
   mi = 2
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   w0 = 100e-6
   
   z0 = pi * sqr(w0) / mi / wl
@@ -32,7 +31,7 @@ def change_W0():
   
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   w0 = 75e-6
   
   z = R*(1 - sqr(w0 / w))
@@ -45,13 +44,13 @@ def change_W0():
 
 def change_Z0():
   print('\n----------------------------------')
-  print('Change Rayleigh length:')
+  print('改变瑞利长度：')
 
   wl = 1.1e-6
   w0 = 100e-6
   z = 0.1
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   z0 = 0.012
   
   mi = pi * sqr(w0) / wl / z0
@@ -63,10 +62,10 @@ def change_Z0():
   
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   z0 = 0.016
 
-  print('\nFar zone:')
+  print('\n远区：')
   z = R/2.0 + sqrt(sqr(R) - 4*sqr(z0))/2.0
   w0 = sqrt(sqr(w) / (1 + sqr(z / z0)))
   mi = pi * sqr(w0) / wl / z0
@@ -74,7 +73,7 @@ def change_Z0():
 
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nNear zone:')
+  print('\n近区：')
   z = R/2.0 - sqrt(sqr(R) - 4*sqr(z0))/2.0
   w0 = sqrt(sqr(w) / (1 + sqr(z / z0)))
   mi = pi * sqr(w0) / wl / z0
@@ -85,13 +84,13 @@ def change_Z0():
 
 def change_Vs():
   print('\n----------------------------------')
-  print('Change divergence angle:')
+  print('改变发散角：')
 
   wl = 640e-9
   w0 = 100e-6
   z = 0.1
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   Vs = 0.07
 
   mi = pi * w0 * Vs / wl
@@ -103,7 +102,7 @@ def change_Vs():
 
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   Vs = 0.08
 
   z = sqr(w) / R / sqr(Vs)
@@ -116,13 +115,13 @@ def change_Vs():
 
 def change_Z():
   print('\n----------------------------------')
-  print('Change axial distance:')
+  print('改变轴向距离：')
 
   wl = 640e-9
   w0 = 100e-6
   mi = 2
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   z = 0.1
 
   z0 = pi * sqr(w0) / mi / wl
@@ -134,7 +133,7 @@ def change_Z():
 
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   z = 0.09
 
   z0 = sqrt(z * (R - z))
@@ -147,12 +146,12 @@ def change_Z():
 
 def change_M2():
   print('\n----------------------------------')
-  print('Change beam quality:')
+  print('改变光束质量：')
   wl = 980e-9
   w0 = 100e-6
   z = 0.1
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   mi = 2
   
   z0 = pi * sqr(w0) / mi / wl
@@ -164,7 +163,7 @@ def change_M2():
   
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   mi = 1.7
   
   tmp = pow(w, 4) * sqr(pi)
@@ -182,12 +181,12 @@ def change_M2():
 
 def change_W():
   print('\n----------------------------------')
-  print('Change beam radius:')
+  print('改变光束半径：')
   wl = 640e-9
   w0 = 100e-6
   z = 0.1  
   
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   w = 600e-6
   
   z0 = z * w0 / sqrt(sqr(w) - sqr(w0))
@@ -200,7 +199,7 @@ def change_W():
   
   for name in NAMES: print_res(name, eval(name))
   
-  print('\nLock front:')
+  print('\n锁定波前：')
   w = 700e-6
   
   z0 = sqrt(z * (R - z))
@@ -215,12 +214,12 @@ def change_W():
 
 def change_R():
   print('\n----------------------------------')
-  print('Change wavefront ROC:')
+  print('改变波前曲率半径：')
   wl = 640e-9
   w0 = 100e-6
   z = 0.1  
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   R = 0.12
   
   z0 = sqrt(z * (R - z))
@@ -232,7 +231,7 @@ def change_R():
   
   for name in NAMES: print_res(name, eval(name))
   
-  print('\nLock front:')
+  print('\n锁定波前：')
   R = 0.11
   
   z0 = sqrt(z * (R - z))
@@ -247,11 +246,11 @@ def change_R():
 
 def change_Q():
   print('\n----------------------------------')
-  print('Change complex beam parameter:')
+  print('改变复光束参数：')
   wl = 640e-9
   w0 = 100e-6
   
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   q = complex(0.1, -0.036)
   q_inv = 1 / q
   
@@ -266,7 +265,7 @@ def change_Q():
   
   for name in NAMES: print_res(name, eval(name))
   
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   q = complex(0.9, -0.040)
   q_inv = 1 / q
   
@@ -284,12 +283,12 @@ def change_Q():
 
 def change_Q1_re():
   print('\n----------------------------------')
-  print('Change inverted complex beam parameter (real part):')
+  print('改变倒复光束参数（实部）：')
   wl = 640e-9
   w0 = 100e-6
   z = 0.1  
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   q_inv_re = 9 
   
   R = 1.0 / q_inv_re
@@ -302,7 +301,7 @@ def change_Q1_re():
   
   for name in NAMES: print_res(name, eval(name))
   
-  print('\nLock front:')
+  print('\n锁定波前：')
   q_inv_re = 8
 
   R = 1.0 / q_inv_re
@@ -318,12 +317,12 @@ def change_Q1_re():
 
 def change_Q1_im():
   print('\n----------------------------------')
-  print('Change inverted complex beam parameter (imaginary part):')
+  print('改变倒复光束参数（虚部）：')
   wl = 640e-9
   w0 = 100e-6
   z = 0.1  
   
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   q_inv_im = 0.05
   
   w = sqrt(wl / pi / q_inv_im)
@@ -337,7 +336,7 @@ def change_Q1_im():
   
   for name in NAMES: print_res(name, eval(name))
   
-  print('\nLock front:')
+  print('\n锁定波前：')
   q_inv_im = 0.45
   
   w = sqrt(wl / pi / q_inv_im)
@@ -354,12 +353,12 @@ def change_Q1_im():
 
 def change_Lambda():
   print('\n----------------------------------')
-  print('Change wavelength:')
+  print('改变波长：')
   w0 = 100e-6
   z = 0.1
   mi = 2
 
-  print('\nLock waist:')
+  print('\n锁定束腰：')
   wl = 980e-9
   
   z0 = pi * sqr(w0) / mi / wl
@@ -371,7 +370,7 @@ def change_Lambda():
   
   for name in NAMES: print_res(name, eval(name))
 
-  print('\nLock font:')
+  print('\n锁定波前：')
   wl = 640e-9
 
   z0 = sqrt(z * (R - z))

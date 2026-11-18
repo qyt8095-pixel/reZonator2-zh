@@ -1,121 +1,121 @@
-Table Operations
-================
+表格操作
+========
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Menu Edit
----------
+编辑菜单
+--------
 
 .. _table_opers_copy:
 
-Copy
+复制
 ~~~~
 
-The command copies the content of selected table cells into the clipboard. If there are position icons int the cells, they are copied in text representation. See :doc:`table_symbols`.
+该命令把所选表格单元格的内容复制到剪贴板。如果单元格中有位置图标，它们会以文本形式复制。见 :doc:`table_symbols` 。
 
 .. --------------------------------------------------------------------------
 
-Select All
-~~~~~~~~~~
+全选
+~~~~
 
-Select all cells in the current table window.
-
-.. --------------------------------------------------------------------------
-.. --------------------------------------------------------------------------
-
-Menu Table
-----------
+选中当前表格窗口中的所有单元格。
 
 .. --------------------------------------------------------------------------
+.. --------------------------------------------------------------------------
 
-Update
-~~~~~~
+表格菜单
+--------
 
-:menuSelection:`Table --> Update (F5)`
+.. --------------------------------------------------------------------------
 
-The command calculates the function again. The command is inaccessible if the current function is :doc:`frozen<func_freeze>`.
+更新
+~~~~
+
+:menuSelection:`表格 --> 更新 (F5)`
+
+该命令重新计算函数。如果当前函数是 :doc:`已冻结<func_freeze>` ，则该命令不可用。
 
 .. --------------------------------------------------------------------------
 
 .. _table_opers_freeze:
 
-Freeze
-~~~~~~
+冻结
+~~~~
 
-:menuSelection:`Table --> Freeze (Ctrl+F)`
+:menuSelection:`表格 --> 冻结 (Ctrl+F)`
 
-The command freezes the current table window. See :doc:`func_freeze` for details.
+该命令冻结当前表格窗口。详情见 :doc:`func_freeze` 。
 
 .. --------------------------------------------------------------------------
 
 .. _table_opers_show_t:
 
-Show T-plane
-~~~~~~~~~~~~
+显示 T 平面
+~~~~~~~~~~~
 
-:menuSelection:`Table --> Show T-plane`
+:menuSelection:`表格 --> 显示 T 平面`
 
-The command toggles visibility of results for the tangential (T) plane.
+该命令切换切向（T）平面结果的可见性。
 
   .. note::
-    One of the result sets (for T or S plane) always stays visible. It means if one of the sets is hidden and you try to hide the other one, then the first becomes visible.
+    其中一组结果（T 平面或 S 平面）始终保持可见。也就是说，如果其中一组已隐藏，而你试图隐藏另一组，那么第一组会重新变为可见。
 
 .. --------------------------------------------------------------------------
 
-Show S-plane
-~~~~~~~~~~~~
+显示 S 平面
+~~~~~~~~~~~
 
-:menuSelection:`Table --> Show S-plane`
+:menuSelection:`表格 --> 显示 S 平面`
 
-The command toggles visibility of results for the sagittal (S) plane.
+该命令切换弧矢（S）平面结果的可见性。
 
   .. note::
-    One of the result sets (for T or S plane) always stays visible. It means if one of the sets is hidden and you try to hide the other one, then the first becomes visible.
+    其中一组结果（T 平面或 S 平面）始终保持可见。也就是说，如果其中一组已隐藏，而你试图隐藏另一组，那么第一组会重新变为可见。
 
 .. --------------------------------------------------------------------------
 
 .. _table_opers_calc_at_medium_ends:
 
-Calculate at medium ends
-~~~~~~~~~~~~~~~~~~~~~~~~
+在介质端面处计算
+~~~~~~~~~~~~~~~~
 
-:menuSelection:`Table --> Options --> Calculate at medium ends`
+:menuSelection:`表格 --> 选项 --> 在介质端面处计算`
 
-Calculate function in :doc:`matrix/ElemMediaRange` elements. This is a debug option. In general, it's important to know beam parameters at interfaces surrounding the medium.
+在 :doc:`matrix/ElemMediaRange` 元件中计算函数。这是一个调试选项。一般来说，了解介质周围界面处的光束参数很重要。
 
   .. image:: img/table_calc_medium_ends.png
 
 
 .. --------------------------------------------------------------------------
 
-Calculate in empty spaces
-~~~~~~~~~~~~~~~~~~~~~~~~~
+在空程中计算
+~~~~~~~~~~~~
 
-:menuSelection:`Table --> Options --> Calculate in empty spaces`
+:menuSelection:`表格 --> 选项 --> 在空程中计算`
 
-Calculate function values in :doc:`matrix/ElemEmptyRange` elements. This is a debug option. In a common case, an empty space separates some ‘rigid’ elements: lenses, crystals, etc. The function value on those elements will be the same as the values on the adjoined ends of the neighboring empty space.
+在 :doc:`matrix/ElemEmptyRange` 元件中计算函数值。这是一个调试选项。在常见情况下，一个空程分隔了一些“刚性”元件：透镜、晶体等。这些元件上的函数值与相邻空程相接端点处的值相同。
 
   .. image:: img/table_calc_empty_spaces.png
 
 .. --------------------------------------------------------------------------
 
-Calculate in the middle of ranges
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+在程段中间计算
+~~~~~~~~~~~~~~
 
-:menuSelection:`Table --> Options --> Calculate in the middle of ranges`
+:menuSelection:`表格 --> 选项 --> 在程段中间计算`
 
-Calculate function in the middle of :doc:`matrix/ElemEmptyRange` and :doc:`matrix/ElemMediaRange` elements. This is a debug option.
+在 :doc:`matrix/ElemEmptyRange` 和 :doc:`matrix/ElemMediaRange` 元件的中间计算函数。这是一个调试选项。
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Toolbar
--------
+工具栏
+------
 
 .. _table_opers_units:
 
-The toolbar contains a button with the caliper icon that shows a popup menu where you can select a unit of measurement that should be used for formatting values in each column. Alternatively, the same menu can be invoked by the right click in the column header.
+工具栏包含一个带有卡尺图标的按钮，点击它会显示一个弹出菜单，你可以在其中选择用于格式化每列值的度量单位。另外，也可以在列标题上右键单击来调用同一个菜单。
 
 .. --------------------------------------------------------------------------
 

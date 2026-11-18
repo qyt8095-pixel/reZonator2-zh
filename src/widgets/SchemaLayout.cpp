@@ -233,7 +233,7 @@ void SchemaScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 
 const char* ElementLayoutOptionsView::altVersionOptionTitle() const
 {
-    return QT_TRANSLATE_NOOP("LayoutOptions", "Draw narrow version of element");
+    return QT_TRANSLATE_NOOP("LayoutOptions", "绘制元件的窄版");
 }
 
 //------------------------------------------------------------------------------

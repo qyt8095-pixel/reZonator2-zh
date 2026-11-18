@@ -1,14 +1,14 @@
 .. index:: single: gaussian aperture
 .. index:: single: aperture (gaussian)
 
-Gaussian aperture
-=================
+高斯光阑
+========
 
-The element is implemented according to Siegman book "Lasers", chapter 20.3 "Gaussian apertures and complex ABCD matrices".
+该元件依据 Siegman 的著作《Lasers》第 20.3 章“Gaussian apertures and complex ABCD matrices”实现。
 
-This is a thin optical element consisting of a "soft-aperture" which has a quadratic transversely varying wave-amplitude transmission.
+这是一种薄光学元件，由一个“软光阑”组成，其波振幅透过率沿横向呈二次变化。
 
-The coefficient `α` is the total loss factor through an aperture.
+系数 `α` 是通过光阑的总损耗因子。
 
     .. image:: ElemGaussAperture.png
 

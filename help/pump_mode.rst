@@ -1,74 +1,74 @@
 .. _pump_mode:
 .. index:: single: pump mode
 
-Pump Mode
-=========
+泵浦模式
+========
 
-:menuSelection:`Windows --> Pumps --> Pump --> Create (Ctrl+Ins)`
+:menuSelection:`窗口 --> 泵浦 --> 泵浦 --> 创建 (Ctrl+Ins)`
 
-For SP schemas, you can specify parameters of the input beam in several ways.
+对于 SP 光路图，你可以通过几种方式指定输入光束的参数。
 
   .. image:: img/select_pump_mode.png
 
 
 .. _pump_mode_waist:
 
-Waist
------
+束腰
+----
 
-In this mode, you can specify a waist radius and a distance from the waist to the first element of the schema.
+在此模式下，你可以指定束腰半径以及束腰到光路图第一个元件的距离。
 
-The waist radius and the wavefront curvature radius of an equivalent Gaussian beam at the first element of the schema are calculated using these parameters and a given M² value. Then the complex curvature radius of the equivalent Gaussian beam is calculated, and then it is affected by the schema matrices.
+使用这些参数和给定的 M² 值，计算等效高斯光束在光路图第一个元件处的束腰半径和波前曲率半径。然后计算等效高斯光束的复曲率半径，再由光路图矩阵对其产生作用。
 
   .. image:: img/pump_waist.png
 
 
 .. _pump_mode_front:
 
-Front
------
+波前
+----
 
-In this mode, you can specify a radius and a wavefront curvature of the input beam at the first element of the schema.
+在此模式下，你可以指定输入光束在光路图第一个元件处的半径和波前曲率。
 
-The complex radius of curvature of the equivalent Gaussian beam is calculated using these parameters and the given M² value. And then it is affected by the schema matrices.
+使用这些参数和给定的 M² 值计算等效高斯光束的复曲率半径，然后由光路图矩阵对其产生作用。
 
   .. image:: img/pump_front.png
 
 
 .. _pump_mode_vector:
 
-Ray Vector
-----------
+光线矢量
+--------
 
-In this mode, you can specify a radius and half of the spread angle of the input beam at the first element of the schema.
+在此模式下，你可以指定输入光束在光路图第一个元件处的半径和发散角之半。
 
-No complex radius of curvature is calculated in this case, and the M² parameter is not taken into account. The beam is considered in a geometrical approach, but not as a Gaussian beam.
+在这种情况下不计算复曲率半径，也不考虑 M² 参数。光束按几何方法处理，而不是作为高斯光束处理。
 
   .. image:: img/pump_ray.png
 
 
 .. _pump_mode_sections:
 
-Two Sections
-------------
+两个截面
+--------
 
-This method is the same as the ‘Ray vector.’ However, instead of setting a divergence angle, you can specify the radii of two sections and a distance between them, and the divergence angle is calculated. The beam is considered in a geometrical approach too.
+该方法与“光线矢量”相同。但你不是设置发散角，而是指定两个截面的半径及其之间的距离，由此计算出发散角。光束同样按几何方法处理。
 
   .. image:: img/pump_sects.png
 
 
 .. _pump_mode_complex:
 
-Complex or Inverse Complex
---------------------------
+复数或逆复数
+------------
 
-In this mode you can specify real and imaginary parts of the complex radius of curvature of the input beam at the first element of the schema.
+在此模式下，你可以指定输入光束在光路图第一个元件处的复曲率半径的实部和虚部。
 
-If you set the M² parameter to a value different from 1, then it is supposed that real and imaginary parts correspond to the complex radius of curvature of a pseudo-Gaussian beam. The complex parameter of the equivalent Gaussian beam is calculated using that parameter and the given M² value. And then it is affected by the schema matrices.
+如果你将 M² 参数设为不等于 1 的值，则假定实部和虚部对应于准高斯光束的复曲率半径。使用该参数和给定的 M² 值计算等效高斯光束的复参数，然后由光路图矩阵对其产生作用。
 
 .. note::
 
-  When you set up the input beam via its complex radius of curvature, you should bear in mind that the imaginary part of the inverse complex radius of curvature. Therefore, the entire value of the complex radius of curvature depends on the wavelength. If you change the working wavelength of the schema, then the same value of the complex radius of curvature becomes referring to another beam.
+  通过复曲率半径设置输入光束时，你应注意逆复曲率半径的虚部。因此，复曲率半径的整个值取决于波长。如果更改光路图的工作波长，同一复曲率半径值便对应于另一束光束。
 
 |para|
 

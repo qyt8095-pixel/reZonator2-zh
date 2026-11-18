@@ -7,7 +7,7 @@ class MultibeamCausticFunction : public MultirangeCausticFunction
 {
 public:
     FUNC_ALIAS("MultibeamCaustic")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "MB-Caustic"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "多光束焦散线"))
     FUNC_ICON(":/toolbar/func_multi_beam_caustic")
     FUNC_HELP("func_caustic_mb.html")
 

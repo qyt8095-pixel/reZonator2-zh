@@ -1,20 +1,20 @@
-Round-trip for Plot
-===================
+用于绘图的往返
+==============
 
-:menuSelection:`Plot --> Show Round-trip`
+:menuSelection:`绘图 --> 显示往返`
 
-It's a special kind of the :doc:`func_rt` function showing a round-trip used for calculation of a particular value of a plot function. It takes the last :ref:`cursor <cursor>` position as the calculation target so you can check what matrices were used for getting the values shown in the cursor line.
+它是 :doc:`func_rt` 函数的一种特殊形式，显示用于计算绘图函数某个值的往返。它以上次 :ref:`光标 <cursor>` 位置作为计算目标，以便你查看光标行中显示的值是使用哪些矩阵得到的。
 
     .. image:: img/func_rt_plot_1.png
 
 .. note::
-    The function does not update automatically when you move the cursor line. Please click the Update button or hit F5 in the round-trip window after you reposition the cursor line.
+    移动光标行时，该函数不会自动更新。请在重新放置光标行后，单击往返窗口中的“更新”按钮或按 F5。
 
-The :doc:`func_caustic_mr` function uses several inner :doc:`func_caustic` functions for plotting the whole graph. So you need to open a separate round-trip window when you shift the cursor line to a different element.
+:doc:`func_caustic_mr` 函数使用多个内部的 :doc:`func_caustic` 函数来绘制整张图。因此，当你将光标行移到另一个元件时，需要打开一个单独的往返窗口。
 
     .. image:: img/func_rt_plot_2.png
 
-.. TODO: it's too difficult to understand, rephrase: If the same element is plotted in several window, then displayed offset in the round-trip window can differ from a position of the cursor line in a window the round-trip is opened for. This round-trip function aims mostly debug and test purposes so it doesn't monitor very carefully from where elements are modified. Its intended usage is "move cursor, hit update". Also don't keep too many of such windows opened simultaneously in order not to get confused.
+.. TODO: 很难理解，改写一下：如果同一元件在多个窗口中绘图，则往返窗口中显示的偏移可能与打开往返的那个窗口中光标行的位置不同。该往返函数主要用于调试和测试，因此它不会很仔细地监测元件是从哪里被修改的。其预期用法是“移动光标，按更新”。另外，不要同时打开太多这样的窗口，以免混淆。
 
 .. TODO:    .. image:: img/func_rt_plot_3.png
 

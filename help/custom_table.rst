@@ -1,21 +1,21 @@
-Custom Table Function
-=====================
+自定义表格函数
+==============
 
-:menuSelection:`Functions --> Create Custom Table Function`
+:menuSelection:`函数 --> 创建自定义表格函数`
 
-The Custom Table Function allows you to perform arbitrary user calculations using the provided :doc:`py_api` and output the results into a :doc:`table view <table_window>` rather than in text form like the simpler :doc:`custom_script` function does. This powerful feature enables you to analyze your optical schema, perform custom computations, and present results in a structured tabular format, making it ideal for comparing values across multiple elements or positions.
+自定义表格函数让你可以使用提供的 :doc:`py_api` 执行任意用户计算，并把结果输出到 :doc:`表格视图 <table_window>` 中，而不是像更简单的 :doc:`custom_script` 函数那样以文本形式输出。这一强大的功能让你可以分析光学方案、执行自定义计算，并以结构化的表格形式呈现结果，非常适合比较多个元件或位置的值。
 
-For custom functions, the table window shows an additional command :menuSelection:`Table --> Show Code` and the respective button with the Python icon on the toolbar. The command opens a code editor window to change the code of your script. This window can be safely closed because the code is actually stored in the table window, not in the code window. However, if you close the table window itself, then the function code *will be lost*.
+对于自定义函数，表格窗口会多出一条命令 :menuSelection:`表格 --> 显示代码` ，以及工具栏上一个带 Python 图标的相应按钮。该命令会打开代码编辑器窗口来修改脚本代码。这个窗口可以安全地关闭，因为代码实际保存在表格窗口中，而不是代码窗口中。但是，如果你关闭表格窗口本身，函数代码 *将会丢失* 。
 
-Code Module
------------
+代码模块
+--------
 
-A custom function is a user-defined Python module. The first line of the module docstring will be used as a human-readable function name and displayed in the function window headers. This allows you to give your function a meaningful title.
+自定义函数是一个用户定义的 Python 模块。模块文档字符串的第一行将用作人类可读的函数名，并显示在函数窗口的标题中。这样你可以给函数起一个有意义的标题。
 
 ``columns()``
 ~~~~~~~~~~~~~
 
-The code module must provide a ``columns()`` function that defines the structure and properties of the table columns. This function is called before each recalculation, which allows you to dynamically change table structure (such as column titles based on selected elements or parameters) without reopening the window.
+代码模块必须提供一个 ``columns()`` 函数，用于定义表格列的结构和属性。该函数在每次重新计算之前调用，这让你可以动态改变表格结构（例如根据所选元件或参数改变列标题），而无需重新打开窗口。
 
 .. code-block:: python
 
@@ -33,16 +33,16 @@ The code module must provide a ``columns()`` function that defines the structure
       }
     ]
 
-Each column definition is a dictionary with the following keys:
+每个列定义是一个字典，包含以下键：
 
-- ``label`` - A short name of the calculated value; it is displayed in the column title and also used for extracting values from a result dict returned by the ``calculate()`` function
-- ``title`` - Full descriptive title that is displayed in menus of the table window
-- ``dim`` - Dimension type (:ref:`Z.DIM_LINEAR <py_const_dim_linear>`, :ref:`Z.DIM_ANGULAR <py_const_dim_angular>`, :ref:`Z.DIM_NONE <py_const_dim_none>`) used when choosing a measurement unit for the column
+- ``label`` - 计算值的简称；显示在列标题中，也用于从 ``calculate()`` 函数返回的结果字典中提取值
+- ``title`` - 完整的描述性标题，显示在表格窗口的菜单中
+- ``dim`` - 量纲类型（:ref:`Z.DIM_LINEAR <py_const_dim_linear>` 、:ref:`Z.DIM_ANGULAR <py_const_dim_angular>` 、:ref:`Z.DIM_NONE <py_const_dim_none>` ），用于为该列选择度量单位
 
 ``calculate()``
 ~~~~~~~~~~~~~~~
 
-The code must also contain a ``calculate()`` function that performs the actual calculations. For table functions, this function is called multiple times - at least twice for each element (for T and S planes separately), and possibly :doc:`several times <table_symbols>` for the same element depending on the :ref:`options <table_opers_calc_at_medium_ends>` selected in the table window.
+代码还必须包含一个 ``calculate()`` 函数，用于执行实际计算。对于表格函数，该函数会被多次调用——每个元件至少调用两次（分别针对 T 平面和 S 平面），并且根据表格窗口中选择的 :ref:`选项 <table_opers_calc_at_medium_ends>` ，同一个元件还可能被 :doc:`调用多次 <table_symbols>` 。
 
 .. code-block:: python
 
@@ -53,49 +53,49 @@ The code must also contain a ``calculate()`` function that performs the actual c
       return {'W': w}
     return None
 
-The function receives three arguments:
+该函数接收三个参数：
 
-- ``elem`` - The current :doc:`Element <py_element>` object being processed
-- ``pos`` - Position indicator with possible values:
+- ``elem`` - 当前正在处理的 :doc:`元件 <py_element>` 对象
+- ``pos`` - 位置指示，可能的值有：
 
-  - ``POS_LEFT`` - Left side of the element (before it)
-  - ``POS_BEG`` - Beginning inside the element
-  - ``POS_MID`` - Middle inside the element
-  - ``POS_END`` - End inside the element
-  - ``POS_RIGHT`` - Right side of the element (after it)
+  - ``POS_LEFT`` - 元件左侧（之前）
+  - ``POS_BEG`` - 元件内部起始处
+  - ``POS_MID`` - 元件内部中间处
+  - ``POS_END`` - 元件内部末端处
+  - ``POS_RIGHT`` - 元件右侧（之后）
 
-- ``rt`` - Precalculated :doc:`RoundTrip <py_round_trip>` object for the current position. The :ref:`RoundTrip.plane <py_method_rt_plane>` property shows for which workplane the function is called.
+- ``rt`` - 当前位置预先计算好的 :doc:`往返 <py_round_trip>` 对象。:ref:`RoundTrip.plane <py_method_rt_plane>` 属性表示该函数针对哪个工作平面被调用。
 
-The function should return:
+该函数应返回：
 
-- A dictionary with keys matching the column labels defined in ``columns()``, or
-- ``None`` if no data should be displayed for this element/position combination
+- 一个字典，其键与 ``columns()`` 中定义的列标签相匹配；或
+- ``None`` ，表示该元件/位置组合不显示数据
 
-Output
-~~~~~~
+输出
+~~~~
 
-All calculations in |rezonator| are performed in SI units (meters, radians, etc.). All parameter values provided to scripts are in SI units as well. For custom table functions, you should return calculated values in SI units as well without any conversion. Because the table window has built-in capability to choose and display :ref:`units <table_opers_units>` according to the column's dimension type (``dim`` property).
+|rezonator| 中的所有计算都以 SI 单位（米、弧度等）执行。提供给脚本的所有参数值也都是 SI 单位。对于自定义表格函数，你也应该返回 SI 单位的计算值，无需任何换算。因为表格窗口内置了根据列的量纲类型（``dim`` 属性）选择和显示 :ref:`单位 <table_opers_units>` 的功能。
 
-The results from the ``calculate()`` function are automatically formatted and displayed in a :doc:`table_window`. Each row in the table corresponds to one element or position, and each column shows the calculated values as defined in your ``columns()`` function.
+``calculate()`` 函数的结果会自动格式化并显示在 :doc:`table_window` 中。表格中的每一行对应一个元件或位置，每一列显示按你的 ``columns()`` 函数定义计算出的值。
 
-For simple text output or debugging, use :doc:`custom_script` instead. For graphical visualization, consider :doc:`custom_plot`.
+如需简单的文本输出或调试，请改用 :doc:`custom_script` 。如需图形化可视化，请考虑 :doc:`custom_plot` 。
 
-Custom Library
---------------
+自定义代码库
+------------
 
-You can save your code for later usage into a :ref:`custom code library <custom_func_lib>` using the :menuSelection:`Script --> Save to Custom Library` menu command. This allows you to build a collection of reusable calculation scripts for common tasks.
+你可以使用 :menuSelection:`脚本 --> 保存到自定义库` 菜单命令把代码保存到 :ref:`自定义代码库 <custom_func_lib>` 以备后用。这样你可以建立一个可复用计算脚本的集合，用于常见任务。
 
-Custom Parameters
------------------
+自定义参数
+----------
 
-Custom parameters are arbitrary parameters that you can add to any element in addition to its predefined parameters. They are especially useful for custom table functions because they allow you to calculate or track properties that are not covered by the element's default parameters.
+自定义参数是你可以为任何元件添加的任意参数，作为其预定义参数的补充。它们对自定义表格函数尤其有用，因为它们让你可以计算或跟踪元件默认参数未涵盖的属性。
 
-You can add custom parameters to elements through the element properties dialog, and then access them in your calculations using the :ref:`Element.param()<py_method_elem_param>` method. This provides flexibility to extend elements with project-specific data or properties specific to your custom calculations.
+你可以通过元件属性对话框为元件添加自定义参数，然后在计算中使用 :ref:`Element.param()<py_method_elem_param>` 方法访问它们。这为扩展元件以容纳项目特定数据或特定于你的自定义计算的属性提供了灵活性。
 
-Example Projects
-----------------
+示例项目
+--------
 
-Open complete working examples ``custom_func_aper_ratio.rez`` and ``misalign.rez`` available via :menuSelection:`File --> Open Example` to see how custom table functions work in practice and use it as a template for your own calculations. Use the "custom table" filter in the Open Example dialog to see available examples for the subject.
+通过 :menuSelection:`文件 --> 打开示例` 打开完整可用的示例 ``custom_func_aper_ratio.rez`` 和 ``misalign.rez`` ，查看自定义表格函数的实际工作方式，并将其用作你自己计算的模板。在“打开示例”对话框中使用“custom table”筛选器可以查看该主题的可用示例。
 
 .. seeAlso::
 
@@ -104,4 +104,4 @@ Open complete working examples ``custom_func_aper_ratio.rez`` and ``misalign.rez
   - :doc:`custom_funcs`
   - :doc:`custom_script`
   - :doc:`custom_plot`
-  - :ref:`Example - Aperture ratio calculation <py_example_aper_ratio>`
+  - :ref:`示例 - 光阑比计算 <py_example_aper_ratio>`

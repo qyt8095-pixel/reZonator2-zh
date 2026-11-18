@@ -1,5 +1,5 @@
 #
-# Common helper functions for other scripts.
+# 其他脚本共用的辅助函数。
 #
 
 import numpy as np
@@ -8,8 +8,8 @@ from math import *
 def sqr(a):
   return a * a
 
-# Returns matrix elements
-# M should be numpy.ndarray
+# 返回矩阵元素
+# M 应为 numpy.ndarray
 def get_abcd(M):
   A = M[0, 0]
   B = M[0, 1]
@@ -18,13 +18,13 @@ def get_abcd(M):
   return A, B, C, D
 
 
-# Makes numpy matrix from elements
+# 由元素生成 numpy 矩阵
 def make_abcd(A, B, C, D):
   return np.matrix([[A, B], [C, D]])
 
 
-# Print ABCD-matrix
-# M should be numpy.ndarray
+# 打印 ABCD 矩阵
+# M 应为 numpy.ndarray
 def print_abcd(name, M):
   A, B, C, D = get_abcd(M)
   print("{}: {:.7f}, {:.7f}, {:.7f}, {:.7f}".format(name, A, B, C, D))
@@ -34,7 +34,7 @@ def print_abcd_c(name, M):
   print("{}: _C({:.7f},{:.7f}), _C({:.7f},{:.7f}), _C({:.7f},{:.7f}), _C({:.7f},{:.7f})" \
     .format(name, A.real, A.imag, B.real, B.imag, C.real, C.imag, D.real, D.imag))
 
-# Compare two ABCD-matrices
+# 比较两个 ABCD 矩阵
 def compare_abcd(id, M1, M2, epsilon = 1e-7):
   A1, B1, C1, D1 = get_abcd(M1)
   A2, B2, C2, D2 = get_abcd(M2)
@@ -48,29 +48,29 @@ def compare_abcd(id, M1, M2, epsilon = 1e-7):
     print(id + ': (±{}) ** OK **'.format(epsilon))
 
   
-# Transformation of complex ROC by ray matrix    
-# M should be numpy.ndarray
+# 光线矩阵对复曲率半径的变换    
+# M 应为 numpy.ndarray
 def transform_q(q1, M):
   A, B, C, D = get_abcd(M)
   return (A * q1 + B) / (C * q1 + D)
 
 
-# Print named result value
+# 打印带名称的结果值
 def print_res(name, value):
   print("{}: {:.7g}".format(name, value))
 
 
-# Calculate stability parameter from matrix
-# M should be numpy.ndarray
+# 由矩阵计算稳定参数
+# M 应为 numpy.ndarray
 def calc_stab(M):
   A, B, C, D = get_abcd(M)
   return (A+D)/2.0
 
 
-# Calculate beamsize from matrix and wavelength
-# M should be numpy.ndarray
+# 由矩阵和波长计算光束尺寸
+# M 应为 numpy.ndarray
 def calc_w(M, wl, n):
   A, B, C, D = get_abcd(M)
-  # B can be negative in a system with pure real matrices
-  # and this gives a pure imaginary W while the system is stable.
+  # 在纯实矩阵系统中，B 可能为负
+  # 此时系统稳定，但 W 为纯虚数。
   return sqrt(wl/n/pi * 2*abs(B) / sqrt(4 - sqr(A+D)))

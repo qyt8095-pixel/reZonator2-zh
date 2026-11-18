@@ -40,8 +40,8 @@ QString TripTypeInfo::windowIconPath() const { return _info->windowIconPath; }
 const TripTypeInfo& TripTypes::SW() {
     static TripTypeInfoPrivate p {
         "SW",
-        "Standing wave system (SW)",
-        "SW - Standing wave system",
+        "驻波系统 (SW)",
+        "SW - 驻波系统",
         ":/icons/trip_type_sw",
         ":/window_icons/schema_sw",
     };
@@ -52,8 +52,8 @@ const TripTypeInfo& TripTypes::SW() {
 const TripTypeInfo& TripTypes::RR() {
     static TripTypeInfoPrivate p {
         "RR",
-        "Ring resonator (RR)",
-        "RR - Ring resonator",
+        "环形谐振腔 (RR)",
+        "RR - 环形谐振腔",
         ":/icons/trip_type_rr",
         ":/window_icons/schema_rr",
     };
@@ -64,8 +64,8 @@ const TripTypeInfo& TripTypes::RR() {
 const TripTypeInfo& TripTypes::SP() {
     static TripTypeInfoPrivate p {
         "SP",
-        "Single pass system (SP)",
-        "SP - Single-pass system",
+        "单程系统 (SP)",
+        "SP - 单程系统",
         ":/icons/trip_type_sp",
         ":/window_icons/schema_sp",
     };

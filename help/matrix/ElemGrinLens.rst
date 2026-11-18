@@ -1,30 +1,30 @@
 .. index:: single: GRIN lens
 .. index:: single: lens (GRIN)
 
-GRIN Lens
+GRIN 透镜
 =========
 
 .. |n2| replace:: `n`\ :sub:`2`
 
-The GRIN lens is a plane-parallel slab of material with a quadratic transverse variation of refractive index, with either a maximum or minimum on the axis that produces a lensing effect. The element has similar matrices for both work planes, but gradient constants |n2| can be set independently for tangential and sagittal planes.
+GRIN 透镜是一块折射率在横向呈二次变化的平行平面板，在轴上有最大值或最小值，从而产生透镜效应。该元件在两个工作面的矩阵类似，但梯度常数 |n2| 可以分别为子午面和弧矢面独立设定。
 
-Note that this element represents a piece of GRIN-medium in free space. It has planar input and output interfaces. If you want to build a more complex GRIN-rod, e.g., having one or both curved interfaces, you should use the :doc:`ElemGrinMedium` element and surround it with appropriate interface elements.
+注意，该元件表示自由空间中的一段 GRIN 介质。它具有平面的输入和输出界面。如果你想构建更复杂的 GRIN 棒，例如一个或两个界面为曲面，你应使用 :doc:`ElemGrinMedium` 元件，并在其两侧加上适当的界面元件。
 
-Full element
+完整元件
 
     .. image:: ElemGrinLens.png
 
-Beam propagation inside the lens also can be calculated.
+透镜内部的光束传播也可以计算。
 
-Left half-pass
+左半程
 
     .. image:: ElemGrinLens_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemGrinLens_right.png
 
-When the gradient constant |n2| is set to zero, the element becomes simple :doc:`ElemPlate`.
+当梯度常数 |n2| 设为零时，该元件变为简单的 :doc:`ElemPlate` 。
 
 .. seeAlso::
 
@@ -32,4 +32,4 @@ When the gradient constant |n2| is set to zero, the element becomes simple :doc:
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Gradient-index optics in Wikipedia <https://en.wikipedia.org/wiki/Gradient-index_optics>`_
+    - `维基百科中的梯度折射率光学 <https://en.wikipedia.org/wiki/Gradient-index_optics>`_

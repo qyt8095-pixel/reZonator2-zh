@@ -3,36 +3,36 @@
 .. index:: single: matrix of round-trip
 .. index:: single: round-trip
 
-Calculation of Round-Trip Matrix
-================================
+往返矩阵的计算
+==============
 
-The :doc:`ray-matrix <elem_matrs>` formalism supposes the elements' matrices are multiplied one-by-one in the direction opposite to the beam :ref:`propagation direction <propagation_dir>`.
+:doc:`光线矩阵 <elem_matrs>` 形式体系假定元件矩阵沿与光束 :ref:`传播方向 <propagation_dir>` 相反的方向逐个相乘。
 
-General elements
-----------------
+一般元件
+--------
 
-Each element is characterized by a pair of ray matrices. One matrix is for the tangential (T) plane, and the other is for the sagittal (S) plane. Round-trip matrices are calculated independently for both planes.
+每个元件由一对光线矩阵表征。一个矩阵对应切向（T）平面，另一个对应弧矢（S）平面。两个平面的往返矩阵分别计算。
 
 
 
 .. _calc_round_trip_sw:
 
-SW
-^^
+SW，驻波系统
+^^^^^^^^^^^^^
 
-If the schema is the :ref:`standing wave resonator<schema_kind_sw>`, then elements' matrices are multiplied in the next way:
+如果方案是 :ref:`驻波谐振腔 <schema_kind_sw>` ，则元件矩阵按以下方式相乘：
 
-- from the reference element to the first element of the schema,
+- 从参考元件到方案的第一个元件，
 
-- from the first element to the last one,
+- 从第一个元件到最后一个元件，
 
-- from the last element to an element next to the reference.
+- 从最后一个元件到参考元件旁边的元件。
 
 |para|
 
     .. image:: img/round_trip_sw_1.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
     M0 = M4 × M3 × M2 × M1 × M2 × M3 × M4 × M5 × M6 × M7 × M6 × M5
 
@@ -40,20 +40,20 @@ Sample result (M4 is the reference element):
 
 .. _calc_round_trip_rr:
 
-RR
-^^
+RR，环形谐振腔
+^^^^^^^^^^^^^^^
 
-If the schema is the :ref:`ring resonator<schema_kind_rr>`, then elements' matrices are multiplied in the next way:
+如果方案是 :ref:`环形谐振腔 <schema_kind_rr>` ，则元件矩阵按以下方式相乘：
 
-- from the reference element to the first element of the schema,
+- 从参考元件到方案的第一个元件，
 
-- from the last element to an element next to the reference.
+- 从最后一个元件到参考元件旁边的元件。
 
 |para|
 
     .. image:: img/round_trip_rr_1.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
     M0 = M4 × M3 × M2 × M1 × M7 × M6 × M5
 
@@ -61,48 +61,48 @@ Sample result (M4 is the reference element):
 
 .. _calc_round_trip_sp:
 
-SP
-^^
+SP，单程系统
+^^^^^^^^^^^^^
 
-If the schema is the :ref:`single-pass system<schema_kind_sp>`, then ray passes it from the first element to the last one. Therefore, matrices are multiplied in the reverse order (from the last element to the first one).
+如果方案是 :ref:`单程系统 <schema_kind_sp>` ，则光线从第一个元件传到最后一个元件。因此，矩阵按相反顺序相乘（从最后一个元件到第一个元件）。
 
     .. image:: img/round_trip_sp_1.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
     M0 = M4 × M3 × M2 × M1
 
 
 .. _calc_round_trip_subrange:
 
-Elements having length
-----------------------
+有长度的元件
+------------
 
 .. |M4_1| replace::  M4\ :sub:`1`
 .. |M4_2| replace::  M4\ :sub:`2`
 
-Some functions can analyze elements over their length, :ref:`caustic <func_caustic>` functions, for example. The reference (being analyzed) element is divided into two sub-elements for such functions. The first sub-element is a part of the original element from its left edge till the current point (in which the beam radius is calculated, for example). The second sub-element is a part of the original element from the current point till the right edge. Each sub-element is characterized by its ray matrix pair.
+某些函数可以沿元件长度分析元件，例如 :ref:`焦散线 <func_caustic>` 函数。被分析的参考元件在这种函数中被分成两个子元件。第一个子元件是原元件从左边缘到当前点（例如计算光束半径的点）的部分。第二个子元件是原元件从当前点到右边缘的部分。每个子元件由其光线矩阵对表征。
 
 
 
 .. _calc_round_trip_sw_1:
 
-SW
-^^
+SW，驻波系统
+^^^^^^^^^^^^^
 
-If the schema is the :ref:`standing wave resonator<schema_kind_sw>`, then elements' matrices are multiplied in the next way:
+如果方案是 :ref:`驻波谐振腔 <schema_kind_sw>` ，则元件矩阵按以下方式相乘：
 
-- from the left reference sub-element to the first element of the schema,
+- 从左参考子元件到方案的第一个元件，
 
-- from the first element to the last one (the reference element is accounted as whole at this step),
+- 从第一个元件到最后一个元件（在这一步中参考元件按整体计入），
 
-- from the last element to the right reference sub-element.
+- 从最后一个元件到右参考子元件。
 
 |para|
 
     .. image:: img/round_trip_sw_2.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
 	M0 = |M4_1| × M3 × M2 × M1 × M2 × M3 × M4 × M5 × M6 × M7 × M6 × M5 × |M4_2|
 
@@ -110,20 +110,20 @@ Sample result (M4 is the reference element):
 
 .. _calc_round_trip_rr_1:
 
-RR
-^^
+RR，环形谐振腔
+^^^^^^^^^^^^^^^
 
-If the schema is the :ref:`ring resonator <schema_kind_rr>`, then elements' matrices are multiplied in the next way:
+如果方案是 :ref:`环形谐振腔 <schema_kind_rr>` ，则元件矩阵按以下方式相乘：
 
-- from the left reference element to the first element of the schema,
+- 从左参考元件到方案的第一个元件，
 
-- from the element to the right reference sub-element.
+- 从该元件到右参考子元件。
 
 |para|
 
     .. image:: img/round_trip_rr_2.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
     M0 = |M4_1| × M3 × M2 × M1 × M7 × M6 × M5 × |M4_2|
 
@@ -131,14 +131,14 @@ Sample result (M4 is the reference element):
 
 .. _calc_round_trip_sp_1:
 
-SP
-^^
+SP，单程系统
+^^^^^^^^^^^^^
 
-If the schema is the :ref:`single-pass system <schema_kind_sp>`, then matrices from the left reference sub-element to the first element are multiplied.
+如果方案是 :ref:`单程系统 <schema_kind_sp>` ，则从左参考子元件到第一个元件的矩阵相乘。
 
     .. image:: img/round_trip_sp_2.png
 
-Sample result (M4 is the reference element):
+示例结果（M4 是参考元件）：
 
     M0 = |M4_1| × M3 × M2 × M1
 

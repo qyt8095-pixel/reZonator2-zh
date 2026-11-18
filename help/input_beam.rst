@@ -1,17 +1,17 @@
 .. index:: single: input beam
 
-Input Beam
-==========
+输入光束
+========
 
-:menuSelection:`File --> Setup Input Beam (F9)`
+:menuSelection:`文件 --> 设置输入光束 (F9)`
 
-:menuSelection:`Windows --> Pumps --> Pump --> Edit (Enter)`
+:menuSelection:`窗口 --> 泵浦 --> 泵浦 --> 编辑 (Enter)`
 
-The dialog allows to set up the input beam parameter for SP schemas. The input beam is also called a *pump*.
+该对话框用于设置 SP 方案的输入光束参数。输入光束也称为*泵浦* 。
 
-When you change the schema :doc:`trip-type<trip_type>` to SP, the first pump is automatically created with type :ref:`Waist <pump_mode_waist>`. Then you can add more input beams of :doc:`different types <pump_mode>` using the :doc:`Pumps window <pumps_window>` and switch between them. |rezonator| can store an arbitrary number of input beams; however, it can calculate only one of them at time, which is called the *active pump*.
+当你把方案的 :doc:`往返类型 <trip_type>` 改为 SP 时，第一个泵浦会自动以 :ref:`束腰 <pump_mode_waist>` 类型创建。然后你可以使用 :doc:`泵浦窗口 <pumps_window>` 添加更多 :doc:`不同类型 <pump_mode>` 的输入光束，并在它们之间切换。|rezonator| 可以存储任意数量的输入光束；但一次只能计算其中一个，它被称为*活动泵浦* 。
 
-The command also invoked for the active pump by double-clicking on the pump type icon in the status bar. In the Pumps window, the dialog is shown when you double-click a pump row.
+该命令也会为活动泵浦调用，方法是双击状态栏中的泵浦类型图标。在泵浦窗口中，双击泵浦行时会显示该对话框。
 
   .. image:: img/setup_input_beam.png
 

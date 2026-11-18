@@ -1,22 +1,22 @@
 .. _elem_brewster_crystal:
 .. index:: single: brewster crystal
 
-Brewster Plane-parallel Crystal
-===============================
+布儒斯特平行平面晶体
+====================
 
-Brewster crystal is characterized by its length `L` and index of refraction `n`. A beam falls at the face of the crystal at Brewster's angle. Element's length is measured along the beam path.
+布儒斯特晶体由其长度 `L` 和折射率 `n` 表征。光束以布儒斯特角入射到晶体端面。元件长度沿光束路径测量。
 
-One can consider this element as a rod whose opposite ends are cut at Brewster's angle. It is a widely used form of laser gain medium.
+可以将该元件看作一根两端按布儒斯特角切割的棒。它是激光增益介质的一种广泛使用的形式。
 
-Full element
+完整元件
 
     .. image:: ElemBrewsterCrystal.png
 
-Left half-pass
+左半程
 
     .. image:: ElemBrewsterCrystal_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemBrewsterCrystal_right.png
 
@@ -25,4 +25,4 @@ Right half-pass
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Brewster's angle in Wikipedia <http://en.wikipedia.org/wiki/Brewster's_angle>`_
+    - `维基百科中的布儒斯特角 <http://en.wikipedia.org/wiki/Brewster's_angle>`_

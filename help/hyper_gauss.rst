@@ -1,63 +1,63 @@
-Calculation of Hyper-Gaussian Beams
-===================================
+超高斯光束的计算
+================
 
 .. |MI| replace:: `M`\ :sup:`2`
 .. |z0| replace:: `z`\ :sub:`0`
 .. |w0| replace:: `w`\ :sub:`0`
 
-Algorithm for calculation of hyper-Gaussian beams is applied to analyze single-pass systems (SP) when divergence parameter (|MI|) of the input beam set to a value larger than one.
+当输入光束的发散参数（|MI| ）设定为大于 1 的值时，应用超高斯光束计算算法来分析单程系统（SP）。
 
 .. index:: single: hyper-gaussian beam
 .. index:: single: pseudo-gaussian beam
 
-Hyper-Gaussian beam
--------------------
+超高斯光束
+----------
 
-Hyper-Gaussian beam in |rezonator| is defined as a beam whose divergence is |MI| times greater than the divergence of a Gaussian beam having the same waist radius. Therefore its :ref:`Rayleigh distance<gauss_confocal>` is |MI| times less.
+|rezonator| 中的超高斯光束定义为发散度比具有相同束腰半径的高斯光束大 |MI| 倍的光束。因此其 :ref:`瑞利距离 <gauss_confocal>` 小 |MI| 倍。
 
 	.. image:: img/hypergauss_formula_1.png
 
 .. index:: single: equivalent gaussian beam
 
-Equivalent Gaussian beam
-------------------------
+等效高斯光束
+------------
 
-For describing the propagation of hyper-Gaussian beam in free space, it is enough to replace the Rayleigh distance |z0| with |z0|/|MI| in formulas for `w(z)` and `R(z)`:
+为了描述超高斯光束在自由空间中的传播，只需在 `w(z)` 和 `R(z)` 的公式中把瑞利距离 |z0| 替换为 |z0|/|MI| ：
 
 	.. image:: img/hypergauss_formula_2.png
 
-It is equivalent to changing waist size from |w0| to |w0|/`M`: 
+这等价于把束腰尺寸从 |w0| 改为 |w0|/`M` ：
 
 	.. image:: img/hypergauss_formula_3.png
 
-A beam having such a reduced waist size is called *Equivalent Gaussian Beam*:
+具有这种缩小后的束腰尺寸的光束称为 *等效高斯光束* ：
 
 	.. image:: img/hypergauss_formula_4.png
 
-Then we can express the waist radius of the hyper-Gaussian beam in terms of the equivalent Gaussian beam:
+然后我们可以用等效高斯光束来表示超高斯光束的束腰半径：
 
 	.. image:: img/hypergauss_formula_5.png
 
-And substitute it into formulas for `w(z)` and `R(z)`:
+并将其代入 `w(z)` 和 `R(z)` 的公式：
 
 	.. image:: img/hypergauss_formula_6.png
 
-Since equivalent Gaussian beam has the same Rayleigh distance as the hyper-Gaussian beam, its radius is `M` times less than the radius of the original beam not only at the waist but anywhere. 
+由于等效高斯光束与超高斯光束具有相同的瑞利距离，它的半径不仅在束腰处，而且在任何位置都比原始光束的半径小 `M` 倍。
 
 	.. image:: img/hypergauss_formula_7.png
 
-Because equivalent Gaussian beam is a standard Gaussian beam, its complex parameter can be transformed by ray matrices as usual.
+因为等效高斯光束是标准高斯光束，它的复参数可以像往常一样通过光线矩阵进行变换。
 
-Algorithm of computing
-----------------------
+计算算法
+--------
 
-The program uses the next algorithm for calculation of propagation of hyper-Gaussian beams: 
+程序使用以下算法计算超高斯光束的传播：
 
-#. Equivalent size of the input beam is calculated. It is `M` times less than specified in the dialog of input beam parameters. 
+#. 计算输入光束的等效尺寸。它比输入光束参数对话框中指定的尺寸小 `M` 倍。
 
-#. Propagation of an equivalent Gaussian beam is calculated. 
+#. 计算等效高斯光束的传播。
 
-#. Characteristics of the resulting hyper-Gaussian beam are calculated. Its radius is `M` times greater than the radius of the equivalent beam and radius of wavefront curvature is equal to that. 
+#. 计算所得超高斯光束的特性。它的半径比等效光束的半径大 `M` 倍，波前曲率半径与之相等。
 
 	.. image:: ./img/hypergauss_algorithm.png
 

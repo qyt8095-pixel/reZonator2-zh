@@ -1,12 +1,12 @@
 .. _elem_opers_delete:
 .. index:: single: delete element (command)
 
-Delete
-======
+删除
+====
 
-:menuSelection:`Element --> Delete... (Ctrl+Del)`
+:menuSelection:`元件 --> 删除... (Ctrl+Del)`
 
-The command deletes one or several elements that are currently selected in the :doc:`schema_elems`.
+该命令删除当前在 :doc:`光路图元件 <schema_elems>` 中选中的一个或多个元件。
 
 .. seeAlso::
 

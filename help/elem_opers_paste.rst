@@ -1,16 +1,16 @@
 .. _elem_opers_paste:
 .. index:: single: paste element (command)
 
-Paste
-=====
+粘贴
+====
 
-:menuSelection:`Edit --> Paste (Ctrl+V)`
+:menuSelection:`编辑 --> 粘贴 (Ctrl+V)`
 
-The commands insert previously copied element into the current position of the :doc:`schema_elems`.
+该命令将先前复制的元件插入到 :doc:`光路图元件 <schema_elems>` 的当前位置。
 
-When pasting, a new :ref:`label <elem_props_label>` can be generated for pasted elements if this is allowed by the :ref:`application settings <app_settings_gen_labels_pasted>`.
+粘贴时，如果 :ref:`应用设置 <app_settings_gen_labels_pasted>` 允许，可以为粘贴的元件生成新的 :ref:`标签 <elem_props_label>` 。
 
-Element presets can also be pasted from the :doc:`elem_library`.
+也可以从 :doc:`元件库 <elem_library>` 粘贴元件预设。
 
 .. seeAlso::
 

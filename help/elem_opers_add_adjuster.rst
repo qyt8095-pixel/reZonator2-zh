@@ -1,11 +1,11 @@
 .. _elem_opers_add_adjuster:
 
-Add Adjuster
-============
+添加调节器
+==========
 
-:menuSelection:`Context menu --> Add Adjuster`
+:menuSelection:`上下文菜单 --> 添加调节器`
 
-The command allows for adding a new parameter adjuster of the selected element to an active (or new if it is not yet) schema :ref:`adjustment window <adjust>`. If there are several adjustable parameters available, the command displays a pulldown menu where it is necessary to choose a parameter to adjust.
+该命令允许把所选元件的一个新参数调节器添加到活动（如果还没有，则新建）的方案 :ref:`调节窗口 <adjust>` 中。如果有多个可调参数，命令会显示一个下拉菜单，需要在其中选择要调节的参数。
 
   .. image:: img/elem_opers_adjust.png
 

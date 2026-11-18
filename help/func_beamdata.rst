@@ -1,37 +1,37 @@
-Beam Parameters at Elements
-===========================
+各元件处的光束参数
+==================
 
-:menuSelection:`Functions --> Beam Parameters at Elements`
+:menuSelection:`函数 --> 各元件处的光束参数`
 
-The function computes the beam parameters at each element of the schema. A collection of calculated values is displayed in a table. The first column of the table indicates the element.
+该函数计算方案中每个元件处的光束参数。计算值的集合显示在表格中。表格的第一列表示元件。
 
   .. image:: img/func_beamdata.png
 
-Columns
--------
+列
+--
 
-Beam radius (Wt × Ws)
-~~~~~~~~~~~~~~~~~~~~~
+光束半径 (Wt × Ws)
+~~~~~~~~~~~~~~~~~~
 
-The beam radius at the element. The displayed measurement units can be changed via the context menu of the column header or by the "Units of measurement" toolbar button.
+元件处的光束半径。显示的计量单位可以通过列标题的上下文菜单或“计量单位”工具栏按钮更改。
 
-.. TODO: Aperture ratio (At × As)
-.. TODO: ~~~~~~~~~~~~~~~~~~~~~~~~
+.. TODO: 孔径比 (At × As)
+.. TODO: ~~~~~~~~~~~~~
 
-.. TODO: The ratio of the element's aperture to the beam radius at the element: `A = (D/2) / w` where `D` is the element's aperture diameter.
+.. TODO: 元件孔径与该元件处光束半径之比：`A = (D/2) / w` ，其中 `D` 是元件的孔径直径。
 
-Wavefront ROC (Rt × Rs)
-~~~~~~~~~~~~~~~~~~~~~~~
+波前曲率半径 (Rt × Rs)
+~~~~~~~~~~~~~~~~~~~~~~
 
-The radius of wavefront curvature at the element. The displayed measurement units can be changed via the context menu of the column header or by the "Units of measurement" toolbar button.
+元件处的波前曲率半径。显示的计量单位可以通过列标题的上下文菜单或“计量单位”工具栏按钮更改。
 
-Half div. angle (Vt × Vs)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+半发散角 (Vt × Vs)
+~~~~~~~~~~~~~~~~~~
 
-Half of the spread angle in the far-field zone. The displayed measurement units can be changed via the context menu of the column header or by the "Units of measurement" toolbar button.
+远场区发散角的一半。显示的计量单位可以通过列标题的上下文菜单或“计量单位”工具栏按钮更改。
 
 .. note::
-  There may be several rows in the table corresponding to the same element. These rows are marked with different icons. See :doc:`table_symbols` for details.
+  表中可能有多个行对应同一元件。这些行用不同的图标标记。详情见 :doc:`表格符号 <table_symbols>` 。
 
 .. seeAlso::
 

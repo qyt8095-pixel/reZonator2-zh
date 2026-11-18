@@ -150,14 +150,14 @@ bool HelpSystem::startAssistant()
     if (!QFile::exists(assistantExe))
     {
         Z_ERROR("Help viewer not found");
-        Ori::Dlg::error("Help viewer not found");
+        Ori::Dlg::error(tr("未找到帮助查看器"));
         return false;
     }
 
     if (!QFile::exists(helpFile))
     {
         Z_ERROR("Help file not found");
-        Ori::Dlg::error("Help file not found");
+        Ori::Dlg::error(tr("未找到帮助文件"));
         return false;
     }
     
@@ -170,7 +170,7 @@ bool HelpSystem::startAssistant()
     if (!process->waitForStarted(5000))
     {
         Z_ERROR("Failed to start help viewer" << process->errorString());
-        Ori::Dlg::error("Failed to start help viewer");
+        Ori::Dlg::error(tr("无法启动帮助查看器"));
         delete process;
         return false;
     }

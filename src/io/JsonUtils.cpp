@@ -17,14 +17,14 @@ Result<Unit> readUnit(const QJsonObject& json, Dim dim)
         unit = dim->unitByAlias(unitStr);
         if (!unit)
             return Result<Unit>::fail(QString(
-                "Unit '%1' is unacceptable for dimension '%2'").arg(unitStr, dim->alias()));
+                "单位 '%1' 不适用于量纲 '%2'").arg(unitStr, dim->alias()));
     }
     else
     {
         unit = Units::findByAlias(unitStr);
         if (!unit)
             return Result<Unit>::fail(QString(
-                "Unknown unit of measurements: %1").arg(unitStr));
+                "未知的计量单位：%1").arg(unitStr));
     }
     return Result<Unit>::success(unit);
 }
@@ -39,7 +39,7 @@ Result<Dim> readDim(const QJsonObject& json)
     auto dimStr = json["dim"].toString();
     auto dim = Dims::findByAlias(dimStr);
     if (!dim)
-        return Result<Dim>::fail(QString("Unknown unit dimension: %1").arg(dimStr));
+        return Result<Dim>::fail(QString("未知的单位量纲：%1").arg(dimStr));
     return Result<Dim>::success(dim);
 }
 
@@ -126,7 +126,7 @@ Result<Parameter*> readParamSpec(const QJsonObject& json)
         return Result<Parameter*>::fail(dim.error());
     auto alias = json["alias"].toString();
     if (alias.isEmpty())
-        return Result<Parameter*>::fail("Parameter alias is empty");
+        return Result<Parameter*>::fail("参数别名为空");
     auto label = json["label"].toString();
     if (label.isEmpty())
         label = alias;
@@ -154,11 +154,11 @@ QJsonObject writeVariableRange(const VariableRange& range)
 QString readVariableRange(const QJsonObject& json, VariableRange& range, Dim dim)
 {
     auto resStart = readValue(json["start"].toObject(), dim);
-    if (!resStart.ok()) return QString("Invalid start value: %1").arg(resStart.error());
+    if (!resStart.ok()) return QString("无效的起始值：%1").arg(resStart.error());
     auto resStop = readValue(json["stop"].toObject(), dim);
-    if (!resStop.ok()) return QString("Invalid stop value: %1").arg(resStop.error());
+    if (!resStop.ok()) return QString("无效的终止值：%1").arg(resStop.error());
     auto resStep = readValue(json["step"].toObject(), dim);
-    if (!resStep.ok()) return QString("Invalid step value: %1").arg(resStep.error());
+    if (!resStep.ok()) return QString("无效的步长值：%1").arg(resStep.error());
     range.start = resStart.value();
     range.stop = resStop.value();
     range.step = resStep.value();
@@ -182,16 +182,16 @@ QString readVariable(const QJsonObject& json, Variable* var, Schema *schema)
     Element* elem = elemIndex == -1 ? const_cast<Element*>(schema->globalParamsAsElem())
                                     : schema->element(elemIndex);
     if (!elem)
-        return QString("There is no element with index %1").arg(elemIndex);
+        return QString("没有索引为 %1 的元件").arg(elemIndex);
     auto paramAlias = json["param"].toString();
     auto param = elem->params().byAlias(paramAlias);
     if (!param)
-        return QString("Element with index %1 has no parameter '%2'")
+        return QString("索引为 %1 的元件没有参数 '%2'")
                 .arg(elemIndex).arg(elem->displayLabel(), paramAlias);
     VariableRange range;
     auto res = readVariableRange(json["range"].toObject(), range);
     if (!res.isEmpty())
-        return QString("Unable to load variable range: %1").arg(res);
+        return QString("无法加载变量范围：%1").arg(res);
     var->element = elem;
     var->parameter = param;
     var->range = range;
@@ -222,7 +222,7 @@ Result<Element*> readElemByIndex(const QJsonObject& json, const QString& key, Sc
     int elemIndex = json[key].toInt(-1);
     Element* elem = schema->element(elemIndex);
     if (!elem)
-        return Result<Element*>::fail(QString("There is no element with index %1").arg(elemIndex));
+        return Result<Element*>::fail(QString("没有索引为 %1 的元件").arg(elemIndex));
     return Result<Element*>::success(elem);
 }
 
@@ -252,7 +252,7 @@ void JsonValue::initObj(const QJsonObject& root, const QString& key)
 {
     if (!root.contains(key))
     {
-        _msg = QString("Key not found: '%1'").arg(_path);
+        _msg = QString("未找到键：'%1'").arg(_path);
         return;
     }
     QJsonValue value = root[key];

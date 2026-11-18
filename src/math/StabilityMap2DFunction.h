@@ -7,7 +7,7 @@ class StabilityMap2DFunction : public PlotFunction
 {
 public:
     FUNC_ALIAS("StabMap2D")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "2D-Stability"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "二维稳定性图"))
     FUNC_ICON(":/toolbar/func_stab_map_2d")
     FUNC_HELP(help_topic())
     static QString help_topic() { return "func_stabmap_2d.html"; }

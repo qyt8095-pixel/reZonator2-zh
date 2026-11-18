@@ -1,12 +1,12 @@
 .. _elem_opers_append:
 .. index:: single: append element (command)
 
-Append
-======
+追加
+====
 
-:menuSelection:`Element --> Append... (Ctrl+Ins)`
+:menuSelection:`元件 --> 追加... (Ctrl+Ins)`
 
-The command opens the :doc:`catalog` to choose a type for a new element. The newly created element gets inserted into the position of the current selection in the :doc:`schema_elems`. A :ref:`label <elem_props_label>` is automatically generated for the new element if this is allowed by the :ref:`application settings <app_settings_gen_labels_created>`. The :doc:`elem_props` dialog is automatically opened right after the element has been inserted to provide parameter values (if this is allowed by the :ref:`application settings <app_settings_edit_just _created>`).
+该命令打开 :doc:`catalog` ，为新元件选择类型。新创建的元件插入到 :doc:`schema_elems` 中当前选择的位置。如果 :ref:`应用程序设置 <app_settings_gen_labels_created>` 允许，会自动为新元件生成 :ref:`标签 <elem_props_label>` 。元件插入后会立即自动打开 :doc:`elem_props` 对话框以提供参数值（如果 :ref:`应用程序设置 <app_settings_edit_just _created>` 允许）。
 
     .. image:: img/catalog.png
 

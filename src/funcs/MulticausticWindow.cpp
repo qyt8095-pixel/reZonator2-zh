@@ -299,7 +299,7 @@ void MulticausticWindow::showRoundTrip()
     if (funcOffset.func)
     {
         auto func = funcOffset.func;
-        QString funcTitle = QString("%1 (inside of %2)").arg(windowTitle(), func->arg()->element->displayLabel());
+        QString funcTitle = QString("%1（位于 %2 内部）").arg(windowTitle(), func->arg()->element->displayLabel());
         InfoFuncWindow::open(new PlotFuncRoundTripFunction(funcTitle, func), this);
     }
 }

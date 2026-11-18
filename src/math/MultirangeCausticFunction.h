@@ -9,7 +9,7 @@ class MultirangeCausticFunction : public PlotFunction
 {
 public:
     FUNC_ALIAS("MultirangeCaustic")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "MR-Caustic"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "多区间焦散线"))
     FUNC_ICON(":/toolbar/func_multi_caustic")
     FUNC_HELP(help_topic())
     static QString help_topic() { return "func_caustic_mr.html"; }

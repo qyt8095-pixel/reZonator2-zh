@@ -1,214 +1,214 @@
-Gaussian Beam Calculator
-========================
+高斯光束计算器
+==============
 
 .. |z_0| replace:: `z`\ :sub:`0`
 .. |w_0| replace:: `w`\ :sub:`0`
 .. |V_s| replace:: `V`\ :sub:`s`
 .. |M^2| replace:: `M`\ :sup:`2`
 
-:menuselection:`Tools --> Gaussian Beam Calculator`
+:menuselection:`工具 --> 高斯光束计算器`
 
 .. Text and formulas are in the algorithm description `./calc_gauss.html`, keep these docs in sync
 
-The tool *Gauss Beam Calculator* computes some free parameters of the Gaussian beam when changing one of its parameters and fixing some others. As it is not possible to make all the parameters to be free, we introduce two fixing modes called *Lock waist* and *Lock front*.
+*高斯光束计算器* 工具在改变高斯光束的某个参数并固定其他一些参数时，计算高斯光束的一些自由参数。由于不可能让所有参数都是自由的，我们引入两种固定模式，称为*锁定束腰* 和*锁定波前* 。
 
-- *Lock waist* - find such values of free parameters at which the beam waist |w_0| stays constant when one of the parameters changes.
-- *Lock front* - find such values of free parameters at which the wavefront ROC `R` and the beam radius `w` at some axial distance `z` stay constant when one of the parameters changes.
+- *锁定束腰*——求出自由参数的这样一些值，使得当其中一个参数变化时，光束束腰 |w_0| 保持不变。
+- *锁定波前*——求出自由参数的这样一些值，使得当其中一个参数变化时，在某个轴向距离 `z` 处的波前曲率半径 `R` 和光束半径 `w` 保持不变。
 
-Quadratic equations have two solutions and we have to define a way to point out which solution to take. So the tool has one additional parameter - zone - which can be *Near zone* or *Far zone*.
+二次方程有两个解，我们必须定义一种方法来指出取哪个解。因此，该工具还有一个附加参数——区域——它可以是*近区* 或*远区* 。
 
-The first two buttons on the toolbar control the locking mode, and the next two - what solution is to be displayed.
+工具栏上的前两个按钮控制锁定模式，后两个控制显示哪个解。
 
   .. image:: img/wnd_gauss_calc_w.png
 
-Beam Parameters
----------------
+光束参数
+--------
 
-These parameters are assigned and computed: 
+这些参数会被赋值和计算：
 
-* `λ` -  light wavelength; it is not calculated from other parameters, only assigned
-* |w_0| - waist radius 
-* |z_0| - Rayleigh range (half-confocal parameter)
-* |V_s| - beam divergence angle in the far-field zone 
-* |M^2| - beam quality factor (M-square parameter)
-* `z` - distance from the waist to a point where the wavefront is calculated or assigned
-* `w` - beam radius on distance `z` from the waist
-* `R` - radius of curvature of the wavefront on distance `z` from the waist
-* `re(q)`, `im(q)` - real and imaginary parts of complex beam parameter on distance `z` from the waist
-* `re(1/q)`, `im(1/q)` - real and imaginary parts of inverted complex beam parameter on distance `z` from the waist
+* `λ`——光波长；它不是由其他参数算出的，只是赋值
+* |w_0|——束腰半径
+* |z_0|——瑞利范围（半共焦参数）
+* |V_s|——远场区光束发散角
+* |M^2|——光束质量因子（M 平方参数）
+* `z`——从束腰到计算或指定波前的点的距离
+* `w`——在距束腰 `z` 处的光束半径
+* `R`——在距束腰 `z` 处的波前曲率半径
+* `re(q)` 、`im(q)`——在距束腰 `z` 处复光束参数的实部和虚部
+* `re(1/q)` 、`im(1/q)`——在距束腰 `z` 处倒复光束参数的实部和虚部
 
 \
 
   .. image:: img/wnd_gauss_calc_r.png
 
 
-Calculation Algorithm
----------------------
+计算算法
+--------
 
 
-Change waist |w_0|
-^^^^^^^^^^^^^^^^^^
+改变束腰 |w_0|
+^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-Calculate the beam radius `w` and the wavefront ROC `R` at given distance `z`:
+计算给定距离 `z` 处的光束半径 `w` 和波前曲率半径 `R` ：
 
   .. image:: img/f_calc_gauss_w0_1.png
  
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-For specified waist radius |w_0|, find such a distance `z` and beam quality |M^2| at which the wavefront ROC keeps its previously calculated value.
+对于给定的束腰半径 |w_0| ，求出使波前曲率半径保持先前计算值的距离 `z` 和光束质量 |M^2|。
 
-How to find: express |z_0| from `w(z)` and from `R(z)`, equate both expressions and solve against `z`.
+求解方法：分别从 `w(z)` 和 `R(z)` 中表示出 |z_0| ，令两式相等，并对 `z` 求解。
 
   .. image:: img/f_calc_gauss_w0_2.png
 
   
-Change Rayleigh length |z_0|
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+改变瑞利长度 |z_0|
+^^^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-With fixed waist radius |w_0|, find a value of the beam quality parameter |M^2| which yields the specified |z_0|.
+在束腰半径 |w_0| 固定的情况下，求出能得到指定 |z_0| 的光束质量参数 |M^2| 的值。
 
   .. image:: img/f_calc_gauss_z0_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-For specified |z_0|, find such a distance `z` and beam quality |M^2| at which the wavefront ROC keeps its previously calculated value. `+` sign is for the far zone, `-` is for the near zone.
+对于给定的 |z_0| ，求出使波前曲率半径保持先前计算值的距离 `z` 和光束质量 |M^2|。`+` 号对应远区，`-` 号对应近区。
 
   .. image:: img/f_calc_gauss_z0_2.png
  
 
-Change divergence angle |V_s|
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+改变发散角 |V_s|
+^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-With fixed waist radius |w_0|, find such a value of beam quality parameter |M^2| that yields to the specified angle.
+在束腰半径 |w_0| 固定的情况下，求出能得到指定角度的光束质量参数 |M^2| 的值。
 
   .. image:: img/f_calc_gauss_Vs_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-For specified |V_s|, find such a distance `z` and beam quality |M^2| at which the wavefront ROC keeps its previously calculated value.
+对于给定的 |V_s| ，求出使波前曲率半径保持先前计算值的距离 `z` 和光束质量 |M^2|。
 
-How to find `z`: substitute |z_0| as |w_0|/|V_s| into formulas for `w(z)` and `R(z)`, express |w_0| from both, equate them and solve against `z`.
+求 `z` 的方法：将 |z_0| 表示为 |w_0|/|V_s| 代入 `w(z)` 和 `R(z)` 的公式，从两式中表示出 |w_0| ，令它们相等，并对 `z` 求解。
 
   .. image:: img/f_calc_gauss_Vs_2.png
 
 
-Change axial distance `z`
-^^^^^^^^^^^^^^^^^^^^^^^^^
+改变轴向距离 `z`
+^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
   .. image:: img/f_calc_gauss_z_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
   .. image:: img/f_calc_gauss_z_2.png
 
 
-Change beam quality |M^2|
-^^^^^^^^^^^^^^^^^^^^^^^^^
+改变光束质量 |M^2|
+^^^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-The same as when the waist is changed.
+与改变束腰时相同。
 
   .. image:: img/f_calc_gauss_MI_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-Taking a new value of |M^2|, find such a distance `z` and waist radius |w_0| preserving constant wavefront.
+取 |M^2| 的新值，求出使波前保持不变的距离 `z` 和束腰半径 |w_0| 。
 
-How to find `z`: express |w_0|:sup:`2` from formula for `R(z)`, substitute the expression into formula for `w(z)` and solve it against `z`.
+求 `z` 的方法：从 `R(z)` 的公式中表示出 |w_0|:sup:`2` ，将该表达式代入 `w(z)` 的公式，并对 `z` 求解。
 
   .. image:: img/f_calc_gauss_MI_2.png
 
 
-Change beam radius `w`
-^^^^^^^^^^^^^^^^^^^^^^
+改变光束半径 `w`
+^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-Find beam quality parameter |M^2| giving specified beam radius at the same axial distance `z` and with the same waist radius |w_0|.
+求出在相同轴向距离 `z` 处、相同束腰半径 |w_0| 下给出指定光束半径的光束质量参数 |M^2|。
 
   .. image:: img/f_calc_gauss_w_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-Find a waist radius |w_0| and beam quality parameter |M^2| giving specified beam radius at the same axial distance `z`.
+求出在相同轴向距离 `z` 处给出指定光束半径的束腰半径 |w_0| 和光束质量参数 |M^2|。
 
   .. image:: img/f_calc_gauss_w_2.png
 
 
-Change wavefront ROC `R`
-^^^^^^^^^^^^^^^^^^^^^^^^
+改变波前曲率半径 `R`
+^^^^^^^^^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-Find beam quality parameter |M^2| giving specified ROC at the same axial distance `z` and with the same waist radius |w_0|.
+求出在相同轴向距离 `z` 处、相同束腰半径 |w_0| 下给出指定曲率半径的光束质量参数 |M^2|。
 
   .. image:: img/f_calc_gauss_R_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-Find a waist radius |w_0| and beam quality parameter |M^2| giving specified ROC at the same axial distance `z`.
+求出在相同轴向距离 `z` 处给出指定曲率半径的束腰半径 |w_0| 和光束质量参数 |M^2|。
 
   .. image:: img/f_calc_gauss_R_2.png
 
 
-Change complex beam parameter `q`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+改变复光束参数 `q`
+^^^^^^^^^^^^^^^^^^
 
-Assigning either real or imaginary part of complex beam parameter, we define both the beam radius `w` and the wavefront ROC `R` at the same time.
+指定复光束参数的实部或虚部，即可同时确定光束半径 `w` 和波前曲率半径 `R` 。
 
   .. image:: img/f_calc_gauss_q_0.png
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-Having fixed waist radius |w_0|, find axial distance `z` and beam quality |M^2| at which specified front is achieved.
+在束腰半径 |w_0| 固定的情况下，求出达到指定波前的轴向距离 `z` 和光束质量 |M^2|。
 
   .. image:: img/f_calc_gauss_q_1.png
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
   .. image:: img/f_calc_gauss_q_2.png
 
 
-Change inverted complex beam parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+改变倒复光束参数
+^^^^^^^^^^^^^^^^
 
-Changing of real part is equivalent to changing of wavefront ROC `R`, and changing of imaginary part is equivalent to changing of beam radius `w`.
+实部的变化等效于波前曲率半径 `R` 的变化，虚部的变化等效于光束半径 `w` 的变化。
 
 
-Change wavelength `λ`
-^^^^^^^^^^^^^^^^^^^^^
+改变波长 `λ`
+^^^^^^^^^^^^
 
-Lock waist
-~~~~~~~~~~
+锁定束腰
+~~~~~~~~
 
-The same formulas as when waist |w_0| changes.
+与束腰 |w_0| 变化时相同的公式。
 
-Lock front
-~~~~~~~~~~
+锁定波前
+~~~~~~~~
 
-The same formulas as when beam radius `w` or wavefront ROC `R` changes.
+与光束半径 `w` 或波前曲率半径 `R` 变化时相同的公式。

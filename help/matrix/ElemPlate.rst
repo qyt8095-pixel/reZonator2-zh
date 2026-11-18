@@ -1,21 +1,21 @@
 .. index:: single: plate
 
-Plate of Matter
-===============
+物质平板
+========
 
-The plate of matter element is a normal plane-parallel slab of transparent material with an index of refraction `n`, situated in the air (external `n` = 1). Reference planes are at edges of the element, outside of it, in the air.
+物质平板元件是一种普通的平行平面透明材料平板，折射率为 `n` ，位于空气中（外部折射率 `n` = 1）。参考面位于元件边缘之外，在空气中。
 
-Matrices for tangential and sagittal planes are the same.
+子午平面和弧矢平面的矩阵相同。
 
-Full element
+完整元件
 
     .. image:: ElemPlate.png
 
-Left half-pass
+左半程
 
     .. image:: ElemPlate_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemPlate_right.png
 

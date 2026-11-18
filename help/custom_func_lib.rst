@@ -1,15 +1,15 @@
 .. _custom_func_lib:
 
-Custom Functions Library
-=========================
+自定义函数库
+============
 
-:menuSelection:`Functions --> Custom Functions Library`
+:menuSelection:`函数 --> 自定义函数库`
 
-The Custom Functions Library provides centralized management for your reusable custom functions. It allows you to save, organize, and reuse custom function code across different schemas, building a personal collection of calculation tools tailored to your specific needs.
+自定义函数库为可复用的自定义函数提供集中管理。它允许你保存、组织和复用自定义函数代码，使其可跨不同方案使用，从而建立一套针对你特定需求的个人计算工具集。
 
-Custom functions are stored as Python files in the user profile directory. Each file is assigned a user-readable name that is extracted from the script's docstring. Choose descriptive, meaningful names for your scripts to make them easy to find and identify later.
+自定义函数以 Python 文件形式存储在用户配置目录中。每个文件都会被指定一个用户可读的名称，该名称从脚本的文档字符串中提取。为脚本选择描述性强、有意义的名称，以便日后易于查找和识别。
 
-For example, this function will be displayed as "Beam Waist Calculator" in the library:
+例如，该函数在库中将显示为 "Beam Waist Calculator"：
 
 .. code-block:: python
 
@@ -24,53 +24,53 @@ For example, this function will be displayed as "Beam Waist Calculator" in the l
     # Your code here
     pass
 
-The library window displays all saved custom function files in a list with icons indicating their type:
+库窗口以列表形式显示所有已保存的自定义函数文件，图标表示其类型：
 
 +---------------+------------------------------------------------------------------------------+
 |               |                                                                              |
 +===============+==============================================================================+
-| |icon_python| | Basic custom scripts for :doc:`text output <custom_script>`                  |
+| |icon_python| | 用于 :doc:`文本输出 <custom_script>` 的基本自定义脚本                        |
 +---------------+------------------------------------------------------------------------------+
-| |icon_table|  | Functions with ``columns()`` method for :doc:`tabular output <custom_table>` |
+| |icon_table|  | 带 ``columns()`` 方法、用于 :doc:`表格输出 <custom_table>` 的函数            |
 +---------------+------------------------------------------------------------------------------+
-| |icon_plot|   | Functions with ``figure()`` method for :doc:`graphical output <custom_plot>` |
+| |icon_plot|   | 带 ``figure()`` 方法、用于 :doc:`图形输出 <custom_plot>` 的函数              |
 +---------------+------------------------------------------------------------------------------+
 
 .. |icon_python| image:: ../img/toolbar/func_script.svg
 .. |icon_table| image:: ../img/toolbar/func_table.svg
 .. |icon_plot| image:: ../img/toolbar/func_plot.svg
 
-Click any file in the list to view its code in the right panel. The code viewer is read-only by default, preventing unintended modifications.
+点击列表中的任意文件，可在右侧面板中查看其代码。代码查看器默认是只读的，可防止意外修改。
 
-Filter
-------
-
-Use the filter field at the top of the file list to quickly find custom functions. You can quickly activate the field by hitting the :guiLabel:`F3` hotkey. You can type multiple terms (minimum 2 characters per term) separated by spaces. Functions are shown only if their names contain all search terms (AND logic). Search is case-insensitive. For example, typing "beam plot" will show only functions with both "beam" and "plot" in their names.
-
-
-Edit
+筛选
 ----
 
-For minor corrections and typo fixes, you can edit files directly in the window. Use the :guiLabel:`Edit` button on the toolbar or hit the :guiLabel:`F2` hotkey. Make your changes in the code editor and click :guiLabel:`Save` (:guiLabel:`Ctrl+S`) to save changes or :guiLabel:`Cancel` (:guiLabel:`Esc`) to discard them.
+使用文件列表顶部的筛选字段可以快速查找自定义函数。你可以按 :guiLabel:`F3` 快捷键快速激活该字段。你可以输入多个词（每个词至少 2 个字符），以空格分隔。只有名称包含所有搜索词的函数才会显示（与逻辑）。搜索不区分大小写。例如，输入 "beam plot" 将只显示名称中同时包含 "beam" 和 "plot" 的函数。
 
-For regular development, you should add the function to a real schema via the :guiLabel:`Apply to Schema` command, modify and test it there to verify it works correctly. Then save it back to the library using the :menuSelection:`Save to Custom Library` menu command in the :menuSelection:`Script`, :menuSelection:`Table`, or :menuSelection:`Plot` menu, depending on the function type. This workflow ensures your scripts are properly tested with actual data before updating the library.
 
-Create
-------
+编辑
+----
 
-To add a new custom function to the library, write a new :doc:`custom_script` or :doc:`custom_table` or :doc:`custom_plot`. Add a docstring with a human-readable name on the first line. Then use the :menuSelection:`Save to Custom Library` menu command in the :menuSelection:`Script`, :menuSelection:`Table`, or :menuSelection:`Plot` menu, depending on the function type.
+对于小的修正和拼写错误，你可以直接在窗口中编辑文件。使用工具栏上的 :guiLabel:`编辑` 按钮或按 :guiLabel:`F2` 快捷键。在代码编辑器中进行更改，然后点击 :guiLabel:`保存` （:guiLabel:`Ctrl+S` ）保存更改，或点击 :guiLabel:`取消` （:guiLabel:`Esc` ）放弃更改。
 
-If a function with the same name already exists in the library, you'll be asked whether to replace it. The library supposes that every custom functionality should be named uniquely. If one repeats a name, the one highly likely wants to reimplement the functionality.
+对于常规开发，你应通过 :guiLabel:`应用到方案` 命令将函数添加到真实方案中，在其中修改和测试，以验证其正常工作。然后根据函数类型，使用 :menuSelection:`脚本` 、:menuSelection:`表格` 或 :menuSelection:`绘图` 菜单中的 :menuSelection:`保存到自定义库` 菜单命令，将其保存回库中。此工作流程可确保脚本在更新库之前已使用实际数据进行了充分测试。
 
-Delete
-------
+新建
+----
 
-To remove a custom function from the library, hit the :guiLabel:`Delete` button. Deleting a function from the library does not affect any schemas that use it. Existing schemas retain their own copies of the code.
+要向库中添加新的自定义函数，请编写新的 :doc:`custom_script` 、:doc:`custom_table` 或 :doc:`custom_plot` 。在第一行添加包含人类可读名称的文档字符串。然后根据函数类型，使用 :menuSelection:`脚本` 、:menuSelection:`表格` 或 :menuSelection:`绘图` 菜单中的 :menuSelection:`保存到自定义库` 菜单命令。
 
-Import/Export
--------------
+如果库中已存在同名函数，会询问你是否替换它。库假定每个自定义功能都应具有唯一的名称。如果名称重复，很可能你想重新实现该功能。
 
-Custom functions are stored as Python files in the user profile directory. Use the :guiLabel:`Export` and :guiLabel:`Import` buttons to share and backup. Importing files must be UTF-8 encoded Python files containing a docstring with a function name on the first line and the ``calculate()`` function.
+删除
+----
+
+要从库中删除自定义函数，请点击 :guiLabel:`删除` 按钮。从库中删除函数不会影响使用它的任何方案。现有方案保留自己的代码副本。
+
+导入/导出
+---------
+
+自定义函数以 Python 文件形式存储在用户配置目录中。使用 :guiLabel:`导出` 和 :guiLabel:`导入` 按钮进行共享和备份。导入的文件必须是 UTF-8 编码的 Python 文件，包含文档字符串，其中第一行为函数名称，并包含 ``calculate()`` 函数。
 
 .. seeAlso::
 

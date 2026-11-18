@@ -1,22 +1,22 @@
 .. _elem_opers_insert_into:
 .. index:: single: insert into (command)
 
-Insert Into
-===========
+插入
+====
 
-:menuSelection:`Element --> Insert Into...`
+:menuSelection:`元件 --> 插入到...`
 
-The command is active for any element having the Length parameter, such as :ref:`elem_empty_range` or :ref:`elem_brewster_crystal`. The command opens the :doc:`catalog` to choose a type for a new element. The newly created element gets inserted into the middle of the currently selected element, splitting it into two elements of the same type having the summary length equivalent to the length of the original element.
+该命令对任何具有 Length 参数的元件都有效，例如 :ref:`elem_empty_range` 或 :ref:`elem_brewster_crystal` 。该命令打开 :doc:`目录 <catalog>` ，以选择新元件的类型。新创建的元件插入到当前选定元件的中间，将其分成两个同类型元件，两者的总长度等于原元件的长度。
 
     .. image:: img/elem_opers_split_drawing.png
 
-The command is equivalent to the :doc:`elem_opers_split` command but allows you to select an element type that is inserted between split parts (the :doc:`elem_opers_split` command only allows you to insert :ref:`elem_point`), but it does not allow you to set the proportion of splitting (it always uses the factor 0.5).
+该命令与 :doc:`分割 <elem_opers_split>` 命令等效，但允许你选择插入到分开部分之间的元件类型（:doc:`分割 <elem_opers_split>` 命令只允许插入 :ref:`elem_point` ），但不允许你设定分割比例（它始终使用系数 0.5）。
 
     .. note::
-        The command changes the length of the original element. So it can not be executed when the length is not directly editable because it's controlled by a :ref:`global parameter <params_window>`.
+        该命令会改变原元件的长度。因此，当长度不能直接编辑时（因为它由 :ref:`全局参数 <params_window>` 控制），该命令无法执行。
 
 .. seeAlso::
 
     - :doc:`elem_opers`
-    - :doc:`elem_opers_split`
+    - :doc:`分割 <elem_opers_split>`
     - :doc:`elem_opers_merge`

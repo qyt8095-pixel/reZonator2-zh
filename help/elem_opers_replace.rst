@@ -1,12 +1,12 @@
 .. _elem_opers_replace:
 .. index:: single: replace element (command)
 
-Replace
-=======
+替换
+====
 
-:menuSelection:`Element --> Replace...`
+:menuSelection:`元件 --> 替换...`
 
-The command opens the :doc:`catalog` to choose a type for the currently selected element. The current element gets replaced with an element of the new type, and its properties are copied to the new element. Parameters are copied by name, so, for example, if you replace a :doc:`matrix/ElemCurveMirror` with a :doc:`matrix/ElemThinLens`, the angle will be copied because both of them have the parameter :param:`α`. While the focal range will not be copied because they are named differently and the application doesn't include any heuristics to say the :param:`R` and :param:`F` mean almost the same.
+该命令打开 :doc:`catalog` ，为当前选中的元件选择类型。当前元件被替换为新类型的元件，其属性会复制到新元件。参数按名称复制，例如，如果你把 :doc:`matrix/ElemCurveMirror` 替换为 :doc:`matrix/ElemThinLens` ，角度会被复制，因为两者都有参数 :param:`α` 。而焦距不会被复制，因为它们的名称不同，应用程序也没有任何启发式规则来判断 :param:`R` 和 :param:`F` 的含义几乎相同。
 
     .. image:: img/catalog.png
 

@@ -27,7 +27,7 @@ void CausticFunction::calculate(CalculationMode calcMode)
     auto elem = arg()->element->asRange();
     if (!elem)
     {
-        setError("CausticFunction.arg.element is not range");
+        setError("CausticFunction.arg.element 不是区间元件");
         return;
     }
 

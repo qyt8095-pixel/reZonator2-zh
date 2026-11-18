@@ -22,7 +22,7 @@ QString readParamValue(const QJsonObject& json, Parameter* param)
 {
     auto res = readValue(json, param->dim());
     if (!res.ok())
-        return QString("Unable to read value for parameter '%1': %2").arg(param->alias(), res.error());
+        return QString("无法读取参数 '%1' 的值：%2").arg(param->alias(), res.error());
     param->setValue(res.value());
     return QString();
 }
@@ -31,7 +31,7 @@ QString readParamValueTS(const QJsonObject& json, ParameterTS* param)
 {
     auto res = readValueTS(json, param->dim());
     if (!res.ok())
-        return QString("Unable to read value for parameter '%1': %2").arg(param->alias(), res.error());
+        return QString("无法读取参数 '%1' 的值：%2").arg(param->alias(), res.error());
     param->setValue(res.value());
     return QString();
 }
@@ -52,7 +52,7 @@ void SchemaReaderJson::readFromFile(const QString& fileName)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qWarning() << "SchemaReaderJson::readFromFile" << fileName << file.errorString();
-        return _report.error(QString("Unable to open file for reading: %1").arg(file.errorString()));
+        return _report.error(QString("无法打开文件进行读取：%1").arg(file.errorString()));
     }
     readFromUtf8(file.readAll());
     file.close();
@@ -68,14 +68,14 @@ void SchemaReaderJson::readFromUtf8(const QByteArray& data)
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(data, &error);
     if (doc.isNull())
-        return _report.error(QString("Unable to parse file: %1").arg(error.errorString()));
+        return _report.error(QString("无法解析文件：%1").arg(error.errorString()));
 
     QJsonObject root = doc.object();
 
     Ori::Version version(root[JSON_KEY_VERSION].toString());
     if (version > Z::IO::Json::currentVersion())
         return _report.error(QString(
-            "File version %1 is not supported, max supported version: %2")
+            "文件版本 %1 不受支持，最高支持版本：%2")
                 .arg(version.str(), Z::IO::Json::currentVersion().str()));
 
     readGeneral(root);
@@ -101,7 +101,7 @@ void SchemaReaderJson::readGeneral(const QJsonObject& root)
     auto tripType = TripTypes::find(tripTypeStr, &ok);
     if (!ok)
         _report.warning(QString(
-            "Unknown schema trip type: '%1'. %2 is ised instead.")
+            "未知的光路图往返类型：'%1'，已改用 %2。")
                 .arg(tripTypeStr, TripTypes::info(tripType).alias()));
     _schema->setTripType(tripType);
 
@@ -145,7 +145,7 @@ void SchemaReaderJson::readGlobalParam(const QJsonObject& root, const QString &a
     Z::Dim dim = Z::Dims::findByAlias(dimStr);
     if (!dim)
         return _report.warning(QString(
-            "Unknown dimension '%1' of global parameter '%2'").arg(dimStr, alias));
+            "全局参数 '%2' 的量纲 '%1' 未知").arg(dimStr, alias));
 
     auto param = new Z::Parameter(
         dim,
@@ -159,7 +159,7 @@ void SchemaReaderJson::readGlobalParam(const QJsonObject& root, const QString &a
 
     auto res = readParamValue(root, param);
     if (!res.isEmpty())
-        _report.warning(QString("Reading global parameter '%1': %2").arg(param->alias(), res));
+        _report.warning(QString("读取全局参数 '%1'：%2").arg(param->alias(), res));
         
     param->setExpr(root["expr"].toString());
     param->setError(root["error"].toString());
@@ -179,7 +179,7 @@ void SchemaReaderJson::readPumps(const QJsonObject& root)
     {
         if (_schema->isSP())
         {
-            _report.warning("There are no pumps in the file, default pump created.");
+            _report.warning("文件中没有泵浦，已创建默认泵浦。");
             _schema->pumps()->append(Pumps::allModes().first()->makePump());
         }
         else return;
@@ -209,20 +209,20 @@ void SchemaReaderJson::readParamLink(const QJsonObject& root)
     auto targetElem = _schema->element(targetElemIndex);
     if (!targetElem)
         return _report.warning(QString(
-            "Unable to load link: element with index %1 not found").arg(targetElemIndex));
+            "无法加载链接：未找到索引为 %1 的元件").arg(targetElemIndex));
 
     auto targetParamAlias = root["target_param"].toString();
     auto targetParam = targetElem->params().byAlias(targetParamAlias);
     if (!targetParam)
         return _report.warning(QString(
-            "Unable to load link: parameter '%1' not found in elemenet #%2")
+            "无法加载链接：在元件 #%2 中未找到参数 '%1'")
                 .arg(targetParamAlias, targetElem->displayLabel()));
 
     auto sourceParamAlias = root["source_param"].toString();
     auto sourceParam = _schema->globalParams()->byAlias(sourceParamAlias);
     if (!sourceParam)
         return _report.warning(QString(
-            "Unable to load link: parameter '%1' not found in custom params").arg(sourceParamAlias));
+            "无法加载链接：在自定义参数中未找到参数 '%1'").arg(sourceParamAlias));
 
     _schema->addParamLink(sourceParam, targetParam);
 }
@@ -241,7 +241,7 @@ void SchemaReaderJson::readFormula(const QJsonObject& root)
     auto targetParam = _schema->globalParams()->byAlias(targetAlias);
     if (!targetParam)
         return _report.warning(QString(
-            "Unable to find target parameter '%1' for formula, formula skipped").arg(targetAlias));
+            "未找到公式的目标参数 '%1'，已跳过该公式").arg(targetAlias));
 
     auto formula = new Z::Formula(targetParam);
     formula->setCode(root["code"].toString());
@@ -256,7 +256,7 @@ void SchemaReaderJson::readFormula(const QJsonObject& root)
             if (!depParam)
             {
                 _report.warning(QString(
-                    "Unable to find parameter '%1' required by formula driving parameter '%2'")
+                    "未找到公式（驱动参数 '%2'）所需的参数 '%1'")
                         .arg(depAlias, targetAlias));
                 continue;
             }
@@ -282,14 +282,14 @@ void SchemaReaderJson::readWindow(const QJsonObject& root)
     auto ctor = WindowsManager::getConstructor(type);
     if (!ctor)
         return _report.warning(QString(
-            "Unable to load window of unknown type '%1', skipped.").arg(type));
+            "无法加载未知类型 '%1' 的窗口，已跳过。").arg(type));
 
     SchemaWindow* window = ctor(_schema);
     ISchemaWindowStorable* storable = dynamic_cast<ISchemaWindowStorable*>(window);
     if (!storable)
     {
         _report.warning(QString(
-            "A window of type '%1' is stored in the file but it is unknown how to load it, skipped.").arg(type));
+            "文件中存储了类型为 '%1' 的窗口，但不知如何加载，已跳过。").arg(type));
         delete window;
         return;
     }
@@ -301,13 +301,13 @@ void SchemaReaderJson::readWindow(const QJsonObject& root)
         // Window will be recalculated on RecalRequred after loading is completed
         if (!windowReport.isEmpty())
         {
-            _report.info(QString("There are messages while loading window of type '%1'").arg(type));
+            _report.info(QString("加载类型为 '%1' 的窗口时有提示信息").arg(type));
             _report.report(windowReport);
         }
     }
     else
     {
-        _report.warning(QString("Unable to load window of type '%1'").arg(type));
+        _report.warning(QString("无法加载类型为 '%1' 的窗口").arg(type));
         _report.report(windowReport);
         delete window;
     }
@@ -335,7 +335,7 @@ void SchemaReaderJson::readMemo(const QJsonObject& root)
             if (res)
                 text = QString::fromUtf8(res.decoded);
             else {
-                _report.warning("Failed to decode memo content from base64");
+                _report.warning("无法从 base64 解码备忘录内容");
                 return;
             }
         }
@@ -353,7 +353,7 @@ void SchemaReaderJson::readMemo(const QJsonObject& root)
         QBuffer buf(&bytes);
         QImage img;
         if (!img.load(&buf, "png"))
-            _report.warning(QString("Unable to load image %1 for memo").arg(it.key()));
+            _report.warning(QString("无法为备忘录加载图片 %1").arg(it.key()));
         else
             _schema->memo->images[it.key()] = img;
         it++;
@@ -392,7 +392,7 @@ QList<Element*> readElements(const QJsonObject& root, Z::Report* report)
                             p->setValue(Z::Value::inf(u));
                         else p->setValue(Z::Value(-p->value().value(), u));
                     } else {
-                        report->warning(QString("Parameter %1 is expected in element #%2 but not found").arg(r).arg(i));
+                        report->warning(QString("元件 #%2 中应有参数 %1，但未找到").arg(r).arg(i));
                     }
                 }
             } else if (auto intf = dynamic_cast<ElemSphericalInterface*>(elem); intf) {
@@ -402,7 +402,7 @@ QList<Element*> readElements(const QJsonObject& root, Z::Report* report)
                         p->setValue(Z::Value::inf(u));
                     else p->setValue(Z::Value(-p->value().value(), u));
                 } else {
-                    report->warning(QString("Parameter R is expected in element #%1 but not found").arg(i));
+                    report->warning(QString("元件 #%1 中应有参数 R，但未找到").arg(i));
                 }
             }
         }
@@ -417,7 +417,7 @@ Element* readElement(const QJsonObject& root, Z::Report* report)
     auto elem = ElementsCatalog::instance().create(elemType);
     if (!elem)
     {
-        report->warning(QString("Unknown element type '%1', element skipped").arg(elemType));
+        report->warning(QString("未知元件类型 '%1'，已跳过该元件").arg(elemType));
         return nullptr;
     }
 
@@ -451,7 +451,7 @@ Element* readElement(const QJsonObject& root, Z::Report* report)
             auto res = readParamSpec(it->toObject());
             if (!res.ok()) 
             {
-                report->warning(QString("Reading element '%1': %2").arg(elem->displayLabel(), res.error()));
+                report->warning(QString("读取元件 '%1'：%2").arg(elem->displayLabel(), res.error()));
                 continue;
             }
             elem->addParam(res.value());
@@ -469,7 +469,7 @@ Element* readElement(const QJsonObject& root, Z::Report* report)
                 auto paramObj = paramJson.obj();
                 auto res = readParamValue(paramObj, param);
                 if (!res.isEmpty())
-                    report->warning(QString("Reading element '%1': %2").arg(elem->displayLabel(), res));
+                    report->warning(QString("读取元件 '%1'：%2").arg(elem->displayLabel(), res));
                 param->setExpr(paramObj["expr"].toString());
                 param->setError(paramObj["error"].toString());
             }
@@ -501,7 +501,7 @@ PumpParams* readPump(const QJsonObject& root, Z::Report* report)
     auto pumpMode = Pumps::findByModeName(pumpModeName);
     if (!pumpMode)
     {
-        report->warning(QString("Unknown pump mode '%1', pump skipped").arg(pumpModeName));
+        report->warning(QString("未知泵浦模式 '%1'，已跳过该泵浦").arg(pumpModeName));
         return nullptr;
     }
 
@@ -526,7 +526,7 @@ PumpParams* readPump(const QJsonObject& root, Z::Report* report)
 
         auto res = readParamValueTS(paramJson.obj(), param);
         if (!res.isEmpty())
-            report->warning(QString("Reading pump %1: %2").arg(pump->label(), res));
+            report->warning(QString("读取泵浦 %1：%2").arg(pump->label(), res));
     }
 
     return pump;

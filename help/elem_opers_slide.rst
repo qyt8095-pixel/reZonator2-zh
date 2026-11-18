@@ -1,21 +1,21 @@
 .. _elem_opers_slide:
 .. index:: single: slide element (command)
 
-Slide
-=====
+滑动
+====
 
-:menuSelection:`Element --> Slide...`
+:menuSelection:`元件 --> 滑动...`
 
-When an element selected is located between similar elements having the Length parameter, such as :ref:`elem_empty_range` or :ref:`elem_medium_range`, the command produces an effect of shifting the element along its surrounding elements.
+当所选元件位于具有长度参数的同类元件之间时，例如 :ref:`elem_empty_range` 或 :ref:`elem_medium_range` ，该命令会产生沿周围元件移动该元件的效果。
 
     .. image:: img/elem_opers_slide_drawing.png
 
-Actually, it changes the length of both surrounding elements so that one of them becomes longer and the other one gets shorter by the same value. So that it's not necessary to select an element located between two spaces. Instead, you can select two arbitrary spaces and redistribute their lengths.
+实际上，它改变两个周围元件的长度，使其中一个变长、另一个缩短相同的量。因此没有必要选择位于两个空程之间的元件。你可以直接选择任意两个空程并重新分配它们的长度。
 
     .. note::
-        The command changes the length of both elements. So it can not be executed when any of the lengths is not directly editable because it's controlled by a :ref:`global parameter <params_window>`.
+        该命令会改变两个元件的长度。因此，当任一长度不是直接可编辑的（因为它受 :ref:`全局参数 <params_window>` 控制）时，该命令无法执行。
 
-A slider shows the summary length, and its knob can be dragged to redistribute the length between both elements. Alternatively, the length of an element can be edited manually; the length of the second element is recalculated accordingly.
+滑块显示总长度，拖动滑块手柄可以在两个元件之间重新分配长度。或者，也可以手动编辑一个元件的长度；第二个元件的长度会相应地重新计算。
 
     .. image:: img/elem_opers_slide.png
 

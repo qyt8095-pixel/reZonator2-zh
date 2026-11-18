@@ -1,16 +1,16 @@
 .. index:: single: thermo medium
 
-Thermal medium
-==============
+热介质
+======
 
 .. |n0| replace:: `n`\ :sub:`0`
 .. |n2| replace:: `n`\ :sub:`2`
 
-The thermal medium has a quadratic transverse variation of refractive index, with either a maximum or minimum on the axis that produces a lensing effect.
+热介质的折射率在横向呈二次变化，在轴上有最大值或最小值，从而产生透镜效应。
 
-This element is entirely similar to :doc:`ElemGrinMedium`, however instead of setting gradient constant |n2|, you can explicitly assign focal range `F`, and gradient constant is calculated using the :doc:`../calc_grin` tool.
+该元件与 :doc:`ElemGrinMedium` 完全类似，不过你不用设置梯度常数 |n2| ，而是可以直接指定焦距 `F` ，梯度常数用 :doc:`../calc_grin` 工具计算。
 
-The element is cylindrically symmetrical and doesn't imply differences between tangential and sagittal planes.
+该元件是柱对称的，子午面和弧矢面之间没有区别。
 
     .. image:: ../../img/elem/ElemThermoMedium.svg
 
@@ -21,4 +21,4 @@ The element is cylindrically symmetrical and doesn't imply differences between t
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Gradient-index optics in Wikipedia <https://en.wikipedia.org/wiki/Gradient-index_optics>`_
+    - `维基百科中的梯度折射率光学 <https://en.wikipedia.org/wiki/Gradient-index_optics>`_

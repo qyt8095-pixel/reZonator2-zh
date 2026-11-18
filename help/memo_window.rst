@@ -1,40 +1,40 @@
-Memo Window
-===========
+备忘窗口
+========
 
-:menuSelection:`Window --> Memos`
+:menuSelection:`窗口 --> 备忘`
 
   .. image:: img/memo_window.png
 
-The memo window is a simple rich text editor where you can take work notes, keep some pieces of useful information, and even paste images into it, and all these data will be stored in your schema project file.
+备忘窗口是一个简单的富文本编辑器，你可以在其中记录工作笔记、保存一些有用的信息，甚至粘贴图片，所有这些数据都会保存在你的方案项目文件中。
 
-Some example files, e.g. “v_crystal” or “z_crystal”, already include sample memo content showing a schema representation in traditional view (unlike the linear view used in the :doc:`layout`).
+一些示例文件，例如“v_crystal”或“z_crystal”，已经包含备忘示例内容，以传统视图展示方案表示（与 :doc:`layout` 中使用的线性视图不同）。
 
-The memo window can be safely closed; its content will still be kept in the schema. Use the :menuSelection:`Window --> Memos` command or the :menuSelection:`Memos` button on the main toolbar to show the content again.
+备忘窗口可以安全地关闭；其内容仍会保存在方案中。使用 :menuSelection:`窗口 --> 备忘` 命令或主工具栏上的 :menuSelection:`备忘` 按钮可以再次显示内容。
 
-Indicators
-----------
+指示器
+------
 
-When there is a memo in a schema, the :menuSelection:`Memos` button on the main toolbar displays a red badge showing 1 (currently, there is only one memo that could be in the project):
+当方案中有备忘时，主工具栏上的 :menuSelection:`备忘` 按钮会显示一个红色标记，上面写着 1（目前一个项目中只能有一个备忘）：
 
   .. image:: img/memo_window_badge.png
 
-Commands
---------
+命令
+----
 
-When the memo window is active, the :menuSelection:`Memo` item appears in the menu bar of the project window. Besides of the standard text formatting commands that also available on the toolbar it contains some additional commands.
+当备忘窗口处于活动状态时，项目窗口的菜单栏中会出现 :menuSelection:`备忘` 项。除了工具栏上也有的标准文本格式命令外，它还包含一些附加命令。
 
-Insert Table
-~~~~~~~~~~~~
+插入表格
+~~~~~~~~
 
-:menuSelection:`Memo --> Insert Table...`
+:menuSelection:`备忘 --> 插入表格...`
 
-The command shows the dialog to create a table with fixed numbers of rows and columns.
+该命令显示一个对话框，用于创建具有固定行数和列数的表格。
 
-  .. note:: Tables are very simplistic in the editor, so further changing of row and column count is not supported. Table formatting (link frame color or margins) is also not supported.
+  .. note:: 编辑器中的表格非常简单，因此不支持进一步更改行数和列数。也不支持表格格式设置（链接边框颜色或边距）。
 
-Export as PDF
-~~~~~~~~~~~~~
+导出为 PDF
+~~~~~~~~~~
 
-:menuSelection:`Memo --> Export as PDF...`
+:menuSelection:`备忘 --> 导出为 PDF...`
 
-Export the current memo content into a PDF file.
+把当前备忘内容导出为 PDF 文件。

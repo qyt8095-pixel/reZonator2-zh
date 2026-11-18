@@ -1,19 +1,19 @@
-Multiply Selected
-=================
+将选定元件相乘
+==============
 
-:menuSelection:`Functions --> Multiply Selected`
+:menuSelection:`函数 --> 将选定元件相乘`
 
-The function calculates the product of the selected elements' matrices.
+该函数计算选定元件矩阵的乘积。
 
-By default, elements are multiplied in the order they are numbered in the table. The option "Multiply in order of selection" allows you to multiply elements in the order they were selected, not the order they appear in the scheme. This allows for different combinations of elements for multiplication.
+默认情况下，元件按它们在表格中的编号顺序相乘。“按选择顺序相乘”选项允许你按元件被选择的顺序（而不是它们在方案中出现的顺序）相乘。这样可以得到元件的不同相乘组合。
 
-The option "Multiply in reverse order" allows you to multiply elements in reverse order, starting with the last selected element and moving backwards to the first one.
+“按反向顺序相乘”选项允许你按反向顺序相乘，从最后一个选定元件开始，依次倒推到第一个元件。
 
-For elements whose matrices are different for forward and back beam propagation (e.g., :doc:`matrix/ElemThickLens` or :doc:`matrix/ElemSphericalInterface`) it is possible to choose what matrix should be taken by enabling the "Use back propagation matrices" option.
+对于光束正向传播和反向传播时矩阵不同的元件（例如 :doc:`matrix/ElemThickLens` 或 :doc:`matrix/ElemSphericalInterface` ），可以启用“使用反向传播矩阵”选项来选择应采用哪个矩阵。
 
-By default, disabled elements are ignored during multiplication. The option "Use disabled elements" allows for including disabled elements in the multiplication process.
+默认情况下，相乘时会忽略已禁用的元件。“使用已禁用的元件”选项允许将已禁用的元件包含在相乘过程中。
 
-This function is for debug and test purposes mostly, so it doesn't care about the real beam propagation in the chosen elements or if the selected order is physically correct.
+该函数主要用于调试和测试，因此它不考虑所选元件中真实的光束传播，也不考虑所选顺序在物理上是否正确。
 
     .. image:: img/func_matrix_mult.png
 

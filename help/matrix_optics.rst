@@ -1,19 +1,19 @@
 .. index:: single: matrix optics
 
-Calculation of Beam Parameters in Resonators
-============================================
+谐振腔中光束参数的计算
+======================
 
-The description is given according to the book "Lasers" by A.E. Siegman, see chapter 21 "Generalized paraxial resonator theory".
+描述依据 A.E. Siegman 的著作 "Lasers"，见第 21 章 "Generalized paraxial resonator theory"。
 
-For the analysis, we need to select a reference plane to calculate :doc:`the round trip matrix<round_trip_matrix>` against. In general, an element chosen as a parameter of a particular function is the reference plane.
+为了进行分析，我们需要选择一个参考平面来计算 :doc:`往返矩阵 <round_trip_matrix>` 。一般来说，作为某个函数的参数而选定的元件就是参考平面。
 
 .. _self_conformed_beam:
 
-Having the round-trip matrix we can write an expression for transformation of :ref:`complex parameter<gauss_complex_param>`:
+有了往返矩阵，我们可以写出 :ref:`复参数 <gauss_complex_param>` 变换的表达式：
 
     .. image:: img/gauss_q_abcd.png
 
-Because we consider a stable resonator, the output parameter is the same as the input one, so the beam is self-consistent, and it reproduces itself after full round-trip through the resonator:
+由于我们考虑的是稳定谐振腔，输出参数与输入参数相同，因此光束是自洽的，在通过谐振腔完成一次完整往返后会自我再现：
 
     .. image:: img/abcd_q_in_out.png
 
@@ -21,39 +21,39 @@ Because we consider a stable resonator, the output parameter is the same as the 
 
     .. image:: img/abcd_q.png
 
-Then we can find out the complex parameter as a solution to the quadratic equation:
+然后，我们可以将复参数求解为二次方程的解：
 
     .. image:: img/abcd_q_quadratic.png
 
 
-But for convenience, it is better to rewrite this equation meaning the inverted complex parameter:
+但为方便起见，最好将该方程改写为关于复参数倒数的形式：
 
     .. image:: img/abcd_q_quadratic_1.png
 
 
-using the relationship
+利用关系式
 
     .. image:: img/abcd_ad_bc.png
 
-Self-conformed Complex Radius of Curvature
-------------------------------------------
+自洽复曲率半径
+--------------
 
-The solution to this equation gives values of the complex parameter of self-consistent Hermite-gaussian mode in the resonator:
+该方程的解给出了谐振腔中自洽厄米-高斯模式的复参数值：
 
     .. image:: img/abcd_solution.png
 
-or
+或
 
     .. image:: img/abcd_solution_1.png
 
 
-One of the solutions gives unreal situation when the beam's energy increases with radial distance.
+其中一个解给出的情形是不真实的，即光束能量随径向距离增大而增大。
 
-Knowing the expression of the complex parameter through beam characteristics
+已知复参数通过光束特性表示的表达式
 
     .. image:: img/gauss_q.png
 
-we can calculate radius and ROC of self-consistent beam in resonator:
+我们可以计算谐振腔中自洽光束的光束半径和波前曲率半径：
 
     .. image:: img/gauss_q_r_w.png
 
@@ -61,18 +61,18 @@ we can calculate radius and ROC of self-consistent beam in resonator:
 
 .. _abcd_beam:
 
-Beam Properties in Terms of Matrix Components
----------------------------------------------
+用矩阵分量表示的光束特性
+------------------------
 
 .. _abcd_beam_roc:
 
-ROC of self-consistent beam:
+自洽光束的波前曲率半径：
 
     .. image:: img/abcd_curvature.png
 
 .. _abcd_beam_size:
 
-Self-consistent beam radius:
+自洽光束半径：
 
     .. image:: img/abcd_radius_1.png
 
@@ -86,14 +86,14 @@ Self-consistent beam radius:
 
 .. _abcd_beam_angle:
 
-Half-divergence in far-field zone:
+远场区半发散角：
 
     .. tex:
         V_S^2 = \cfrac{\lambda}{\pi} \cfrac{2 C}{\sqrt{4 - (A + D)^2}}
 
     .. image:: img/abcd_angle.png
 
-These formulas are given just for information. They do not suit when matrix components are complex numbers, so the application actually doesn't use them and calculates beam properties from self-consistent `q` parameter directly.
+这些公式仅供参考。当矩阵分量为复数时，它们并不适用，因此应用程序实际上并不使用它们，而是直接根据自洽的 `q` 参数计算光束特性。
 
 .. seeAlso::
 

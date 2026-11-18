@@ -1,207 +1,207 @@
-Plot Operations
-===============
+绘图操作
+========
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Menu Edit
----------
+编辑菜单
+--------
 
 .. --------------------------------------------------------------------------
 
 .. _plot_opers_copy_graph:
 
-Copy Graph Data
-~~~~~~~~~~~~~~~
+复制图形数据
+~~~~~~~~~~~~
 
-:menuSelection:`Edit --> Copy Graph Data...`
+:menuSelection:`编辑 --> 复制图形数据...`
 
-The command opens a dialog for exporting graph data to the clipboard. You can choose what to export and the target format. It is an advanced version of the :ref:`plot_opers_copy_graph_ctx` command which is available in the graph's context menu.
+该命令打开一个对话框，用于将图形数据导出到剪贴板。你可以选择要导出的内容和目标格式。它是 :ref:`plot_opers_copy_graph_ctx` 命令的高级版本，后者在图形的上下文菜单中提供。
 
 .. --------------------------------------------------------------------------
 
 .. _plot_opers_copy_image:
 
-Copy Plot Image
-~~~~~~~~~~~~~~~
+复制绘图图像
+~~~~~~~~~~~~
 
-:menuSelection:`Edit --> Copy Plot Image`
+:menuSelection:`编辑 --> 复制绘图图像`
 
-The command copies the current plot as an image into the clipboard. By default, the cursor lines are also copied as a part of the image, but this can be overridden by the :ref:`application option <app_settings_export_hide_cursor>`. The command is also available in the plot :ref:`context menu <plot_opers_copy_image_ctx>`.
+该命令将当前绘图作为图像复制到剪贴板。默认情况下，光标线也会作为图像的一部分被复制，但这可以通过 :ref:`应用程序选项 <app_settings_export_hide_cursor>` 覆盖。该命令也可在绘图的 :ref:`上下文菜单 <plot_opers_copy_image_ctx>` 中使用。
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Copy Plot Format
+.. TODO: 复制绘图格式
 .. TODO: ~~~~~~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Paste Plot Format
+.. TODO: 粘贴绘图格式
 .. TODO: ~~~~~~~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Menu Format
------------
+格式菜单
+--------
 
-The menu contains commands for customizing of various visual aspects of plot: appearance of axes, titles,  lines, etc. Some functions have its own specific commands besides of the common ones. Those commands are described in help topics for respective functions in the "Additional Commands" section.
-
-.. --------------------------------------------------------------------------
-.. --------------------------------------------------------------------------
-
-Menu Limits
------------
-
-The menu contains commands for adjusting ranges of plot axes. Some functions have its own specific commands besides of the common ones. Those commands are described in help topics for respective functions in the "Additional Commands" section.
+该菜单包含用于自定义绘图的各种视觉方面的命令：坐标轴、标题、线条等的外观。某些函数除了通用命令外还有自己的特定命令。这些命令在相应函数的帮助主题的“附加命令”一节中描述。
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Menu Plot
----------
+范围菜单
+--------
+
+该菜单包含用于调整绘图坐标轴范围的命令。某些函数除了通用命令外还有自己的特定命令。这些命令在相应函数的帮助主题的“附加命令”一节中描述。
+
+.. --------------------------------------------------------------------------
+.. --------------------------------------------------------------------------
+
+绘图菜单
+--------
 
 .. --------------------------------------------------------------------------
 
-Update
-~~~~~~
+更新
+~~~~
 
-:menuSelection:`Plot --> Update (F5)`
+:menuSelection:`绘图 --> 更新 (F5)`
 
-The command calculates the function again. All graphs, special points, and cursor values are updated. The command is inaccessible if the current function is :ref:`frozen <func_freeze>`.
-
-.. --------------------------------------------------------------------------
-
-Update With Parameters
-~~~~~~~~~~~~~~~~~~~~~~
-
-:menuSelection:`Plot --> Update With Params (Ctrl+F5)`
-
-The command does the same as the Update command, but before the function will be recalculated you can specify new arguments for the function. But not all arguments are available for changing. Particularly, you can not change variable parameter of the function. But it's possible to change the number of points in the obtained graphs or their limits.
+该命令重新计算函数。所有图形、特殊点和光标值都会更新。如果当前函数处于 :ref:`冻结 <func_freeze>` 状态，则该命令不可用。
 
 .. --------------------------------------------------------------------------
 
-Freeze
-~~~~~~
+带参数更新
+~~~~~~~~~~
 
-:menuSelection:`Plot --> Freeze (Ctrl+F)`
+:menuSelection:`绘图 --> 带参数更新 (Ctrl+F5)`
 
-The command freezes the current plot window. See :doc:`func_freeze` for details.
+该命令与更新命令相同，但在重新计算函数之前，你可以为函数指定新的参数。但并非所有参数都可更改。具体来说，你不能更改函数的可变参数。但可以更改所得图形中的点数或其范围。
 
 .. --------------------------------------------------------------------------
 
-TS-Flipped Mode
-~~~~~~~~~~~~~~~
+冻结
+~~~~
 
-:menuSelection:`Plot --> TS-Flipped Mode`
+:menuSelection:`绘图 --> 冻结 (Ctrl+F)`
 
-If the option is on, then the S-graph is shown vertically mirrored.
+该命令冻结当前绘图窗口。详情见 :doc:`func_freeze` 。
+
+.. --------------------------------------------------------------------------
+
+TS 翻转模式
+~~~~~~~~~~~
+
+:menuSelection:`绘图 --> TS 翻转模式`
+
+如果该选项开启，则 S 图形会垂直镜像显示。
 
   .. image:: img/plot_opers_flip_ts.png
 
 .. --------------------------------------------------------------------------
 
-Show T-Plane
-~~~~~~~~~~~~
+显示 T 面
+~~~~~~~~~
 
-:menuSelection:`Plot --> Show T-plane`
+:menuSelection:`绘图 --> 显示 T 面`
 
-The command toggles visibility of graphs for the tangential (T) plane.
+该命令切换子午（T）面图形的可见性。
 
   .. note::
-    One of the graphs (for T or S plane) always stays visible. It means if one of the graphs is hidden and you try to hide the other one, then the first becomes visible.
+    其中一个图形（T 面或 S 面）始终保持可见。这意味着，如果一个图形已隐藏，而你尝试隐藏另一个图形，则第一个图形会重新变得可见。
 
 .. --------------------------------------------------------------------------
 
-Show S-Plane
-~~~~~~~~~~~~
+显示 S 面
+~~~~~~~~~
 
-:menuSelection:`Plot --> Show S-plane`
+:menuSelection:`绘图 --> 显示 S 面`
 
-The command toggles visibility of graphs for the sagittal (S) plane.
+该命令切换弧矢（S）面图形的可见性。
 
   .. note::
-    One of the graphs (for T or S plane) always stays visible. It means if one of the graphs is hidden and you try to hide the other one, then the first becomes visible.
+    其中一个图形（T 面或 S 面）始终保持可见。这意味着，如果一个图形已隐藏，而你尝试隐藏另一个图形，则第一个图形会重新变得可见。
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Title Text
+.. TODO: 标题文本
 .. TODO: ~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: X-Axis Text
+.. TODO: X 轴文本
 .. TODO: ~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Y-Axis Text
+.. TODO: Y 轴文本
 .. TODO: ~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: X-Axis Unit
+.. TODO: X 轴单位
 .. TODO: ~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Y-Axis Unit
+.. TODO: Y 轴单位
 .. TODO: ~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-Show Round-Trip
-~~~~~~~~~~~~~~~
+显示往返
+~~~~~~~~
 
-The command shows a list of elements in the sequence their matrices have been multiplied when the round-trip for the current function is built. See :doc:`func_rt_plot`.
+该命令显示一个元件列表，按当前函数的往返构建时其矩阵相乘的顺序排列。见 :doc:`func_rt_plot` 。
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-.. TODO: Menu View
+.. TODO: 视图菜单
 .. TODO: ---------
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Toggle Plot Title
+.. TODO: 切换绘图标题
 .. TODO: ~~~~~~~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 
-.. TODO: Toggle Plot Legend
+.. TODO: 切换绘图图例
 .. TODO: ~~~~~~~~~~~~~~~~~~
 
 .. --------------------------------------------------------------------------
 .. --------------------------------------------------------------------------
 
-Context Menu
-------------
+上下文菜单
+----------
 
 .. --------------------------------------------------------------------------
 
 .. _plot_opers_copy_image_ctx:
 
-Copy Plot Image
-~~~~~~~~~~~~~~~
+复制绘图图像
+~~~~~~~~~~~~
 
-:menuSelection:`Context menu --> Copy Plot Image`
+:menuSelection:`上下文菜单 --> 复制绘图图像`
 
-See :ref:`plot_opers_copy_image`.
+见 :ref:`plot_opers_copy_image` 。
 
 .. --------------------------------------------------------------------------
 
 .. _plot_opers_copy_graph_ctx:
 
-Copy Graph Data
-~~~~~~~~~~~~~~~
+复制图形数据
+~~~~~~~~~~~~
 
-:menuSelection:`Context menu --> Copy Graph Data`
+:menuSelection:`上下文菜单 --> 复制图形数据`
 
-:menuSelection:`Context menu --> Copy Graph Data (this segment)`
+:menuSelection:`上下文菜单 --> 复制图形数据（当前段）`
 
-:menuSelection:`Context menu --> Copy Graph Data (all segments)`
+:menuSelection:`上下文菜单 --> 复制图形数据（所有段）`
 
-The command exports graph values into the clipboard using default :ref:`export settings <app_settings_export_opts>`. For functions like :doc:`func_caustic_mr`, which split graphs into segments, it's possible to copy all segments as one data block or only the currently selected segment. There is an :ref:`advanced version <plot_opers_copy_graph>` of this command allowing you to control all export settings via a dialog.
+该命令使用默认的 :ref:`导出设置 <app_settings_export_opts>` 将图形值导出到剪贴板。对于像 :doc:`func_caustic_mr` 这样将图形拆分为多个段的函数，可以将所有段作为一个数据块复制，或仅复制当前选中的段。该命令还有一个 :ref:`高级版本 <plot_opers_copy_graph>` ，允许你通过对话框控制所有导出设置。
 
 .. --------------------------------------------------------------------------
 

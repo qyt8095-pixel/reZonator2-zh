@@ -1,12 +1,12 @@
 .. _trip_type:
 .. index:: single: round-trip type
 
-Round-Trip Type
-===============
+往返类型
+========
 
-:menuSelection:`File --> Change Trip Type`
+:menuSelection:`文件 --> 更改往返类型`
 
-Round-trip type defines the order in which element matrices are :ref:`multiplied <round_trip>`. The command allows changing the schema round-trip type. The command also can be invoked by double-clicking on the round-trip type icon in the status bar.
+往返类型定义了元件矩阵 :ref:`相乘 <round_trip>` 的顺序。该命令用于更改方案的往返类型。也可以通过双击状态栏中的往返类型图标来调用该命令。
 
   .. image:: img/round_trip_dlg.png
 
@@ -16,10 +16,10 @@ Round-trip type defines the order in which element matrices are :ref:`multiplied
 .. index:: single: standing wave system
 .. index:: single: SW
 
-SW, Standing wave system
-------------------------
+SW，驻波系统
+------------
 
-A product of elements' matrices is calculated over system double pass (round-trip); a beam passes through each element twice (excluding boundary elements).
+元件矩阵的乘积按系统双程（往返）计算；光束两次通过每个元件（边界元件除外）。
 
   .. image:: img/round_trip_sw.png
 
@@ -29,10 +29,10 @@ A product of elements' matrices is calculated over system double pass (round-tri
 .. index:: single: ring resonator
 .. index:: single: RR
 
-RR, Ring resonator
-------------------
+RR，环形谐振腔
+--------------
 
-A beam passes through each element once. After the last element (rightmost), the beam comes into the first one (leftmost) again.
+光束一次通过每个元件。在通过最后一个元件（最右侧）后，光束会再次进入第一个元件（最左侧）。
 
   .. image:: img/round_trip_rr.png
 
@@ -42,14 +42,14 @@ A beam passes through each element once. After the last element (rightmost), the
 .. index:: single: single-pass system
 .. index:: single: SP
 
-SP, Single-pass system
-----------------------
+SP，单程系统
+------------
 
-In this case, a beam comes into the first schema element (leftmost) and goes out from the last one (rightmost).
+在这种情况下，光束进入方案的第一个元件（最左侧），并从最后一个元件（最右侧）射出。
 
   .. image:: img/round_trip_sp.png
 
-To set the input beam parameters, you can use the command :doc:`Setup Input Beam <input_beam>`.
+要设置输入光束参数，可以使用 :doc:`设置输入光束 <input_beam>` 命令。
 
 .. --------------------------------------------------------------------------
 

@@ -12,7 +12,7 @@ public:
     ~PlotFuncRoundTripFunction() override;
 
     FUNC_HELP("func_rt_plot.html")
-    FUNC_NAME("Round-trip for " + _funcTitle)
+    FUNC_NAME("往返：" + _funcTitle)
 
     QString calculateInternal() override;
 

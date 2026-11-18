@@ -1,16 +1,16 @@
 .. _params_window:
 
-Params Window
-=============
+参数窗口
+========
 
 .. index:: single: global parameter
 .. index:: single: schema parameter
 
-:menuSelection:`Window --> Parameters (F11)`
+:menuSelection:`窗口 --> 参数 (F11)`
 
-A schema project can store a number of parameters independent from elements, so they called "global parameters." Their values can be assigned directly or can depend on other parameters and be expressed via formula (see below).
+方案项目可以存储一些独立于元件的参数，因此它们被称为“全局参数”。它们的值可以直接指定，也可以依赖于其他参数并通过公式表示（见下文）。
 
-Global parameters can be used for providing values for :ref:`element parameters <elem_props_link>`, and this gives an ability to make interconnected and driven elements in the schema. Then you can change a value of some global parameter, and this instantly affects several elements at once.
+全局参数可用于为 :ref:`元件参数 <elem_props_link>` 提供值，从而能够在方案中建立相互关联和驱动的元件。然后你可以更改某个全局参数的值，这会立即同时影响多个元件。
 
   .. image:: img/params_window.png
 
@@ -18,12 +18,12 @@ Global parameters can be used for providing values for :ref:`element parameters 
 
 .. _params_window_create:
 
-Create New Parameter
---------------------
+新建参数
+--------
 
-:menuSelection:`Parameter --> Create... (Ctrl+Ins)`
+:menuSelection:`参数 --> 新建... (Ctrl+Ins)`
 
-When creating a new parameter, one should specify its Name, Dimension, and Description. Unit of measurement can be set later when specifying parameter magnitude.
+新建参数时，应指定其名称、量纲和描述。计量单位可以在指定参数量值时再设置。
 
   .. image:: img/params_window_create.png
 
@@ -31,16 +31,16 @@ When creating a new parameter, one should specify its Name, Dimension, and Descr
 
 .. _params_window_edit:
 
-Edit Parameter
-------------------
+编辑参数
+--------
 
-:menuSelection:`Parameter --> Edit... (Ctrl+Return)`
+:menuSelection:`参数 --> 编辑... (Ctrl+Return)`
 
-When editing a parameter, it’s possible to change its name. Then the name is automatically updated in elements and formulas that use this parameter.
+编辑参数时，可以更改其名称。随后该名称会在使用该参数的元件和公式中自动更新。
 
-It’s also possible to change the parameter dimension. In this case it is up to the user's responsibility if the parameter is used in the wrong context. For example, if you change the dimension of the F0 parameter to be “Angular,” then the lens elements having their focal ranges linked to the F0 probably will take incorrect values. When dimensions mismatch, the parameter value is assigned via SI conversion. For example, providing that the focal range linked to the F0 is displayed in cm, changing F0 from “Linear” to “Angular,” we will get transformations like `10deg --> 0.1745rad --> 0.1745m --> 17.45cm`. 
+也可以更改参数量纲。在这种情况下，如果参数在错误的上下文中使用，由用户自行负责。例如，如果你把 F0 参数的量纲改为“角度”，那么焦距链接到 F0 的透镜元件很可能会取到不正确的值。当量纲不匹配时，参数值通过 SI 换算指定。例如，假定链接到 F0 的焦距以 cm 显示，将 F0 从“线性”改为“角度”，我们会得到类似 `10deg --> 0.1745rad --> 0.1745m --> 17.45cm` 的变换。
 
-Description is just a short human-readable description of the parameter, and its changing only affects what’s displayed in the table.
+描述只是参数的简短人类可读描述，更改它只会影响表格中显示的内容。
 
   .. image:: img/params_window_edit.png
 
@@ -48,17 +48,17 @@ Description is just a short human-readable description of the parameter, and its
 
 .. _params_window_value:
 
-Set Parameter Value
--------------------
+设置参数值
+----------
 
-:menuSelection:`Parameter --> Set... (Return)`
+:menuSelection:`参数 --> 设置... (Return)`
 
-Parameter value can be assigned directly via dialog.
+参数值可以通过对话框直接指定。
 
   .. image:: img/params_window_set.png
 
 
-Parameter value can also be given via simple expression. The expression can contain only numbers and basic mathematical functions (see :doc:`lua_primer`). It can not refer to other parameters. If you need to, then use formulas instead of expressions; see below. When an expression is given, the actual parameter value is displayed in the tooltip when you hover the mouse over the input box.
+参数值也可以通过简单表达式给出。表达式只能包含数字和基本数学函数（见 :doc:`lua_primer` ）。它不能引用其他参数。如果你需要这样做，请使用公式而不是表达式，见下文。当给出表达式时，将鼠标悬停在输入框上时，工具提示中会显示实际参数值。
 
   .. image:: img/params_window_set_expr.png
 
@@ -66,42 +66,42 @@ Parameter value can also be given via simple expression. The expression can cont
 
 .. _params_window_formula:
 
-Set Parameter Formula
----------------------
+设置参数公式
+------------
 
-:menuSelection:`Parameter --> Set... (Return) --> Add formula`
+:menuSelection:`参数 --> 设置... (Return) --> 添加公式`
 
-Parameter value can be derived from values of other parameters. You can provide a formula for value calculation. In the "Set value" dialog, click the right bars menu and select the :menuSelection:`Add formula` item. Later, use the same menu and the command :menuSelection:`Remove formula` if you don't need the formula any longer and want to provide the parameter value directly.
+参数值可以从其他参数的值推导得出。你可以提供一个公式来计算值。在“设置值”对话框中，点击右侧菜单按钮并选择 :menuSelection:`添加公式` 项。之后，如果不再需要公式并想直接提供参数值，请使用同一菜单中的 :menuSelection:`删除公式` 命令。
 
   .. image:: img/params_window_formula_1.png
 
-A dialog appears where you can type an expression that will be calculated to obtain the parameter value. Formulas are written in Lua syntax (see :doc:`lua_primer`). While you type, the formula is instantly checked for correctness, and a red marker shows if something is wrong with it.
+随后会出现一个对话框，你可以在其中输入用于计算参数值的表达式。公式用 Lua 语法编写（见 :doc:`lua_primer` ）。在你输入时，公式会即时检查正确性，如果有问题，会显示红色标记。
 
   .. image:: img/params_window_formula_2.png
 
-Formula can depend on values of other parameters. Just type the name of another parameter, and the dependency will be automatically created. Here in the picture, :param:`L0` and :param:`F0` are names of other parameters added as dependencies. When one of the dependencies changes, the dependent parameter gets automatically recomputed respecting the new value.
+公式可以依赖于其他参数的值。只需输入另一个参数的名称，就会创建依赖关系。在图中，:param:`L0` 和 :param:`F0` 是作为依赖添加的其他参数的名称。当其中一个依赖发生变化时，依赖参数会根据新值自动重新计算。
 
-When a parameter is driven by a formula, it is marked by the “gear” icon in the table, and the list of dependencies is shown in the “Name” column. E.g. :param:`L1 = f(L0, F0)` means that a value for parameter :param:`L1` is somehow calculated from values of parameters :param:`L0` and :param:`F0`, which are also here in the table.
+当参数由公式驱动时，它在表格中以“齿轮”图标标记，依赖列表显示在“名称”列中。例如，:param:`L1 = f(L0, F0)` 表示参数 :param:`L1` 的值是根据参数 :param:`L0` 和 :param:`F0` 的值以某种方式计算得出的，它们也都在表中。
 
 .. --------------------------------------------------------------------------
 
 .. _params_window_adjust:
 
-Adjust Parameter
-----------------
+调整参数
+--------
 
-:menuSelection:`Parameter --> Adjust`
+:menuSelection:`参数 --> 调整`
 
-A global parameter can be used in the :doc:`Adjustment tool<adjust>` like any other element parameter. Just select the :menuSelection:`Adjust` command from the parameters table context menu or use the :menuSelection:`Adjust` command in the window menu. But if the parameter is driven by a formula it can not be really adjusted because you can’t provide a value to the driven parameter directly (see that the value of :param:`L1` is marked in italic font in the picture below). Instead, you have to adjust its dependencies, and the Adjuster tool will reflect how the driven value is changed.
+全局参数可以像任何其他元件参数一样在 :doc:`调整工具 <adjust>` 中使用。只需从参数表的上下文菜单中选择 :menuSelection:`调整` 命令，或使用窗口菜单中的 :menuSelection:`调整` 命令。但是，如果参数由公式驱动，则无法真正调整它，因为你无法直接为被驱动的参数提供值（注意下图中 :param:`L1` 的值以斜体显示）。取而代之，你必须调整它的依赖，调整工具会反映被驱动值如何变化。
 
   .. image:: img/params_window_adjust.png
 
 .. note::
-  If an expression had been set for the parameter value, after using the adjuster it will be reset and replaced with the actual value. Because the adjuster can not know what part of the expression should be changed, so it changes the whole value.
+  如果参数值已设置了表达式，在使用调整工具后，它将被重置并替换为实际值。因为调整工具无法知道表达式的哪一部分应该更改，所以它会更改整个值。
 
-Delete  Parameter
------------------
+删除参数
+--------
 
-:menuSelection:`Parameter --> Delete (Ctrl+Del)`
+:menuSelection:`参数 --> 删除 (Ctrl+Del)`
 
-The system checks if a parameter under deletion is a dependency for another global parameter or if there is an element parameter linked to it and prevents deletion of such a parameter. All dependencies and links should be refused manually.
+系统会检查要删除的参数是否为另一个全局参数的依赖，或是否有元件参数链接到它，并阻止删除此类参数。所有依赖和链接都应手动解除。

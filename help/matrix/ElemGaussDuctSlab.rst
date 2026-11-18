@@ -1,15 +1,15 @@
 .. index:: single: gaussian duct (slab)
 
-Gaussian duct (stab)
-====================
+高斯导管（平板）
+================
 
-The element is implemented according to Siegman book "Lasers" (1986, ISBN 0-935702-11-5), chapter 20.3 "Gaussian apertures and complex ABCD matrices".
+该元件依据 Siegman 的著作《Lasers》（1986，ISBN 0-935702-11-5）第 20.3 章“Gaussian apertures and complex ABCD matrices”实现。
 
-A gaussian duct is a transversely inhomogeneous medium in which the refractive index and the absorption coefficient may both vary transversely.
+高斯导管是一种横向非均匀介质，其中折射率和吸收系数都可能随横向位置变化。
 
-The coefficient `α` is the loss factor per unit length.
+系数 `α` 是单位长度的损耗因子。
 
-The element has the same matrices as the :doc:`ElemGrinLens` has, with the only difference that the parameter `γ` is a complex value (see page 791 formula 43 in the Siegman book).
+该元件与 :doc:`ElemGrinLens` 具有相同的矩阵，唯一的区别是参数 `γ` 为复数值（见 Siegman 著作第 791 页公式 43）。
 
     .. image:: ElemGaussDuctSlab.png
 

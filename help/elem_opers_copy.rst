@@ -1,12 +1,12 @@
 .. _elem_opers_copy:
 .. index:: single: copy element (command)
 
-Copy
+复制
 ====
 
-:menuSelection:`Edit --> Copy (Ctrl+C)`
+:menuSelection:`编辑 --> 复制 (Ctrl+C)`
 
-The command copies the currently selected element into the clipboard in an internal format. The copied elements can be pasted into another schema or they also can be pasted into the :doc:`elem_library` to be used later as presets.
+该命令把当前选定的元件以内部格式复制到剪贴板。复制的元件可以粘贴到另一个方案中，也可以粘贴到 :doc:`elem_library` 中，以后用作预设。
 
 .. seeAlso::
 

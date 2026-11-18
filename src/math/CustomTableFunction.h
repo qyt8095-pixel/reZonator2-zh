@@ -9,7 +9,7 @@ class CustomTableFunction : public TableFunction
 {
 public:
     FUNC_ALIAS("CustomTable")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "Custom Table"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "自定义表格函数"))
     FUNC_ICON(":/toolbar/table_py")
     QString helpTopic() const override;
     

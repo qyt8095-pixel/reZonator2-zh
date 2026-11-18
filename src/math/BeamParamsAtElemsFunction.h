@@ -7,7 +7,7 @@ class BeamParamsAtElemsFunction : public TableFunction
 {
 public:
     FUNC_ALIAS("BeamParamsAtElems")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "Beam Data"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "元件处光束参数"))
     FUNC_ICON(":/toolbar/func_beamdata")
     FUNC_HELP(help_topic())
     static QString help_topic() { return "func_beamdata.html"; }

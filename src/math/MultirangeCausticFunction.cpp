@@ -77,7 +77,7 @@ void MultirangeCausticFunction::calculate(CalculationMode calcMode)
         }
     }
     if (disabledCount == _funcs.size())
-        setError("All elements are disabled");
+        setError("所有元件均已禁用");
 }
 
 int MultirangeCausticFunction::resultCount(Z::WorkPlane plane) const

@@ -1,73 +1,73 @@
-Application Settings: Behavior
-==============================
+应用设置：行为
+==============
 
-:menuSelection:`Edit --> Settings --> Behavior`
+:menuSelection:`编辑 --> 设置 --> 行为`
 
 .. --------------------------------------------------------------------------
 
 .. _app_settings_edit_just _created:
 
-Edit just created element
-~~~~~~~~~~~~~~~~~~~~~~~~~
+编辑刚创建的元件
+~~~~~~~~~~~~~~~~
 
-Automatically open the :doc:`elem_props` dialog after a new element has been added to the schema from the :doc:`catalog`.
+从 :doc:`catalog` 向光路图添加新元件后，自动打开 :doc:`elem_props` 对话框。
 
 .. --------------------------------------------------------------------------
 
 .. _app_settings_gen_labels_created:
 
-Generate labels for created elements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+为创建的元件生成标签
+~~~~~~~~~~~~~~~~~~~~
 
-If the option is set, then a :ref:`label <elem_props_label>` will be automatically assigned to each :ref:`newly created <elem_opers_append>` element. Each :ref:`element type <elem_matrs>` has its own label prefix. The label consists of this prefix followed by an incrementing index. For example, labels have a format `L1`, `L2`... for ranges and `M1`, `M2`... for mirrors.
+如果设置了该选项，则每个 :ref:`新创建的 <elem_opers_append>` 元件都会自动分配一个 :ref:`标签 <elem_props_label>` 。每种 :ref:`元件类型 <elem_matrs>` 都有自己的标签前缀。标签由该前缀后跟一个递增序号组成。例如，距离的标签格式为 `L1` 、`L2`……，镜面的标签格式为 `M1` 、`M2`……。
 
 .. --------------------------------------------------------------------------
 
 .. _app_settings_gen_labels_pasted:
 
-Generate labels for pasted elements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+为粘贴的元件生成标签
+~~~~~~~~~~~~~~~~~~~~
 
-If the option is set, then new :ref:`labels <elem_props_label>` will be automatically assigned to elements that are :ref:`pasted <elem_opers_paste>` from the clipboard. This can be useful because elements copied from another schema can have labels that conflict with the labels of the existing elements.
+如果设置了该选项，则从剪贴板 :ref:`粘贴 <elem_opers_paste>` 的元件会自动分配新的 :ref:`标签 <elem_props_label>` 。这很有用，因为从另一个光路图复制的元件可能带有与现有元件标签冲突的标签。
 
 .. --------------------------------------------------------------------------
 
 .. _app_settings_gen_labels_pump:
 
-Generate labels for new pumps
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+为新泵浦生成标签
+~~~~~~~~~~~~~~~~
 
-If the option is set, then a label will be automatically assigned to each newly created :ref:`pump <pumps_window>`. The label consists of the prefix `P` followed by an incrementing index, e.g., `P1`, `P2`.
+如果设置了该选项，则每个新创建的 :ref:`泵浦 <pumps_window>` 都会自动分配一个标签。标签由前缀 `P` 后跟一个递增序号组成，例如 `P1` 、`P2` 。
 
 .. --------------------------------------------------------------------------
 
-Show protocol window after application started
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+应用程序启动后显示协议窗口
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is a debug option that allows the log window to be automatically shown after the application starts. This window can also be displayed manually via the command :menuSelection:`Window --> Protocol`.
+这是一个调试选项，允许应用程序启动后自动显示日志窗口。该窗口也可以通过命令 :menuSelection:`窗口 --> 协议` 手动显示。
 
 .. --------------------------------------------------------------------------
 
 .. _app_settings_show_py_code:
 
-Show Python code for matrices in info windows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+在信息窗口中显示矩阵的 Python 代码
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The option allows for displaying element matrices as NumPy variables in the :ref:`Element Matrices <elem_show_matrix>` window. This is used for testing and debugging.
-
-.. --------------------------------------------------------------------------
-
-Don't load function windows when opening schema
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-With this option you can disable loading of all function windows saved in the schema file. Use this option to reduce the time of schema loading, but in this case you have to recalculate all required functions again. The options also can be useful if loading of saved function windows is interrupted with an error, for example, if they had been saved in a different version of the program.
+该选项允许在 :ref:`元件矩阵 <elem_show_matrix>` 窗口中将元件矩阵显示为 NumPy 变量。这用于测试和调试。
 
 .. --------------------------------------------------------------------------
 
-Open documentation online instead of from local file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+打开光路图时不加载函数窗口
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It's been `reported <https://github.com/orion-project/rezonator2/issues/9>`_ that the local documentation sometimes fails to show. If this happens, the `online manual <http://rezonator.orion-project.org/help>`_ can be used instead.
+使用该选项可以禁用加载光路图文件中保存的所有函数窗口。使用该选项可以缩短光路图加载时间，但在这种情况下，你必须重新计算所有需要的函数。如果加载已保存的函数窗口时出错（例如它们保存在不同版本的程序中），该选项也很有用。
+
+.. --------------------------------------------------------------------------
+
+在线打开文档而不是从本地文件打开
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+据 `报告 <https://github.com/orion-project/rezonator2/issues/9>`_，本地文档有时无法显示。如果发生这种情况，可以改用 `在线手册 <http://rezonator.orion-project.org/help>`_。
 
 .. --------------------------------------------------------------------------
 

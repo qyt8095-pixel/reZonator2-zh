@@ -1,83 +1,83 @@
 .. _pumps_window:
 .. index:: single: pump
 
-Pumps Window
-============
+泵浦窗口
+========
 
-:menuSelection:`Window --> Pumps`
+:menuSelection:`窗口 --> 泵浦`
 
-The window shows a list of different input beams for SP schema. The input beam is also called a *pump*.
+该窗口显示 SP 光路图的不同输入光束列表。输入光束也称为 *泵浦* 。
 
-When you change the schema :doc:`trip-type<trip_type>` to SP, the first pump is automatically created with type :ref:`Waist <pump_mode_waist>`, and then you can add more. |rezonator| can store an arbitrary number of input beams; however, it can calculate only one of them at a time, which is called the *active pump*. If you close the window, the pumps are not lost. If you change the schema trip type to SP or RR, the pumps are not lost, too, though they become useless.
+当你将光路图的 :doc:`往返类型<trip_type>` 改为 SP 时，会自动创建第一个类型为 :ref:`束腰 <pump_mode_waist>` 的泵浦，之后你可以添加更多。|rezonator| 可以存储任意数量的输入光束；但一次只能计算其中一个，称为 *活动泵浦* 。关闭窗口后，泵浦不会丢失。将光路图往返类型改为 SP 或 RR 时，泵浦也不会丢失，不过它们会变得无用。
 
   .. image:: img/pumps_window.png
 
-When the window is closed, the parameters of the active pump can be quickly accessed via the menu command :menuSelection:`File --> Setup Input Beam`, or by double-clicking at the Pump icon in the status bar:
+窗口关闭后，可以通过菜单命令 :menuSelection:`文件 --> 设置输入光束` 快速访问活动泵浦的参数，或双击状态栏中的泵浦图标：
 
   .. image:: img/setup_input_beam.png
 
-Commands
---------
+命令
+----
 
 .. --------------------------------------------------------------------------
 
-Create
-~~~~~~
+创建
+~~~~
 
-:menuSelection:`Pump --> Create (Ctrl+Ins)`
+:menuSelection:`泵浦 --> 创建 (Ctrl+Ins)`
 
-Add a new input beam of :doc:`different types <pump_mode>`. The type can not be changed later. A label is automatically generated for the new pump if that is allowed by the :ref:`application settings <app_settings_gen_labels_pump>`.
+添加一个 :doc:`不同类型 <pump_mode>` 的新输入光束。类型以后不能更改。如果 :ref:`应用设置 <app_settings_gen_labels_pump>` 允许，会自动为新泵浦生成标签。
 
   .. image:: img/select_pump_mode.png
 
 .. --------------------------------------------------------------------------
 
-Clone
-~~~~~
-
-:menuSelection:`Pump --> Clone`
-
-The command makes a copy of the currently selected pump. A label is automatically generated for the new pump if that is allowed by the :ref:`application settings <app_settings_gen_labels_pump>`.
-
-.. --------------------------------------------------------------------------
-
-Edit
+克隆
 ~~~~
 
-:menuSelection:`Pump --> Edit (Return)`
+:menuSelection:`泵浦 --> 克隆`
 
-The command opens a dialog for changing the selected :ref:`pump parameters <pump_mode>`. The type of input beam can not be changed.
+该命令复制当前选中的泵浦。如果 :ref:`应用设置 <app_settings_gen_labels_pump>` 允许，会自动为新泵浦生成标签。
 
 .. --------------------------------------------------------------------------
 
-Activate
+编辑
+~~~~
+
+:menuSelection:`泵浦 --> 编辑 (Return)`
+
+该命令打开一个对话框，用于更改选中的 :ref:`泵浦参数 <pump_mode>` 。输入光束的类型不能更改。
+
+.. --------------------------------------------------------------------------
+
+激活
+~~~~
+
+:menuSelection:`泵浦 --> 激活 (Ctrl+Return)`
+
+|rezonator| 可以存储任意数量的输入光束；但一次只能计算其中一个，称为 *活动泵浦* 。活动泵浦在 “On” 列中以绿色指示灯标记。所有函数都使用活动泵浦的参数重新计算。
+
+例外是 :doc:`func_caustic_mb` 函数，它同时处理所有输入光束。
+
+.. --------------------------------------------------------------------------
+
+设置颜色
 ~~~~~~~~
-
-:menuSelection:`Pump --> Activate (Ctrl+Return)`
-
-|rezonator| can store an arbitrary number of input beams; however, it can calculate only one of them at a time, which is called the *active pump*. The active pump is marked with the green lamp in the column "On". All functions recalculate using active pump parameters.
-
-An exclusion is the :doc:`func_caustic_mb` function which processes all input beams at the same time.
-
-.. --------------------------------------------------------------------------
-
-Set Color
-~~~~~~~~~
 
 .. _pump_window_set_color:
 
-:menuSelection:`Pump --> Set Color`
+:menuSelection:`泵浦 --> 设置颜色`
 
-The command allows for changing the color of the selected pump. The color is only important for the :doc:`func_caustic_mb` function; there it allows to distinguish graph lines. Color changes are applied immediately to all opened function windows.
+该命令允许更改选中泵浦的颜色。颜色仅对 :doc:`func_caustic_mb` 函数重要；在那里它用于区分图形线条。颜色更改会立即应用于所有已打开的函数窗口。
 
 .. --------------------------------------------------------------------------
 
-Delete
-~~~~~~
+删除
+~~~~
 
-:menuSelection:`Pump --> Delete (Ctrl+Del)`
+:menuSelection:`泵浦 --> 删除 (Ctrl+Del)`
 
-The command deletes the currently selected pump. If the deleting pump is active, then the previous pump gets activated instead. If there is the only on pump, it can not be deleted.
+该命令删除当前选中的泵浦。如果被删除的泵浦是活动的，则改为激活前一个泵浦。如果只有一个泵浦，则不能删除。
 
 .. --------------------------------------------------------------------------
 

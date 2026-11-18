@@ -2,52 +2,52 @@
 .. index:: single: cursor
 .. index:: single: plot cursor
 
-Plot Cursor
-===========
+绘图光标
+========
 
-:menuSelection:`View --> Cursor`
+:menuSelection:`视图 --> 光标`
 
-The cursor is one or two crossing lines that can be dragged by the mouse. The cursor panel shows coordinates of the cross point of the cursor and the function values (in T and S planes) calculated at the point under the cursor. Precision of displayed values is controlled by the :ref:`application settings <app_settings_format_precision>`.
+光标是一条或两条可由鼠标拖动的交叉线。光标面板显示光标交点的坐标，以及在光标所在点计算的函数值（T 面和 S 面）。显示值的精度由 :ref:`应用程序设置 <app_settings_format_precision>` 控制。
 
-The function values under the cursor are calculated accurately, so they are not interpolated by the existing points in a graph. An exception is :ref:`frozen <func_freeze>` function where functions values under the cursor are calculated by interpolation between adjacent points of graphs.
+光标下的函数值是精确计算的，因此不是由图形中已有的点插值得到的。例外是 :ref:`冻结 <func_freeze>` 的函数，其中光标下的函数值由图形相邻点之间插值计算。
 
-Cursor lines could be undesired when you :ref:`copy a plot <plot_opers_copy_image>` as a image into the clipboard. Instead of turning them on and off manually, there is the :ref:`application option <app_settings_export_hide_cursor>` that does it automatically.
+当你把绘图 :ref:`复制 <plot_opers_copy_image>` 为图像到剪贴板时，光标线可能是不需要的。除了手动开关它们之外，还有一个 :ref:`应用程序选项 <app_settings_export_hide_cursor>` 可以自动处理。
 
   .. image:: img/plot_cursor.png
 
-Type
+类型
 ----
 
-:menuSelection:`View --> Cursor --> Vertical Line`
+:menuSelection:`视图 --> 光标 --> 竖直线`
 
-:menuSelection:`View --> Cursor --> Horizontal Line`
+:menuSelection:`视图 --> 光标 --> 水平线`
 
-:menuSelection:`View --> Cursor --> Both Lines`
+:menuSelection:`视图 --> 光标 --> 两条线`
 
-You can quickly toggle visibility of the cursor using the button :menuSelection:`Cursor` at the left of the cursor panel. Cursor type can be a vertical line, a horizontal line, or both lines. You can choose the desired type in a dropdown menu under the cursor toggling button.
+你可以使用光标面板左侧的 :menuSelection:`光标` 按钮快速切换光标的可见性。光标类型可以是竖直线、水平线或两条线。你可以在光标切换按钮下的下拉菜单中选择所需的类型。
 
   .. image:: img/plot_cursor_dropdown.png
 
-Positioning
------------
+定位
+----
 
-Besides of dragging it by the mouse, you can precisely set the position of the cursor. To do it, double-click X or Y coordinates in the cursor panel, type the desired value in the dialog, and press the Enter key.
+除了用鼠标拖动外，你还可以精确设置光标的位置。为此，双击光标面板中的 X 或 Y 坐标，在对话框中输入所需的值，然后按 Enter 键。
 
   .. image:: img/plot_cursor_set_pos.png
 
-Follow Mouse
-~~~~~~~~~~~~
+跟随鼠标
+~~~~~~~~
 
-:menuSelection:`View --> Cursor --> Follow Mouse (F7)`
+:menuSelection:`视图 --> 光标 --> 跟随鼠标 (F7)`
 
-Besides of the menu option, there is also the respective button at the right of the cursor panel. When the option is toggled on, the cursor moves instantly following the mouse, and the function values are recalculated immediately. Double-click to stop the following.
+除了菜单选项外，光标面板右侧还有相应的按钮。启用该选项后，光标会立即跟随鼠标移动，函数值也会立即重新计算。双击可停止跟随。
 
-Appearance
-----------
+外观
+----
 
-:menuSelection:`Format --> Cursor Lines Format...`
+:menuSelection:`格式 --> 光标线格式...`
 
-The default appearance of the cursor lines is governed by :ref:`program preferences <app_settings_lines>`. It’s applied to all newly opened plot windows and to those windows where the cursor format has not been overridden. The default appearance can be overridden by the menu command and stored in the schema project file.
+光标线的默认外观由 :ref:`程序首选项 <app_settings_lines>` 控制。它应用于所有新打开的绘图窗口，以及那些未覆盖光标格式的窗口。默认外观可以通过该菜单命令覆盖，并保存在方案项目文件中。
 
 .. seeAlso::
 

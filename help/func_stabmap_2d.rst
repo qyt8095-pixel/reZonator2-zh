@@ -1,67 +1,67 @@
 .. index:: single: 2d stability map (function)
 .. index:: single: stability map 2d (function)
 
-2D Stability Map
-================
+2D 稳定性图
+===========
 
-:menuSelection:`Functions --> 2D Stability Map`
+:menuSelection:`函数 --> 2D 稳定性图`
 
-The function plots the stability parameter of the schema as a function of two variables P(X,Y), where X and Y are values of parameters of certain elements of the schema. Both parameters can belong to the same element. The resulting graph is a heatmap where different colors correspond to different values of the stability parameter.
+该函数把方案的稳定参数绘制为两个变量的函数 P(X,Y)，其中 X 和 Y 是方案中某些元件参数的值。两个参数可以属于同一元件。结果图形是一张热图，不同颜色对应稳定参数的不同值。
 
-The function works only on :ref:`resonators <trip_type>` because the idea of stability is not applicable to single-pass systems.
+该函数只适用于 :ref:`谐振腔 <trip_type>` ，因为稳定性的概念不适用于单程系统。
 
-Parameters
-----------
+参数
+----
 
   .. image:: img/func_stabmap_2d_params.png
 
 
-Variable 1 (X) / Variable 2 (Y)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+变量 1（X）/ 变量 2（Y）
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-These are elements’ parameters or a :ref:`global parameters <params_window>` to be varied along the horizontal or vertical axis of the stability map respectively.
+这些是元件参数或 :ref:`全局参数 <params_window>` ，分别沿稳定性图的横轴或纵轴变化。
 
-Variation
-~~~~~~~~~
+变化范围
+~~~~~~~~
 
-The fields allow specifying starting and ending values of selected parameters (plot range) and a number of points in resulting graphs. The points number can be input directly in the "Number of points" field. Instead, it is possible to specify a distance between points (plotting step) in the field "With step".
+这些字段让你指定所选参数的起始值和结束值（绘图范围）以及结果图形中的点数。点数可以直接输入到“点数”字段中。也可以在“按步长”字段中指定点与点之间的距离（绘图步长）。
 
-Additional Parameters
----------------------
+附加参数
+--------
 
-:menuSelection:`View --> Function Params`
+:menuSelection:`视图 --> 函数参数`
 
   .. image:: img/func_stabmap_2d_stab_param.png
 
-The tab defines a method of stability parameter calculation.
+该选项卡定义了稳定参数的计算方法。
 
 - `P = (A + D) / 2`
 
 - `P = 1 — ((A + D) / 2)²`
 
-Where A and D are system :ref:`round-trip matrix <round_trip>` components. In the first case, the system is stable when the parameter value is in the range from -1 to 1. In the second case, the system is stable when the parameter value is in the range from 0 to 1. Use the :menuSelection:`Limits --> Z-Axis -> Stability Range` menu command or the respective button on the function's window toolbar to visually fit the heatmap colors into these ranges.
+其中 A 和 D 是系统 :ref:`往返矩阵 <round_trip>` 的分量。第一种情况下，当参数值在 -1 到 1 的范围内时系统稳定。第二种情况下，当参数值在 0 到 1 的范围内时系统稳定。使用 :menuSelection:`范围 --> Z 轴 -> 稳定范围` 菜单命令或函数窗口工具栏上的相应按钮，可以直观地把热图颜色适配到这些范围。
 
-Special Points
---------------
+特殊点
+------
 
-The function does not calculate any special points.
+该函数不计算任何特殊点。
 
-Additional Commands of Plot Window
-----------------------------------
+绘图窗口的附加命令
+------------------
 
-Color Scale Format
-~~~~~~~~~~~~~~~~~~
+色标格式
+~~~~~~~~
 
-:menuSelection:`Format --> Color Scale Format`
+:menuSelection:`格式 --> 色标格式`
 
-The command opens a dialog for changing the format of the color scale.
+该命令打开一个用于更改色标格式的对话框。
 
-Fit Z-Axis to Stability Range
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+使 Z 轴适配稳定范围
+~~~~~~~~~~~~~~~~~~~
 
-:menuSelection:`Limits --> Z-Axis -> Stability Range`
+:menuSelection:`范围 --> Z 轴 -> 稳定范围`
 
-The command adjusts the color scale so that it corresponds to stability boundary values: (-1 to 1) or (0 to 1) depending on the mode of stability parameter calculation (see above).
+该命令调整色标，使其对应稳定性边界值：(-1 到 1) 或 (0 到 1)，具体取决于稳定参数的计算模式（见上文）。
 
 .. seeAlso::
 

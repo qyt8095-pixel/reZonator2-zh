@@ -1,15 +1,15 @@
-Glossary
-========
+术语表
+======
 .. ##################################################################
 
 .. _axial_len:
 .. _axial_length:
 .. index:: single: axial length
 
-Axial length
-------------
+轴向长度
+--------
 
-Axial length is a geometrical distance that a beam travels inside an element. For most cases it is the same as the element’s Length parameter values. But there are some elements (e.g., :doc:`matrix/ElemTiltedPlate`) for which they are different because their length is measured from edge to edge normally, but the beam passes at an angle to that direction and covers a larger distance.
+轴向长度是光束在元件内部传播的几何距离。在大多数情况下，它与元件的 Length 参数值相同。但有些元件（例如 :doc:`matrix/ElemTiltedPlate` ）不同，因为它们的长度通常是从边缘到边缘测量的，而光束以某个角度穿过该方向，覆盖了更大的距离。
 
     .. image:: img/axial_len.png
 
@@ -18,36 +18,36 @@ Axial length is a geometrical distance that a beam travels inside an element. Fo
 .. _propagation_dir:
 .. index:: single: propagation direction
 
-Propagation Direction
----------------------
+传播方向
+--------
 
-|rezonator| supposes a beam is propagating from left to right in the schema. For :ref:`single-pass <schema_kind_sp>` schema, it is as if a light source would be located just before the leftmost element of the schema and is directed to the right side.
+|rezonator| 假定光束在方案中从左向右传播。对于 :ref:`单程 <schema_kind_sp>` 方案，就好像光源位于方案最左侧元件之前，并指向右侧。
 
     .. image:: img/propagation_sp.png
 
-For :ref:`resonators <schema_kind_rr>`, it is just the chosen primary direction. In :ref:`standing-wave resonator <schema_kind_sw>`, the beam reflects from the rightmost element and does round-trip returning to the leftmost one.
+对于 :ref:`谐振腔 <schema_kind_rr>` ，它只是选定的主方向。在 :ref:`驻波谐振腔 <schema_kind_sw>` 中，光束从最右侧元件反射，并往返回到最左侧元件。
 
     .. image:: img/propagation_res.png
 
-When the :doc:`round-trip matrix <round_trip_matrix>` is calculated, elements' matrices are multiplied starting from some reference element and in the direction opposite to beam propagation, as the ray-matrix approach supposes.
+当计算 :doc:`往返矩阵 <round_trip_matrix>` 时，元件矩阵从某个参考元件开始，沿与光束传播相反的方向相乘，正如光线矩阵方法所假定的那样。
 
 .. ##################################################################
 
 .. _ray_vector:
 .. index:: single: ray vector
 
-Ray Vector
-----------
+光线矢量
+--------
 
-Ray vector represents a geometric beam approximation when a beam described by two parameters - a distance from the optical axis `r` and an angle between the beam and the optical axis `V`.
+光线矢量表示光束的几何近似，光束由两个参数描述——距光轴的距离 `r` 和光束与光轴之间的夹角 `V` 。
 
     .. image:: img/ray_vector.png
 
-When a beam traverses an optical system, parameters of the output beam can be expresses from parameters of the input beam and system's ray matrix `M = [A, B; C, D]`.
+当光束穿过光学系统时，输出光束的参数可以由输入光束的参数和系统的光线矩阵 `M = [A, B; C, D]` 表示。
 
     .. image:: img/ray_vector_1.png
 
-|rezonator| can compute ray vector propagation in :ref:`single-pass <schema_kind_sp>` schemas, see :ref:`Pump mode: Ray vector <pump_mode_vector>`.
+|rezonator| 可以计算 :ref:`单程 <schema_kind_sp>` 方案中的光线矢量传播，见 :ref:`泵浦模式：光线矢量 <pump_mode_vector>` 。
 
 .. ##################################################################
 
@@ -64,37 +64,37 @@ When a beam traverses an optical system, parameters of the output beam can be ex
 .. _reduced_slope:
 .. index:: single: reduced slope
 
-Reduced Slope
--------------
+约化斜率
+--------
 
-When defining a :ref:`ray vector <ray_vector>`, some sources use so-called “reduced slope” instead of the geometrical angle between the ray and the optical axis. Then the angle is multiplied by the index of refraction of the medium where the ray is measured: `r' = n * dr/dz`, where `z` is the distance along the optical axis. This approach can simplify some matrices; for example, a :ref:`normal interface <ElemNormalInterface>` will have the unity matrix. But this only makes a difference when input and output reference planes are in different media (for interface elements). Also, this approach seems not very practical when displaying results of calculations —- to display ray angles, we always must remember the medium IOR. So |rezonator| uses geometrical angles `V ~ tg V = dr/dz` for ray vectors, and all element matrices are defined accordingly.
+在定义 :ref:`光线矢量 <ray_vector>` 时，一些资料使用所谓的“约化斜率”，而不是光线与光轴之间的几何角。此时角度乘以光线所在介质的折射率：`r' = n * dr/dz` ，其中 `z` 是沿光轴的距离。这种方法可以简化一些矩阵；例如，:ref:`法向界面 <ElemNormalInterface>` 将具有单位矩阵。但只有当输入和输出参考面处于不同介质中时（对于界面元件），这才有区别。此外，这种方法在显示计算结果时似乎不太实用——要显示光线角度，我们必须始终记住介质的折射率。因此 |rezonator| 对光线矢量使用几何角 `V ~ tg V = dr/dz` ，所有元件矩阵都相应地定义。
 
 .. ##################################################################
 
 .. _stability_param:
 .. index:: single: stability parameter
 
-Stability Parameter
--------------------
+稳定参数
+--------
 
-Stability parameter is a value showing if a system can support stable laser operation. It can be calculated in two ways:
+稳定参数是一个表示系统能否支持稳定激光运转的值。它可以用两种方式计算：
 
 * `P = (A + D) / 2`
 * `P = 1 — ((A + D) / 2)` :sup:`2`
 
-where A and D are system :ref:`round-trip matrix <round_trip>` components. In the first case the system is stable when the parameter value is in range from -1 to 1. In the second case the system is stable when the parameter value is in the range from 0 to 1.
+其中 A 和 D 是系统 :ref:`往返矩阵 <round_trip>` 的分量。在第一种情况下，当参数值在 -1 到 1 的范围内时，系统稳定。在第二种情况下，当参数值在 0 到 1 的范围内时，系统稳定。
 
 .. ##################################################################
 
-Working Planes
---------------
+工作平面
+--------
 
-**Tangential Plane, T-plane**
+**切向平面，T 平面**
 
-The tangential plane is the plane containing all the resonator's elements (the plane of an optical stand). Beams are refracted or reflected in this plane.
+切向平面是包含谐振腔所有元件的平面（光学平台的平面）。光束在该平面内折射或反射。
 
-**Sagittal Plane, S-plane**
+**弧矢平面，S 平面**
 
-The sagittal plane is the plane containing the element's optical axis and perpendicular to the tangential plane.
+弧矢平面是包含元件光轴并与切向平面垂直的平面。
 
     .. image:: img/planes_ts.png

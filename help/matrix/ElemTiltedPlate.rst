@@ -1,19 +1,19 @@
 .. index:: single: tilted plate
 
-Tilted Plane-parallel Plate
-===========================
+倾斜平行平板
+============
 
-The tilted plane-parallel plate is characterized by its thick `L`, index of refraction `n`, and beam falling angle `α`. The element is similar to :doc:`ElemBrewsterPlate`, but the falling angle is not fixed and can be set via the element parameter.
+倾斜平行平板由其厚度 `L` 、折射率 `n` 和光束入射角 `α` 表征。该元件与 :doc:`ElemBrewsterPlate` 相似，但入射角不固定，可以通过元件参数设置。
 
-Full element
+完整元件
 
     .. image:: ElemTiltedPlate.png
 
-Left half-pass
+左半程
 
     .. image:: ElemTiltedPlate_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemTiltedPlate_right.png
 

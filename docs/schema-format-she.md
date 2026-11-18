@@ -45,16 +45,16 @@ key2=value2
 ### LinearUnits
 仅适用于 `Version=1`。线性量的计量单位——元件长度、焦距范围等。
 
-* 0 is millimeters
-* 1 is micrometers
+* 0 是毫米
+* 1 是微米
 
 ### AngleUnits
 仅适用于 `Version=1`。角度量的计量单位。
 
-* 0 is degrees
-* 1 is milliradians
-* 2 is angular minutes
-* 4 is radians
+* 0 是度
+* 1 是毫弧度
+* 2 是角分
+* 4 是弧度
 
 **注意：** 该单位仅定义数值在程序中的显示方式。角度值在光路图文件中始终以**弧度**存储。
 
@@ -75,8 +75,8 @@ key2=value2
 ### PumpType
 仅适用于 `Version=1`。定义单程光路图的输入光束类型。
 
-* 0 - input beam is gaussisan beam
-* 1 - input beam is hypergaussian beam
+* 0 - 输入光束是高斯光束
+* 1 - 输入光束是超高斯光束
 
 ### PumpSize
 仅适用于 `Version=1`。以微米为单位的光束半径。
@@ -189,9 +189,9 @@ Window...=<window type>
 
 其中 `Window...` 定义要加载的节（见下文），`<window type>` 可以是以下之一：
 
-* TwndGraph (only for `Version=1`)
-* TwndGraphMultiCaustic (For `Version` > 1)
-* ... **TODO** to be continued ...
+* TwndGraph（仅适用于 `Version=1`）
+* TwndGraphMultiCaustic（适用于 `Version` > 1）
+* ... **TODO** 待续……
 
 *reZonator-2 尚不支持加载已存储的函数窗口。*
 

@@ -1,9 +1,9 @@
 .. _elem_props_options:
 
-Element Properties: Options
-===========================
+元件属性：选项
+==============
 
-:menuSelection:`Element --> Properties --> Options`
+:menuSelection:`元件 --> 属性 --> 选项`
 
   .. image:: img/elem_props_options.png
 
@@ -11,25 +11,25 @@ Element Properties: Options
 
 .. _elem_props_lock:
 
-Ignore in calculation (disable element)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+计算中忽略（禁用元件）
+~~~~~~~~~~~~~~~~~~~~~~
 
-When a flag is set, the element is ignored during round-trip calculation, and it is absent in the function argument pick list. It looks like the element is temporarily deleted from the schema.
+设置该标志后，元件在往返计算中会被忽略，并且不会出现在函数参数选择列表中。看起来就像该元件被临时从方案中删除了。
 
   .. image:: img/elems_table_locked.png
 
-Additionally, this flag can be quickly toggled via the :ref:`separate command <elem_toggle_lock>` in the :doc:`schema_window`.
+此外，该标志也可以通过 :doc:`方案窗口 <schema_window>` 中的 :ref:`单独命令 <elem_toggle_lock>` 快速切换。
 
 .. --------------------------------------------------------------------------
 
 .. _elem_props_show_label:
 
-Show element label on layout
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+在布局上显示元件标签
+~~~~~~~~~~~~~~~~~~~~
 
-The option defines whether to show the element label on the :doc:`layout`. This is a cosmetic option allowing you to make a better view for layouts containing some type of element like :ref:`interfaces <ElemNormalInterface>` or :ref:`points <ElemPoint>`.
+该选项定义是否在 :doc:`布局 <layout>` 上显示元件标签。这是一个外观选项，可以让包含某些类型元件（例如 :ref:`界面 <ElemNormalInterface>` 或 :ref:`点 <ElemPoint>` ）的布局看起来更好。
 
-For example, here is a layout of the “singlet_thick_intf” example with hidden labels for :doc:`matrix/ElemSphericalInterface` elements representing lens surfaces:
+例如，下面是“singlet_thick_intf”示例的布局，其中表示透镜表面的 :doc:`matrix/ElemSphericalInterface` 元件的标签被隐藏了：
 
   .. image:: img/layout_hide_labels.png
 
@@ -37,12 +37,12 @@ For example, here is a layout of the “singlet_thick_intf” example with hidde
 
 .. _elem_props_draw_narrow:
 
-Draw narrow version of element
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+绘制元件的窄版
+~~~~~~~~~~~~~~
 
-Some element types, like :doc:`matrix/ElemEmptyRange` or :doc:`matrix/ElemTiltedInterface`, can have a narrower representation on the :doc:`layout`. This is a cosmetic option allowing you to make a better view for layouts containing some type of elements.
+某些元件类型，例如 :doc:`matrix/ElemEmptyRange` 或 :doc:`matrix/ElemTiltedInterface` ，可以在 :doc:`布局 <layout>` 上以更窄的形式表示。这是一个外观选项，可以让包含某些类型元件的布局看起来更好。
 
-For example, here is a layout of the “z_crystal” example, where the :param:`L3` is displayed in the narrow mode, which reflects the fact that it's significantly shorter than the :param:`L2` range:
+例如，下面是“z_crystal”示例的布局，其中 :param:`L3` 以窄版模式显示，这反映了它比 :param:`L2` 范围短得多的事实：
 
   .. image:: img/layout_narrow_elem.png
 
@@ -51,5 +51,5 @@ For example, here is a layout of the “z_crystal” example, where the :param:`
 .. seeAlso::
 
     - :doc:`elem_props`
-    - :ref:`Element Properties: Parameters <elem_props_params>`
-    - :ref:`Element Properties: Outline <elem_props_outline>`
+    - :ref:`元件属性：参数 <elem_props_params>`
+    - :ref:`元件属性：轮廓 <elem_props_outline>`

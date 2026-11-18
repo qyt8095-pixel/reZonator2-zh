@@ -156,7 +156,7 @@ namespace ElemPointLayout {
 
     OPTIONS_BEGIN
         HAS_ALT_VERSION
-        ALT_VERSION_OPTION_TITLE(QT_TRANSLATE_NOOP("LayoutOptions", "Draw as plane"))
+        ALT_VERSION_OPTION_TITLE(QT_TRANSLATE_NOOP("LayoutOptions", "绘制为平面"))
     OPTIONS_END
 }
 

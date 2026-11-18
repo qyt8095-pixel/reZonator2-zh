@@ -2,14 +2,14 @@
 .. index:: single: spherical mirror
 .. index:: single: mirror (spherical)
 
-Spherical Mirror
-================
+球面反射镜
+==========
 
-The spherical mirror has the same radii of curvature `R` for both tangential and sagittal planes. Matrices for both planes are equal too when the beam falls on the mirror at the normal angle. When the incident beam is inclined at angle `α`, then the matrices for the T and S planes differ.
+球面反射镜在子午平面和弧矢平面内的曲率半径 `R` 相同。当光束以法线角度入射到镜面时，两个平面的矩阵也相等。当入射光束以角度 `α` 倾斜入射时，T 平面和 S 平面的矩阵则不同。
 
-A spherical mirror can be concave or convex depending on the sign of the radius of curvature. The sign of ROC is not related to the beam :ref:`propagation direction <propagation_dir>` but only governs how the mirror transforms the beam’s wavefront.
+球面反射镜可以是凹面镜或凸面镜，取决于曲率半径的符号。ROC 的符号与光束的 :ref:`传播方向 <propagation_dir>` 无关，只决定镜面如何变换光束的波前。
 
-The spherical mirror acts in the same way as a :doc:`thin lens <ElemThinLens>`, except that you have to specify the radius of curvature instead of the focal range. Even on the :ref:`layout <layout>`,  it is displayed as a lens when it is not located at the ends of the optical system.
+球面反射镜的作用方式与 :doc:`薄透镜 <ElemThinLens>` 相同，只是你需要指定曲率半径而不是焦距。即使在 :ref:`布局 <layout>` 上，当它不位于光学系统两端时，也会显示为透镜。
 
     .. image:: ElemCurveMirror.png
 

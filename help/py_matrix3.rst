@@ -1,40 +1,40 @@
 .. index:: single: Matrix3 (Python)
 
-Class: Matrix3
-==============
+类：Matrix3
+===========
 
-Extended 3×3 ray transfer matrix for :ref:`misalignment <func_misalign>` calculations.
+用于 :ref:`失调 <func_misalign>` 计算的扩展 3×3 光线传输矩阵。
 
-Constructor
------------
+构造函数
+--------
 
-Arguments:
+参数：
 
-- ``matrix`` (:doc:`Matrix <py_matrix>`, optional) - 2×2 ABCD matrix to convert
+- ``matrix`` （:doc:`矩阵 <py_matrix>` ，可选）- 要转换的 2×2 ABCD 矩阵
 
-Example:
+示例：
 
 .. code-block:: python
 
     Matrix3()          # Identity matrix
     Matrix3(matrix)    # From 2×2 ABCD matrix
 
-Properties
-----------
+属性
+----
 
-``A``, ``B``, ``E`` (float or complex, read/write)
-    First row elements
+``A`` 、``B`` 、``E`` （float 或 complex，可读/写）
+    第一行元素
 
-``C``, ``D``, ``F`` (float or complex, read/write)
-    Second row elements
+``C`` 、``D`` 、``F`` （float 或 complex，可读/写）
+    第二行元素
 
-``G``, ``H``, ``I`` (float or complex, read/write)
-    Third row elements
+``G`` 、``H`` 、``I`` （float 或 complex，可读/写）
+    第三行元素
 
-Indexing
---------
+索引
+----
 
-Matrix3 elements can be accessed by index (0-8):
+Matrix3 的元素可以通过索引（0-8）访问：
 
 .. code-block:: python
 
@@ -43,17 +43,17 @@ Matrix3 elements can be accessed by index (0-8):
     m[4] = 2  # D
     # etc.
 
-Indexing also allows for unpacking a matrix object into separate variables:
+索引还允许把矩阵对象解包为单独的变量：
 
 .. code-block:: python
 
     m = Z.Matrix3()
     A, B, E, C, D, F, G, H, I = m
 
-Operations
-----------
+运算
+----
 
-Matrix3 supports multiplication with other Matrix3 objects:
+Matrix3 支持与其他 Matrix3 对象相乘：
 
 .. code-block:: python
 
@@ -62,8 +62,8 @@ Matrix3 supports multiplication with other Matrix3 objects:
     result = m1 * m2
     m1 *= m2  # In-place multiplication
 
-Example
--------
+示例
+----
 
 .. code-block:: python
 

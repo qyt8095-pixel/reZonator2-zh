@@ -1,132 +1,131 @@
 .. index:: single: lua
 
-Lua Script Primer
-=================
+Lua 脚本入门
+============
 
-|rezonator| uses `Lua <http://www.lua.org>`_ internally to calculate custom formulas. Here are some citations from the `original documentation <https://www.lua.org/manual/5.3/>`_ to get a brief intro into the language. Provided information should be sufficient to write formulas for :ref:`schema parameters <params_window>` or to carry out calculations in :doc:`calc_formula`.
+|rezonator| 内部使用 `Lua <http://www.lua.org>`_ 计算自定义公式。下面是一些引自 `原始文档 <https://www.lua.org/manual/5.3/>`_ 的内容，可作为该语言的简要介绍。所提供的信息应足以编写 :ref:`方案参数 <params_window>` 的公式，或在 :doc:`calc_formula` 中进行计算。
 
-.. TODO: to write formulas for :ref:`schema parameters <params_window>`, :doc:`custom elements <elem_formula>`, or to carry out calculations in :doc:`calc_formula`.
+.. TODO: 为 :ref:`方案参数 <params_window>`、:doc:`自定义元件 <elem_formula>` 编写公式，或在 :doc:`calc_formula` 中进行计算。
 
-Lua is a free-form language. It ignores spaces (including newlines) and comments between lexical elements (tokens), except as delimiters between names and keywords. 
+Lua 是一种自由格式语言。它忽略词法元素（记号）之间的空格（包括换行）和注释，除非它们作为名称和关键字之间的分隔符。
 
 
-Variables
----------
+变量
+----
 
-Variables are places that store values.
+变量是存储值的地方。
 
-Lua is a case-sensitive language: ``and`` is a reserved word, but ``And`` and ``AND`` are two different, valid names.    
+Lua 是一种区分大小写的语言：``and`` 是保留字，但 ``And`` 和 ``AND`` 是两个不同的有效名称。
 
-The following keywords are reserved and cannot be used as names:
-``and``, ``break``, ``do``, ``else``, ``elseif``, ``end``,
-``false``, ``for``, ``function``, ``goto``, ``if``, ``in``,
-``local``, ``nil``, ``not``, ``or``, ``repeat``, ``return``,
-``then``, ``true``, ``until``, ``while``.
+以下关键字是保留的，不能用作名称：
+``and`` 、``break`` 、``do`` 、``else`` 、``elseif`` 、``end`` 、
+``false`` 、``for`` 、``function`` 、``goto`` 、``if`` 、``in`` 、
+``local`` 、``nil`` 、``not`` 、``or`` 、``repeat`` 、``return`` 、
+``then`` 、``true`` 、``until`` 、``while`` 。
 
-A numeric value can be written with an optional fractional part and an optional decimal exponent, marked by a letter ``e`` or ``E``.  Examples of valid values are ``3``, ``3.1416``, ``314.16e-2``, ``0.31416E1``, ``34e1``
+数值可以带有可选的小数部分和可选的十进制指数，指数用字母 ``e`` 或 ``E`` 标记。有效值的示例有 ``3`` 、``3.1416`` 、``314.16e-2`` 、``0.31416E1`` 、``34e1``
 
-Lua allows multiple assignments::
+Lua 允许多重赋值：::
 
     x, y = 10, 20
     x, y, z = y, z, x
 
 
-Operators
----------
+运算符
+------
 
-Lua supports the following arithmetic operators:
+Lua 支持以下算术运算符：
 
-``+`` --- addition
+``+`` --- 加法
 
-``-`` --- subtraction
+``-`` --- 减法
 
-``*`` --- multiplication
+``*`` --- 乘法
 
-``/`` --- float division
+``/`` --- 浮点除法
 
-``//`` --- floor division
+``//`` --- 向下取整除法
 
-``%`` --- modulo (remainder of a division that rounds the quotient towards minus infinity)
+``%`` --- 取模（除法余数，商向负无穷取整）
 
-``^`` --- exponentiation (it works for non-integer exponents too)
+``^`` --- 乘方（对非整数指数也适用）
 
-``-`` --- unary minus
+``-`` --- 一元负号
 
-Lua supports the following relational operators:
+Lua 支持以下关系运算符：
 
-``==`` --- equality
+``==`` --- 等于
 
-``~=`` --- inequality
+``~=`` --- 不等于
 
-``<`` --- less than
+``<`` --- 小于
 
-``>`` --- greater than
+``>`` --- 大于
 
-``<=`` --- less or equal
+``<=`` --- 小于或等于
 
-``>=`` --- greater or equal
+``>=`` --- 大于或等于
 
 
-Comments
---------
+注释
+----
 
-A comment starts with a double hyphen (``--``) and runs until the end of the line. 
+注释以双连字符（``--`` ）开头，直到行尾。
 
     
-Mathematical Functions
-----------------------
+数学函数
+--------
 
-Lua provides a set of `mathematical functions <https://www.lua.org/manual/5.3/manual.html#6.7>`_ in the ``math`` library. One has to call them using the library name, e.g., ``math.sin(math.pi / 4)``. For convenience, |rezonator| supports its own set of standard mathematical functions that can be used without any additional prefix, e.g., ``sin(pi()/4)``. 
+Lua 在 ``math`` 库中提供了一组 `数学函数 <https://www.lua.org/manual/5.3/manual.html#6.7>`_。调用时必须使用库名，例如 ``math.sin(math.pi / 4)`` 。为方便起见，|rezonator| 支持自己的一组标准数学函数，无需任何前缀即可使用，例如 ``sin(pi()/4)`` 。
 
-``sin`` --- returns the sine of the angle in radians.
+``sin`` --- 返回以弧度为单位的角度的正弦值。
 
-``sinh`` --- returns the hyperbolic sine of the argument.
+``sinh`` --- 返回参数的双曲正弦值。
 
-``asin`` --- returns the arcsine of the argument as an angle in radians.
+``asin`` --- 返回参数的反正弦值，结果为以弧度为单位的角度。
 
-``cos`` --- returns the cosine of the angle in radians.
+``cos`` --- 返回以弧度为单位的角度的余弦值。
 
-``cosh`` --- returns the hyperbolic cosine of the argument.
+``cosh`` --- 返回参数的双曲余弦值。
 
-``acos`` --- returns the arccosine of the argument as an angle in radians.
+``acos`` --- 返回参数的反余弦值，结果为以弧度为单位的角度。
 
-``tan`` --- returns the tangent of the angle in radians.
+``tan`` --- 返回以弧度为单位的角度的正切值。
 
-``tanh`` --- returns the hyperbolic tangent of the argument.
+``tanh`` --- 返回参数的双曲正切值。
 
-``atan`` --- returns the arctangent of the argument as an angle in radians.
+``atan`` --- 返回参数的反正切值，结果为以弧度为单位的角度。
 
-``cot`` --- returns the cotangent of the angle in radians.
+``cot`` --- 返回以弧度为单位的角度的余切值。
 
-``coth`` --- returns the hyperbolic cotangent of the argument.
+``coth`` --- 返回参数的双曲余切值。
 
-``acot`` --- returns the arccotangent of the argument as an angle in radians.
+``acot`` --- 返回参数的反余切值，结果为以弧度为单位的角度。
 
-``sec`` --- returns the secant of the angle in radians.
+``sec`` --- 返回以弧度为单位的角度的正割值。
 
-``sech`` --- returns the hyperbolic secant of the argument.
+``sech`` --- 返回参数的双曲正割值。
 
-``csc`` --- returns the cosecant of the angle in radians.
+``csc`` --- 返回以弧度为单位的角度的余割值。
 
-``csch`` --- returns the hyperbolic cosecant of the argument.
+``csch`` --- 返回参数的双曲余割值。
 
-``abs`` --- returns the absolute value of the argument.
+``abs`` --- 返回参数的绝对值。
 
-``floor`` --- returns the largest integer that is not greater than the argument. For example, ``floor(41.2) = 41``.
+``floor`` --- 返回不大于参数的最大整数。例如，``floor(41.2) = 41`` 。
 
-``ceil`` --- returns the smallest integer that is not less than the argument. For example, ``ceil(41.2) = 42``.
+``ceil`` --- 返回不小于参数的最小整数。例如，``ceil(41.2) = 42`` 。
 
-``exp`` --- returns the value of `e` to the power of the argument, where `e` is the base of natural logarithms.
+``exp`` --- 返回 `e` 的参数次幂，其中 `e` 是自然对数的底。
 
-``ln`` --- returns the natural logarithm of the argument. Natural logarithm uses base `e`.
+``ln`` --- 返回参数的自然对数。自然对数以 `e` 为底。
 
-``lg`` --- returns the logarithm of the argument in base 10.
+``lg`` --- 返回参数以 10 为底的对数。
 
-``sqrt`` --- returns the square root of the argument.
+``sqrt`` --- 返回参数的平方根。
 
-``deg2rad`` --- converts the angle from degrees to radians.
+``deg2rad`` --- 将角度从度转换为弧度。
 
-``rad2deg`` --- converts the angle from radians to degrees.
+``rad2deg`` --- 将角度从弧度转换为度。
 
-``pi`` --- returns value `π`.
-
+``pi`` --- 返回 `π` 的值。

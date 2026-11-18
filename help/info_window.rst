@@ -1,79 +1,79 @@
 .. _info_window:
 .. index:: single: info window
 
-Information Windows
-===================
+信息窗口
+========
 
-Results of calculations of certain functions are one or several values. Such functions are called information functions. They usually do not require any parameters. Examples are functions like :doc:`func_rt`, :doc:`func_reprate`.
+某些函数的计算结果是一个或几个值。这样的函数称为信息函数。它们通常不需要任何参数。例如 :doc:`func_rt` 、:doc:`func_reprate` 等函数。
 
-Results of information functions are represented in a textual form in small popup windows.
+信息函数的计算结果以文本形式显示在小的弹出窗口中。
 
   .. image:: img/info_window.png
 
 .. note::
-  Unlike :ref:`plot <plot_window>` or :ref:`table <table_window>` windows, information windows are not saved in the schema project file.
+  与 :ref:`绘图 <plot_window>` 窗口或 :ref:`表格 <table_window>` 窗口不同，信息窗口不会保存在方案项目文件中。
 
-Commands
---------
+命令
+----
 
-Information windows do not show a menu in the main window, so their commands are only available on the local window toolbar or via hotkeys.
+信息窗口不在主窗口中显示菜单，因此其命令只能通过本地窗口工具栏或热键使用。
 
 .. --------------------------------------------------------------------------
 
-Update
-~~~~~~
+更新
+~~~~
 
 :menuSelection:`F5`
 
-The command calculates the function again. The command is inaccessible if the current function is :ref:`frozen <func_freeze>`.
+该命令会重新计算函数。如果当前函数已被 :ref:`冻结 <func_freeze>` ，则该命令不可用。
 
 .. --------------------------------------------------------------------------
 
-Freeze
-~~~~~~
+冻结
+~~~~
 
 :menuSelection:`Ctrl+F`
 
-The command freezes the current information window. See :doc:`func_freeze` for details.
+该命令会冻结当前信息窗口。详情见 :doc:`func_freeze` 。
 
 .. --------------------------------------------------------------------------
 
-Frozen Info
-~~~~~~~~~~~
+冻结信息
+~~~~~~~~
 
-The button displays a small popup showing element parameter values at the moment where the function had been :ref:`frozen <func_freeze>`.
+该按钮会显示一个小弹出窗口，其中列出函数被 :ref:`冻结 <func_freeze>` 时的元件参数值。
 
 .. --------------------------------------------------------------------------
 
-Copy
+复制
 ~~~~
 
 :menuSelection:`Ctrl+C`
 
-The command copies the selected content as a formatted HTML text into the clipboard.
+该命令将选定内容作为格式化 HTML 文本复制到剪贴板。
 
 .. --------------------------------------------------------------------------
 
-Copy All
+全部复制
 ~~~~~~~~
 
-The command copies the all content as a formatted HTML text into the clipboard. You don't need to have a selection in the editor for this command.
+该命令将全部内容作为格式化 HTML 文本复制到剪贴板。使用该命令时，你无需在编辑器中进行选择。
 
 .. --------------------------------------------------------------------------
 
-Help
+帮助
 ~~~~
 
 :menuSelection:`F1`
 
-The command shows a help topic associated with the current function.
+该命令显示与当前函数相关的帮助主题。
 
 .. --------------------------------------------------------------------------
 
-Additional Commands
-~~~~~~~~~~~~~~~~~~~
+其他命令
+~~~~~~~~
 
-Some functions (e.g., :doc:`func_rt`) can add more buttons to the toolbar that are specific to that type of function. They are described in the particular function help topic.
+某些函数（例如 :doc:`func_rt` ）可以在工具栏上添加更多特定于该函数类型的按钮。它们在相应函数的帮助主题中介绍。
 
 .. --------------------------------------------------------------------------
 

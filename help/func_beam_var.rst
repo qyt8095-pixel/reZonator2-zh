@@ -1,60 +1,60 @@
 .. index:: single: beamsize variation (function)
 
-Beamsize Variation
-==================
+光束尺寸变化
+============
 
-:menuSelection:`Functions --> Beamsize Variation`
+:menuSelection:`函数 --> 光束尺寸变化`
 
-The function plots beam radius at a specified element as a function of a parameter of one of the schema elements.
+该函数将指定元件处的光束半径绘制为方案中某个元件参数的函数。
 
-Parameters
-----------
+参数
+----
 
   .. image:: img/func_beam_var_params.png
 
-Element, Parameter
-~~~~~~~~~~~~~~~~~~
+元件、参数
+~~~~~~~~~~
 
-An element and its parameter or a :ref:`global parameter <params_window>` to vary. The value of this parameter will be marked along the horizontal axis of the stability map plot.
+要变化的元件及其参数，或 :ref:`全局参数 <params_window>` 。该参数的值将沿稳定性图绘图的横轴标出。
 
-Variation
-~~~~~~~~~
+变化范围
+~~~~~~~~
 
-The fields allow specifying starting and ending values of the selected parameter (plot range) and a number of points in resulting graphs. The points number can be input directly in the “Number of points” field. Instead, it is possible to specify a distance between points (plotting step) in the field “With step”.
+这些字段用于指定所选参数的起始值和结束值（绘图范围）以及结果图形中的点数。点数可以直接在“点数”字段中输入。也可以在“步长”字段中指定点之间的距离（绘图步长）。
 
-Plot position
-~~~~~~~~~~~~~
+绘图位置
+~~~~~~~~
 
-An element to calculate beam radius at. If the element has length (a :ref:`elem_brewster_crystal`, for example), you can also specify an offset from the left edge of the element to calculate beam radius within it. If you set the offset value larger than the element’s length, it will be truncated to the length.
+要计算光束半径的元件。如果元件有长度（例如 :ref:`elem_brewster_crystal` ），你还可以指定从元件左边缘起的偏移，以计算其内部的光束半径。如果偏移值大于元件长度，它会被截断为该长度。
 
-The offset can be given as a relative value. To do so, select the percent sign from the unit drop-down. Then, the value 50%, for example, will mean "half of the element length" and will be calculated automatically when the function is updated.
+偏移也可以用相对值给出。为此，请从单位下拉列表中选择百分号。这样，例如 50% 的值表示“元件长度的一半”，并在函数更新时自动计算。
 
-The offset value can be negative; then it gets subtracted from the element’s length. So the negative offset is the distance from the right edge of the element.
+偏移值可以为负；此时它从元件长度中减去。因此，负偏移是从元件右边缘起的距离。
 
 
-Additional Parameters
----------------------
+附加参数
+--------
 
-The function has no additional parameters
+该函数没有附加参数。
 
-Special Points
---------------
+特殊点
+------
 
-The function does not calculate any special points.
+该函数不计算任何特殊点。
 
-Additional Commands of Plot Window
-----------------------------------
+绘图窗口的附加命令
+------------------
 
-Show Beam Shape
-~~~~~~~~~~~~~~~
+显示光束形状
+~~~~~~~~~~~~
 
-:menuSelection:`View --> Beam Shape`
+:menuSelection:`视图 --> 光束形状`
 
-The function can schematically render the beam cross section at the :ref:`cursor <cursor>` position to visualize beam astigmatism.
+该函数可以在 :ref:`光标 <cursor>` 位置示意性地渲染光束横截面，以可视化光束像散。
 
-The beam shape panel can be moved over the plot by the mouse. It can also be resized when you click the mouse near its border shown as a thin dotted line when the mouse is above the panel.
+光束形状面板可以用鼠标在绘图上移动。当鼠标位于面板上方时，单击靠近其边框（显示为细虚线）的位置也可以调整其大小。
 
-The beam shape image can be copied separately from the whole plot; use its context menu.
+光束形状图像可以与整个绘图分开复制；请使用其上下文菜单。
 
   .. image:: img/func_beam_var_shape.png
 

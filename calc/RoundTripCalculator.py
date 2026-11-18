@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 #
-# Script produces validation data for
-# RoundTripCalculator tests (../src/test/test_RoundTripCalculator.cpp).
-# Matrices are from test schema ../bin/test_files/test_mult_matrix.rez.
+# 本脚本为往返计算器测试（../src/test/test_RoundTripCalculator.cpp）生成验证数据。
+# 矩阵取自测试方案 ../bin/test_files/test_mult_matrix.rez。
 #
 
 import numpy as np
 from rezonator import *
 
 def mult_matrices():
-  print('\nMult matrices\n')
+  print('\n矩阵相乘\n')
   L1_t = make_abcd(1, 0.05, 0, 1)
   L1_s = L1_t
   
@@ -33,7 +32,7 @@ def mult_matrices():
 
 
 def mult_matrices_interface_brewster():
-  print('\nMult matrices (brewster interface)\n')
+  print('\n矩阵相乘（布儒斯特界面）\n')
   L1 = make_abcd(1, 0.1, 0, 1)
   L2 = make_abcd(1, 0.1, 0, 1)
 

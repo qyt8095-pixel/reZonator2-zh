@@ -165,17 +165,17 @@ void SchemaReaderIni::readFromFile(const QString &fileName)
 {
     // QSettings creates a new file if it does't exists, so we should check it first
     if (!QFile::exists(fileName))
-        return _report.error(QString("File not found: %1").arg(fileName));
+        return _report.error(QString("未找到文件：%1").arg(fileName));
     _file = new QSettings(fileName, QSettings::IniFormat);
 
     IniSection ini(_file, "PREFERENCES");
     if (!ini.opened())
-        return _report.error(QString("Invalid file: main section not found"));
+        return _report.error(QString("无效文件：未找到主节"));
 
     _version = Ori::Version(ini.getString("Version"));
     if (_version < OldSchema::minVersion() || _version > OldSchema::maxVersion())
         return _report.error(QString(
-            "File version %1 is not supported, supported versions: %2 - %3")
+            "文件版本 %1 不受支持，支持的版本：%2 - %3")
                 .arg(_version.str(), OldSchema::minVersion().str(), OldSchema::maxVersion().str()));
 
     readGeneral(ini);
@@ -206,7 +206,7 @@ void SchemaReaderIni::readLambda(IniSection& ini)
     if (ok && value > 0)
         _schema->wavelength().setValue(Z::Value(value, _lambdaUnit));
     else
-        _report.warning(QString("Invalid value for wavelength is stored in file."));
+        _report.warning(QString("文件中存储的波长值无效。"));
 }
 
 void SchemaReaderIni::readUnits(IniSection& ini)
@@ -266,7 +266,7 @@ void SchemaReaderIni::readPump(IniSection& ini)
         IniSection params(_file, "Pump");
         int mode = params.getInt("ParamsKind", OldSchema::Waist, &ok);
         if (!ok)
-            return _report.error("Schema is SP, but no pump is stored in the file");
+            return _report.error("光路图为单程系统，但文件中没有存储泵浦");
 
         bool ok1, ok2, ok3, ok4, ok5, ok6;
         double param1T = params.getValue("Param1T", 100, &ok1);
@@ -276,7 +276,7 @@ void SchemaReaderIni::readPump(IniSection& ini)
         double param3T = params.getValue("QualT", 1, &ok5);
         double param3S = params.getValue("QualS", 1, &ok6);
         if (!ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6)
-            return _report.error("Invalid pump parameters are stored in the file");
+            return _report.error("文件中存储的泵浦参数无效");
 
         switch (mode)
         {
@@ -339,7 +339,7 @@ void SchemaReaderIni::readPump(IniSection& ini)
         }
     }
     if (!pump)
-        return _report.error("Schema is SP, but no pump is stored in the file");
+        return _report.error("光路图为单程系统，但文件中没有存储泵浦");
     pump->activate(true);
     _schema->pumps()->append(pump);
 }
@@ -369,7 +369,7 @@ void SchemaReaderIni::readElement(const QString &section)
     if (!ini.opened())
     {
         _report.warning(QString(
-            "Section [%1] not found, some elements may not be loaded").arg(section));
+            "未找到节 [%1]，部分元件可能无法加载").arg(section));
         return;
     }
 
@@ -406,8 +406,7 @@ void SchemaReaderIni::readElement(const QString &section)
             // IOR is not stored in old schemas for empty ranges so there is no issue if that
             auto emptyRange = dynamic_cast<ElemEmptyRange*>(elem);
             if (!emptyRange || param != emptyRange->paramIor())
-                _report.warning(QString("Invalid value for parameter %1 of element %2 "
-                                        "is stored in file, default value is used")
+                _report.warning(QString("文件中存储的元件 %2 的参数 %1 的值无效，已使用默认值")
                                         .arg(param->alias(), elem->displayLabel()));
             continue;
         }
@@ -436,7 +435,7 @@ void SchemaReaderIni::readElement(const QString &section)
         if (!res.isEmpty())
         {
             _report.warning(QString(
-                "Value %1 is unacceptable for parameter %2 of element %3: %4")
+                "值 %1 不适用于元件 %3 的参数 %2：%4")
                     .arg(value.str(), param->alias(), elem->displayLabel(), res));
             continue;
         }

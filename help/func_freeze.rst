@@ -1,27 +1,27 @@
 .. _func_freeze:
 .. index:: single: freezing
 
-Function Freezing
-=================
+函数冻结
+========
 
-:menuSelection:`Plot --> Freeze`
+:menuSelection:`绘图 --> 冻结`
 
-:menuSelection:`Table --> Freeze`
+:menuSelection:`表格 --> 冻结`
 
-By default, the content of most function windows (function results) is automatically refreshed when you change parameters of schema or some elements. The freezing disables this automatic recalculation for a function.
+默认情况下，当你更改光路图或某些元件的参数时，大多数函数窗口的内容（函数结果）会自动刷新。冻结会禁用某个函数的这种自动重新计算。
 
-**Example of usage:** Consider you have a :doc:`2D stability map<func_stabmap_2d>` and you've been choosing operational conditions for the resonator by investigating this map. You iteratively change a parameter of an element (by directly editing :doc:`element parameters<elem_props>` or with the help of :doc:`adjustment<adjust>`) which is one of the variable parameters (arguments) of the stability map. And you observe, for instance, how :doc:`caustic<func_caustic>` inside some element is altered when you change a parameter's value. The stability map will also be recalculated each time, but its appearance obviously stays the same since you change its variable parameter. Repeated computing of a 2D stability map can take a long while if it was plotted rather detailed. In this case you can freeze the stability map window to disable unnecessary recalculation of it.
+**使用示例：** 假设你有一个 :doc:`二维稳定性图<func_stabmap_2d>` ，并且你一直在通过研究该图来为谐振腔选择工作条件。你反复更改某个元件的参数（通过直接编辑 :doc:`元件参数<elem_props>` ，或借助 :doc:`调节<adjust>` ），该参数是稳定性图的可变参数（自变量）之一。同时你观察，例如，某个元件内部的 :doc:`焦散线<func_caustic>` 如何随参数值的变化而改变。稳定性图每次也会重新计算，但由于你更改的是它的可变参数，它的外观显然保持不变。如果二维稳定性图绘制得相当详细，重复计算可能需要很长时间。在这种情况下，你可以冻结稳定性图窗口，以禁用对它的不必要重新计算。
 
-Function freezing can be done with the help of the respective button on the function window toolbar or by means of the command :menuSelection:`Freeze` in the function window menu. When a function is frozen, a special button appears on the function window toolbar. It is called "Frozen Info" and contains information about parameters' values of all elements at the moment of freezing, so-called 'frozen information'.
+函数冻结可以通过函数窗口工具栏上的相应按钮，或通过函数窗口菜单中的 :menuSelection:`冻结` 命令来完成。当函数被冻结时，函数窗口工具栏上会出现一个特殊按钮，称为 “Frozen Info”，其中包含冻结时刻所有元件参数值的信息，即所谓的“冻结信息”。
 
     .. image:: img/func_freeze.png
 
-.. TODO: When schema is saved, the calculated data of frozen function widows and frozen information are saved into schema file. When such file is loaded into resonator, frozen functions are not calculated but its frozen data are just displayed.
+.. TODO: 保存光路图时，冻结函数的计算数据和冻结信息会保存到光路图文件中。当此类文件加载到谐振腔中时，冻结函数不会被计算，而只是显示其冻结数据。
 
-.. TODO: Note:  not all functions provide saving of frozen data in current version of program. Help topic for certain function informs if function does not provide this ability. In such case saved frozen function windows will be empty (containing no data) after schema file will be loaded.
+.. TODO: 注意：在当前版本的程序中，并非所有函数都提供冻结数据的保存功能。某个函数的帮助主题会说明该函数是否提供此功能。在这种情况下，光路图文件加载后，已保存的冻结函数窗口将为空（不包含数据）。
 
     .. note::
-        Currently, the frozen state is not saved into the schema project file. So when you reopen the projects, all frozen functions are recalculated and shown as usual.
+        目前，冻结状态不会保存到光路图项目文件中。因此，当你重新打开项目时，所有冻结函数都会重新计算并照常显示。
 
 .. seeAlso::
 

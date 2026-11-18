@@ -1,18 +1,18 @@
 .. index:: single: brewster interface
 
-Brewster Interface
-==================
+布儒斯特界面
+============
 
 .. |n1| replace:: `n`\ :sub:`1`
 .. |n2| replace:: `n`\ :sub:`2`
 
-The element represents the flat boundary between two media having indexes of refraction |n1| and |n2|. The beam is considered coming at Brewster's angle at the boundary.
+该元件表示折射率为 |n1| 和 |n2| 的两种介质之间的平面边界。认为光束以布儒斯特角入射到该边界。
 
     .. image:: ElemBrewsterInterface.png
 
 .. warning::
 
-    The left and the right adjacent elements of an interface element should be either :doc:`ElemEmptyRange` or :doc:`ElemMediaRange`. |rezonator| doesn't complain if they are not, but you can get incorrect results.
+    界面元件左右相邻的元件应为 :doc:`ElemEmptyRange` 或 :doc:`ElemMediaRange` 。如果不是，|rezonator| 不会报错，但你可能会得到不正确的结果。
 
 .. seeAlso::
 
@@ -22,4 +22,4 @@ The element represents the flat boundary between two media having indexes of ref
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Brewster's angle in Wikipedia <http://en.wikipedia.org/wiki/Brewster's_angle>`_
+    - `维基百科中的布儒斯特角 <http://en.wikipedia.org/wiki/Brewster's_angle>`_

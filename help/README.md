@@ -1,66 +1,66 @@
-# Documentation
+# 文档
 
-reZonator user manual is built using [Sphinx Documentation Builder](http://www.sphinx-doc.org).
+reZonator 用户手册使用 [Sphinx 文档生成器](http://www.sphinx-doc.org) 构建。
 
-## Prepare environment
+## 准备环境
 
-The virtual environment shared between different project parts, e.g., `calc` and `help`, so it's better to make it on the project top level.
+虚拟环境在不同项目部分之间共享，例如 `calc` 和 `help`，所以最好在项目顶层创建它。
 
-On Ubuntu `patchelf` package is required:
+在 Ubuntu 上需要 `patchelf` 软件包：
 
 ```bash
 sudo apt-get install patchelf
 ```
 
-Linux, macOS:
+Linux、macOS：
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Windows (there is no `python3` command on Windows so be sure Python 3 is in the PATH):
+Windows（Windows 上没有 `python3` 命令，所以请确保 Python 3 在 PATH 中）：
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
-## Install requirements
+## 安装依赖
 
-For building help we only need
+构建帮助文档只需要
 
 ```bash
 python -m pip install sphinx
 ```
 
-## Build
+## 构建
 
-Linux, macOS:
+Linux、macOS：
 
 ```bash
 ./make.sh
 ```
 
-Windows:
+Windows：
 
 ```bash
 make.bat
 ```
 
-Target documentation is in `../out` directory.
+目标文档在 `../out` 目录中。
 
-## Notes
+## 说明
 
-### Fonts
+### 字体
 
-Main font size in the Assistant looks a bit small and ugly by default. It depends on the platform, so it's better to use the Assistant's View menu to adjust font size in runtime rather then settings it bigger in CSS files. Leave the body `font-size` undefined in styles. As for font family, the Assistant seems can't work with arbitrary fonts, its zoom command starts glitching and displayed font size can be even different for different runs. So probably it worth to stay the font face by default as well.
+Assistant 中默认的主字体大小看起来有点小而且不好看。这取决于平台，所以最好在运行时使用 Assistant 的“视图”菜单调整字体大小，而不是在 CSS 文件中把它设得更大。样式中 body 的 `font-size` 保持不定义。至于字体，Assistant 似乎无法使用任意字体，它的缩放命令开始出现故障，不同次运行显示的字体大小甚至可能不同。所以字体大概也最好保持默认。
 
-### Formulas
+### 公式
 
-As the documentation contains a notable amount of physical formulas, they should be inserted as pictures. Qt Assistant uses `QTextDocument` to display help pages, and it has fewer abilities comparing to real browsers. Also, Assistant can't run JavaScript code. So pictures for formulas is the only possibility to display them.
+由于文档包含大量物理公式，它们应该以图片形式插入。Qt Assistant 使用 `QTextDocument` 来显示帮助页面，与真正的浏览器相比功能较少。而且 Assistant 无法运行 JavaScript 代码。因此公式图片是显示它们的唯一可能方式。
 
-Use the [render_formula.html](./render_formula.html) page as a simple formula editor to play with the TeX syntax. [Here](../docs/latex-symbols.md) we have a short handbook on TeX symbols. Once formula is finished in the editor and proved to be a valid TeX, it can be pasted into a RST document after the `tex` tag followed by respective `image` tag, e.g.: 
+使用 [render_formula.html](./render_formula.html) 页面作为简单的公式编辑器来试验 TeX 语法。[这里](../docs/latex-symbols.md) 有一份关于 TeX 符号的简短手册。公式在编辑器中完成并证明是有效的 TeX 后，可以把它粘贴到 RST 文档中，放在 `tex` 标签之后，后面跟着相应的 `image` 标签，例如：
 
 ```
 Some text some text some text
@@ -77,11 +77,11 @@ Some text some text some text
 Some text some text some text
 ```
 
-`tex` is not a standard tag so sphinx just treats it as a comment. There is a [Node.js](https://nodejs.org) script that reads these tags and uses well known [MathJax](https://github.com/mathjax/MathJax) library for rendering TeX syntax into SVG format. Then the script converts each SVG formula into PNG image and saves it into a file specified in the `image` tag.
+`tex` 不是标准标签，所以 sphinx 只把它当作注释处理。有一个 [Node.js](https://nodejs.org) 脚本读取这些标签，并使用著名的 [MathJax](https://github.com/mathjax/MathJax) 库把 TeX 语法渲染成 SVG 格式。然后脚本把每个 SVG 公式转换成 PNG 图片，并保存到 `image` 标签中指定的文件。
 
-Note that the indentation in the above code snippet is important. The `image` tag has to be indented to be a separate paragraph otherwise the image will be inserted inline. Since the `image` is indented, the `tex` should be indented as well otherwise the `image` becomes a part of comment and will be ignored.
+注意上面代码片段中的缩进很重要。`image` 标签必须缩进以成为一个单独的段落，否则图片会被内联插入。由于 `image` 缩进了，`tex` 也应该缩进，否则 `image` 会成为注释的一部分而被忽略。
 
-Usage examples:
+使用示例：
 
 ```bash
 # Download MaxJax and additional libraries
@@ -97,21 +97,21 @@ node render_formulas.js --overwrite *
 node render_formulas.js --dry-run calc_lens.rst calc_grin.rst
 ```
 
-There also a number of ODF files that are LibreOffice Math formulas. They should be considered as deprecated and gradually replaced. Reasons are Math uses its own syntax instead of conventional TeX, and its rendered formulas do not have such nice appearance as those rendered by MathJax.
+还有一些 ODF 文件是 LibreOffice Math 公式。它们应被视为已弃用，并逐步替换。原因是 Math 使用自己的语法而不是常规的 TeX，而且它渲染出的公式外观不如 MathJax 渲染的公式好看。
 
-### Colors
+### 颜色
 
-For screenshots: `#FF494F` for buttons and arrows, `#FF7C7F` for window frames, e.g.
+截图用色：按钮和箭头用 `#FF494F`，窗口边框用 `#FF7C7F`，例如
 
 ![params_window](./img/params_window_create.png)
 
-## RST cheat-sheet and some rules
+## RST 速查表和一些规则
 
-See the full syntax in the [sphinx docs](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html).
+完整语法见 [sphinx 文档](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)。
 
-### Headers
+### 标题
 
-The first level for chapters lister in `index.rst`, see `schema.rst`, `elements.rst`:
+第一级用于 `index.rst` 中列出的章节，见 `schema.rst`、`elements.rst`：
 
 ```
 ******
@@ -119,21 +119,21 @@ Schema
 ******
 ```
 
-The second level is for individual topic files e.g. `params_window.rst`:
+第二级用于单个主题文件，例如 `params_window.rst`：
 
 ```
 Gaussian Beam Calculator
 ========================
 ```
 
-The third level is for subtopics inside of topic files:
+第三级用于主题文件内部的子主题：
 
 ```
 Calculation Algorithm
 ---------------------
 ```
 
-The fourth and fifth levels are for most inner subtopics:
+第四级和第五级用于最内层的子主题：
 
 ```
 Change waist
@@ -148,15 +148,15 @@ Lock front
 When locking front then bla-bla-bla...
 ```
 
-### Index entries
+### 索引条目
 
 ```
 .. index:: single: global parameter
 ```
 
-### Navigation anchors
+### 导航锚点
 
-Set an anchor in the text you can navigate to:
+在文本中设置一个可以导航到的锚点：
 
 ```
 .. _pump_mode_vector:
@@ -167,16 +167,16 @@ Ray Vector
 section text bla-bla-bla...
 ```
 
-this creates an id in the target html:
+这会在目标 html 中创建一个 id：
 
 ```html
 <div class="section" id="ray-vector">
 <span id="pump-mode-vector"></span><h2>Ray Vector</h2>
 ```
 
-It's seen that the section title also creates an anchor: `Ray Vector --> id="ray-vector"`.
+可以看到，章节标题也会创建一个锚点：`Ray Vector --> id="ray-vector"`。
 
-Then it can be used in code to navigate to the help topic, something like:
+然后可以在代码中使用它来导航到帮助主题，例如：
 
 ```cpp
 QString PumpParamsDialog::helpTopic() const
@@ -185,27 +185,27 @@ QString PumpParamsDialog::helpTopic() const
 }
 ```
 
-### Cross references
+### 交叉引用
 
-Manually named reference to an anchor:
+手动命名的锚点引用：
 
 ```
 :ref:`Waist <pump_mode_waist>`
 ```
 
-Automatically named reference to a doc:
+自动命名的文档引用：
 
 ```
 :doc:`input_beam`
 ```
 
-Manually named reference to a doc:
+手动命名的文档引用：
 
 ```
 :doc:`Input beam<input_beam>`
 ```
 
-External link
+外部链接
 
 ```
 This is the Lua `original documentation <https://www.lua.org/manual/5.3/>`_ for the reference.

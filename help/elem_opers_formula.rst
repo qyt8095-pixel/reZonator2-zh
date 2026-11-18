@@ -1,13 +1,13 @@
 .. _elem_opers_formula:
 
-Edit Formula
-============
+编辑公式
+========
 
-:menuSelection:`Element --> Edit Formula`
+:menuSelection:`元件 --> 编辑公式`
 
-The command is active only for the :doc:`matrix/ElemFormula`. The command opens a code editor window for changing the element's matrix calculation code. Unless applied to the element, the changed code only exits inside the window what, as stated in the window's header. If you close the window, all the changes will be lost. Use the :guiLabel:`Apply` button on the window's toolbar or the menu command :menuSelection:`Formula --> Apply Formula` to store the code in the source element and recalculate its matrices.
+该命令仅对 :doc:`matrix/ElemFormula` 有效。该命令打开一个代码编辑器窗口，用于更改元件的矩阵计算代码。在应用到元件之前，修改后的代码只存在于窗口内，如窗口标题中所述。如果你关闭窗口，所有更改都会丢失。使用窗口工具栏上的 :guiLabel:`应用` 按钮或菜单命令 :menuSelection:`公式 --> 应用公式` ，将代码保存到源元件并重新计算其矩阵。
 
-The window does not allow for modifying the element's parameters that are used inside the code. For this, use the :doc:`elem_props` dialog and its functionality for editing :doc:`custom_params`.
+该窗口不允许修改代码中使用的元件参数。为此，请使用 :doc:`elem_props` 对话框及其编辑 :doc:`custom_params` 的功能。
 
   .. image:: img/elem_opers_formula.png
 

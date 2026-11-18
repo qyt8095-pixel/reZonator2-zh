@@ -1,39 +1,39 @@
 .. index:: single: RoundTrip (Python)
 
-Class: RoundTrip
-================
+类：RoundTrip
+=============
 
-:ref:`Round-trip <round_trip>` calculator for beam parameters and stability.
+:ref:`往返 <round_trip>` 计算器，用于计算光束参数和稳定性。
 
 .. note::
 
-  RoundTrip objects cannot be created directly; use the :ref:`schema.round_trip() <py_method_schema_round_trip>` function to obtain them.
+  RoundTrip 对象不能直接创建；请使用 :ref:`schema.round_trip() <py_method_schema_round_trip>` 函数获取它们。
 
-Properties
-----------
+属性
+----
 
-``ref`` (:doc:`Element <py_element>`, read-only)
-    Reference element of the round-trip
+``ref`` (:doc:`元件 <py_element>`, 只读)
+    往返的参考元件
 
 .. _py_method_rt_plane:
 
-``plane`` (int, read-only)
-    :ref:`Work plane <work_plane>` (:ref:`Z.PLANE_T <py_const_plane_t>` or :ref:`Z.PLANE_S <py_const_plane_t>`)
+``plane`` (int, 只读)
+    :ref:`工作平面 <work_plane>` （:ref:`Z.PLANE_T <py_const_plane_t>` 或 :ref:`Z.PLANE_S <py_const_plane_t>` ）
 
-``ior`` (float, read-only)
-    Current index of refraction. Index of refraction is assigned automatically depending on what the reference element is. For example, if the element is an :ref:`interface <ElemNormalInterface>`, then the IOR will be taken from a :ref:`medium <ElemMediumRange>` element immediately following the interface.
+``ior`` (float, 只读)
+    当前折射率。折射率根据参考元件是什么自动指定。例如，如果元件是 :ref:`界面 <ElemNormalInterface>` ，则 IOR 将取自紧跟在该界面之后的 :ref:`介质 <ElemMediumRange>` 元件。
 
-``matrix_count`` (int, read-only)
-    Number of matrices in the round-trip
+``matrix_count`` (int, 只读)
+    往返中的矩阵数量
 
-``stabil_nor`` (float, read-only)
-    :ref:`Stability parameter <stability_param>` (normal mode): `P = (A + D)/2`
+``stabil_nor`` (float, 只读)
+    :ref:`稳定参数 <stability_param>` （常规模式）：`P = (A + D)/2`
 
-``stabil_sqr`` (float, read-only)
-    :ref:`Stability parameter <stability_param>` (squared mode): `P = 1 - ((A + D)/2)²`
+``stabil_sqr`` (float, 只读)
+    :ref:`稳定参数 <stability_param>` （平方模式）：`P = 1 - ((A + D)/2)²`
 
-Methods
--------
+方法
+----
 
 .. ##################################################################
 
@@ -43,19 +43,19 @@ Methods
 ``matrix(index=None)``
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Calculate and return the round-trip matrix at the reference point.
+计算并返回参考点处的往返矩阵。
 
-Arguments:
+参数：
 
-- ``index`` (int, optional) - Matrix index, or None for total round-trip matrix
+- ``index`` (int, 可选) - 矩阵索引，或 None 表示总往返矩阵
 
-Returns:
+返回：
 
-- :doc:`Matrix <py_matrix>` - The requested matrix
+- :doc:`矩阵 <py_matrix>` - 请求的矩阵
 
-Raises:
+抛出：
 
-- ``IndexError`` - If index is invalid
+- ``IndexError`` - 如果索引无效
 
 .. ##################################################################
 
@@ -65,11 +65,11 @@ Raises:
 ``beam_radius()``
 ~~~~~~~~~~~~~~~~~
 
-Calculate the round-trip matrix at the reference point and return the :ref:`beam radius <abcd_beam_size>` computed from the matrix components.
+计算参考点处的往返矩阵，并返回根据矩阵分量计算出的 :ref:`光束半径 <abcd_beam_size>` 。
 
-Returns:
+返回：
 
-- float - Beam radius in meters
+- float - 光束半径，单位为米
 
 .. ##################################################################
 
@@ -79,11 +79,11 @@ Returns:
 ``front_radius()``
 ~~~~~~~~~~~~~~~~~~
 
-Calculate the round-trip matrix at the reference point and return the :ref:`wavefront radius of curvature <abcd_beam_roc>` computed from the matrix components.
+计算参考点处的往返矩阵，并返回根据矩阵分量计算出的 :ref:`波前曲率半径 <abcd_beam_roc>` 。
 
-Returns:
+返回：
 
-- float - Wavefront radius in meters
+- float - 波前曲率半径，单位为米
 
 .. ##################################################################
 
@@ -93,12 +93,12 @@ Returns:
 ``half_angle()``
 ~~~~~~~~~~~~~~~~
 
-Calculate the round-trip matrix at the reference point and return the :ref:`half of the divergence angle in the far field <abcd_beam_angle>` computed from the matrix components.
+计算参考点处的往返矩阵，并返回根据矩阵分量计算出的 :ref:`远场发散角的一半 <abcd_beam_angle>` 。
 
 
-Returns:
+返回：
 
-- float - Half angle in radians
+- float - 半角，单位为弧度
 
 .. ##################################################################
 
@@ -108,17 +108,17 @@ Returns:
 ``beam()``
 ~~~~~~~~~~
 
-Calculate the round-trip matrix at the reference point and return :ref:`all beam properties <abcd_beam>` computed from the matrix components.
+计算参考点处的往返矩阵，并返回根据矩阵分量计算出的 :ref:`全部光束属性 <abcd_beam>` 。
 
-Returns:
+返回：
 
-- tuple(float, float, float) - (beam_radius, front_radius, half_angle) in m, m, rad
+- tuple(float, float, float) - (beam_radius, front_radius, half_angle)，单位为 m、m、rad
 
 .. ##################################################################
 
 .. note::
 
-  :ref:`Round-trip matrix <round_trip>` computation is automatically performed before each beam property calculation (e.g., ``beam_radius()``). This guaranties that the actual elements' parameters are taken into account. For multiple queries on the same property, store the result into a local variable rather than recalculating.
+  :ref:`往返矩阵 <round_trip>` 的计算在每次光束属性计算（例如 ``beam_radius()`` ）之前自动执行。这保证了元件的实际参数会被考虑在内。对于同一属性的多次查询，请把结果存入局部变量，而不是重新计算。
 
 .. ##################################################################
 
@@ -128,24 +128,24 @@ Returns:
 ``elem(index)``
 ~~~~~~~~~~~~~~~
 
-Get the element owning the specified matrix.
+获取拥有指定矩阵的元件。
 
-Arguments:
+参数：
 
-- ``index`` (int) - Matrix index
+- ``index`` (int) - 矩阵索引
 
-Returns:
+返回：
 
-- :doc:`Element <py_element>` - The element owning this matrix
+- :doc:`元件 <py_element>` - 拥有该矩阵的元件
 
-Raises:
+抛出：
 
-- ``IndexError`` - If index is invalid
+- ``IndexError`` - 如果索引无效
 
 .. ##################################################################
 
-Example
--------
+示例
+----
 
 .. code-block:: python
 
@@ -183,5 +183,5 @@ Example
   - :doc:`py_api`
   - :doc:`py_element`
   - :doc:`py_matrix`
-  - :ref:`Example - Round Trip and Beam Properties <py_example_round_trip>`
-  - :ref:`Example - Custom Caustic Function <py_example_custom_caustic>`
+  - :ref:`示例 - 往返与光束属性 <py_example_round_trip>`
+  - :ref:`示例 - 自定义焦散线函数 <py_example_custom_caustic>`

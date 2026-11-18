@@ -1,38 +1,38 @@
 .. index:: single: RayVector (Python)
 .. _py_ray_vector:
 
-Class: RayVector
-================
+类：RayVector
+=============
 
-Represents a :ref:`ray vector <ray_vector>` (Y, V) in paraxial optics.
+表示近轴光学中的 :ref:`光线矢量 <ray_vector>` （Y，V）。
 
-Constructor
------------
+构造函数
+--------
 
-Arguments:
+参数：
 
-- ``Y`` (float, optional) - Ray position (m)
-- ``V`` (float, optional) - Ray angle (rad)
+- ``Y`` (float, optional) - 光线位置（m）
+- ``V`` (float, optional) - 光线角度（rad）
 
-Example:
+示例：
 
 .. code-block:: python
 
     RayVector(Y=0, V=0)
 
-Properties
-----------
+属性
+----
 
-``Y`` (float, read/write)
-    Ray position coordinate
+``Y`` (float, 可读/写)
+    光线位置坐标
 
-``V`` (float, read/write)
-    Ray angle coordinate
+``V`` (float, 可读/写)
+    光线角度坐标
 
-Indexing
---------
+索引
+----
 
-Vector components can be accessed by index:
+矢量分量可以通过索引访问：
 
 .. code-block:: python
 
@@ -40,18 +40,18 @@ Vector components can be accessed by index:
     Z.print(v[0])  # Y = 0.001
     Z.print(v[1])  # V = 0.01
 
-Indexing also allows for unpacking a ray vector object into separate variables:
+索引还允许将光线矢量对象解包为单独的变量：
 
 .. code-block:: python
 
     v = Z.RayVector(0.001, 0.01)
     Y, V = v
 
-Operations
-----------
+运算
+----
 
-Addition
-~~~~~~~~
+加法
+~~~~
 
 .. code-block:: python
 
@@ -60,8 +60,8 @@ Addition
     v_sum = v1 + v2
     v1 += v2  # In-place addition
 
-Matrix transformation
-~~~~~~~~~~~~~~~~~~~~~
+矩阵变换
+~~~~~~~~
 
 .. code-block:: python
 
@@ -69,8 +69,8 @@ Matrix transformation
     m = Z.Matrix(1, 0.1, 0, 1)
     v_out = m * v
 
-Example
--------
+示例
+----
 
 .. code-block:: python
 
@@ -91,4 +91,4 @@ Example
   - :doc:`py_api`
   - :doc:`py_matrix`
   - :doc:`py_matrix3`
-  - :ref:`Example - Basic Ray Tracing <py_example_basic_ray_tracing>`
+  - :ref:`示例——基本光线追迹 <py_example_basic_ray_tracing>`

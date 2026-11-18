@@ -1,14 +1,14 @@
 .. index:: single: gaussian lens
 .. index:: single: lens (gaussian)
 
-Gaussian aperture with thin lens
-================================
+带高斯光阑的薄透镜
+==================
 
-The element is implemented according to Siegman book "Lasers", chapter 20.3 "Gaussian apertures and complex ABCD matrices".
+该元件按照 Siegman 的著作《Lasers》第 20.3 章“Gaussian apertures and complex ABCD matrices”实现。
 
-This a combination of a :doc:`ElemThinLens` or a :doc:`ElemCurveMirror` with :doc:`ElemGaussAperture`.
+这是 :doc:`ElemThinLens` 或 :doc:`ElemCurveMirror` 与 :doc:`ElemGaussAperture` 的组合。
 
-The coefficient `α` is the total loss factor through an aperture.
+系数 `α` 是通过光阑的总损耗系数。
 
     .. image:: ElemGaussApertureLens.png
 

@@ -1,38 +1,38 @@
 .. _elem_props_params:
 
-Element Properties: Parameters
-==============================
+元件属性：参数
+==============
 
-:menuSelection:`Element --> Properties --> Parameters`
+:menuSelection:`元件 --> 属性 --> 参数`
 
-Most of the elements have a list of parameters. Each parameter allows setting some physical characteristics of the element — the length, refraction index, and so on. This list is different for each element type. The description of the parameter is displayed in the bottom part of the list when a parameter is highlighted. The value of the parameter is given by a number and unit of measurement.
+大多数元件都有一个参数列表。每个参数用于设置元件的某个物理特性——长度、折射率等等。这个列表对每种元件类型都不同。选中某个参数时，其描述显示在列表下部。参数值由数字和计量单位给出。
 
   .. image:: img/elem_props_params.png
 
-Parameter expression
-~~~~~~~~~~~~~~~~~~~~
+参数表达式
+~~~~~~~~~~
 
-Parameter value can also be given via simple expression. The expression can contain only numbers and basic mathematical functions (see :doc:`lua_primer`). When an expression is given, the actual parameter value is displayed in the tooltip when you hover the mouse over the input box. If the expression is invalid and can't be computed, the input box is displayed in red.
+参数值也可以用简单表达式给出。表达式只能包含数字和基本数学函数（见 :doc:`lua_primer` ）。给出表达式后，将鼠标悬停在输入框上时，提示框中会显示实际参数值。如果表达式无效、无法计算，输入框会以红色显示。
 
 
 .. _elem_props_link:
 
-Parameter links
-~~~~~~~~~~~~~~~
+参数链接
+~~~~~~~~
 
-The expression can not refer to other parameters. If you need to, then use the :menuSelection:`Link` button at the left of the input box. This opens a dialog for choosing a :ref:`global parameter <params_window>`. A link is created from the global parameter to the element's parameter. When the global parameter changes, its value is automatically assigned to the element's parameter, and all calculations get recomputed.
+表达式不能引用其他参数。如果需要引用，请使用输入框左侧的 :menuSelection:`链接` 按钮。这会打开一个对话框，用于选择 :ref:`全局参数 <params_window>` 。链接从全局参数创建到元件参数。当全局参数变化时，其值会自动赋给元件参数，所有计算都会重新计算。
 
-When parameter is linked to the global one, it can not be edit directly, it's value is displayed in the italic font. To remove the link, click the :menuSelection:`Link` button and select `(none)` in the dialog.
+当参数链接到全局参数时，不能直接编辑它，其值以斜体显示。要删除链接，单击 :menuSelection:`链接` 按钮，在对话框中选择 `(none)` 。
 
-If the linked global parameter becomes an invalid, e.g., because its :ref:`formula <params_window_formula>` is incorrect, the input box gets marked red. A tooltip over the input box shows the global parameter error message. Elements having invalid parameters are marked with the exclamation icon in the elements table. A tooltip over the exclamation icon shows the global parameter error message.
+如果链接的全局参数变为无效，例如因为其 :ref:`公式 <params_window_formula>` 不正确，输入框会标记为红色。悬停在输入框上的提示框会显示全局参数的错误信息。参数无效的元件在元件表中以感叹号图标标记。悬停在感叹号图标上的提示框会显示全局参数的错误信息。
 
   .. image:: img/elems_table_invalid.png
 
 .. note::
-  In this case it is up to the user's responsibility if a global parameter is used in the wrong context. For example, if you link the element's parameter :param:`L` (which is linear) to a global parameter having the angular dimension, the :param:`L` will probably get an unexpected value. When dimensions mismatch, the parameter value is assigned via SI conversion. For example, providing that the :param:`L` is displayed in cm, then linking it to an angular global parameter will get transformations like `10deg --> 0.1745rad --> 0.1745m --> 17.45cm`.
+  在这种情况下，如果全局参数用在错误的上下文中，由用户自己负责。例如，如果你把元件参数 :param:`L` （它是线性的）链接到一个具有角度量纲的全局参数，:param:`L` 很可能会得到一个意外的值。当量纲不匹配时，参数值通过 SI 换算赋值。例如，假定 :param:`L` 以 cm 显示，那么把它链接到角度全局参数会得到如下换算：`10deg --> 0.1745rad --> 0.1745m --> 17.45cm` 。
 
 .. seeAlso::
 
     - :doc:`elem_props`
-    - :ref:`Element Properties: Options <elem_props_options>`
-    - :ref:`Element Properties: Outline <elem_props_outline>`
+    - :ref:`元件属性：选项 <elem_props_options>`
+    - :ref:`元件属性：轮廓 <elem_props_outline>`

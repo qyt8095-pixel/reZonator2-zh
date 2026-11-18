@@ -1,21 +1,21 @@
 .. index:: single: brewster plate
 
-Brewster Plane-parallel Plate
-=============================
+布儒斯特平行平板
+================
 
-Brewster plate is characterized by its thickness `L` and index of refraction `n`. A beam falls at the face of the plate at Brewster's angle.
+布儒斯特板由其厚度 `L` 和折射率 `n` 表征。光束以布儒斯特角入射到板的表面。
 
-Like :doc:`ElemBrewsterCrystal`, it is also a widely used form of laser gain medium. However, when the laser rod becomes too short, it is convenient to consider it as a plane-parallel plate which is tilted at Brewster's angle toward the beam propagation. In this case, the geometric path of the beam `L`\ :sub:`eff` is slightly bigger than the thickness of the element.
+与 :doc:`ElemBrewsterCrystal` 一样，它也是激光增益介质的常用形式。然而，当激光棒变得太短时，将其视为一块相对于光束传播方向以布儒斯特角倾斜的平行平板更为方便。在这种情况下，光束的几何路径 `L`\ :sub:`eff` 略大于元件的厚度。
 
-Full element
+完整元件
 
     .. image:: ElemBrewsterPlate.png
 
-Left half-pass
+左半程
 
     .. image:: ElemBrewsterPlate_left.png
 
-Right half-pass
+右半程
 
     .. image:: ElemBrewsterPlate_right.png
 
@@ -24,4 +24,4 @@ Right half-pass
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Brewster's angle in Wikipedia <http://en.wikipedia.org/wiki/Brewster's_angle>`_
+    - `维基百科中的布儒斯特角 <http://en.wikipedia.org/wiki/Brewster's_angle>`_

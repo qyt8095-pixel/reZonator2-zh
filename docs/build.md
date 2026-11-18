@@ -103,11 +103,11 @@ git submodule update
 注意，子模块默认处于“分离头指针”状态。
 
 <!--
-## Prepare third-party libraries
+## 准备第三方库
 
 ### Windows
 
-[QCustomPlot](https://www.qcustomplot.com) is used via wrapper [repository](https://github.com/orion-project/custom-plot-lab) (in submodule). The library source file `qcustomplot.cpp` is so large that it even fails to build in debug mode (`x86_64-w64-mingw32/bin/as.exe: debug\qcustomplot.o: too many sections (33061) Fatal error: debug\qcustomplot.o: file too big`). So if the debug mode is needed, you have to use QCustomPlot as shared library. Build the library:
+[QCustomPlot](https://www.qcustomplot.com) 通过包装器 [仓库](https://github.com/orion-project/custom-plot-lab)（位于子模块中）使用。库源文件 `qcustomplot.cpp` 非常大，甚至在调试模式下都无法构建（`x86_64-w64-mingw32/bin/as.exe: debug\qcustomplot.o: too many sections (33061) Fatal error: debug\qcustomplot.o: file too big`）。因此，如果需要调试模式，必须将 QCustomPlot 用作共享库。构建该库：
 
 ```bash
 cd libs\custom-plot-lab\qcustomplot
@@ -115,7 +115,7 @@ qmake
 mingw32-make release
 ```
 
-Then enable option `qcustomplotlab_shared` in `rezonator.pro` and rebuild the app in debug mode.
+然后在 `rezonator.pro` 中启用选项 `qcustomplotlab_shared`，并在调试模式下重新构建应用。
 -->
 
 ## 开发构建
@@ -125,7 +125,7 @@ Then enable option `qcustomplotlab_shared` in `rezonator.pro` and rebuild the ap
 目标文件为 `bin/rezonator`（Linux）、`bin/rezonator.app`（macOS）或 `bin\rezonator.exe`（Windows）。
 
 <!--
-## Release build
+## 发布构建
 
 ```bash
 # Linux/MacOS
@@ -135,7 +135,7 @@ Then enable option `qcustomplotlab_shared` in `rezonator.pro` and rebuild the ap
 scripts\build_release.bat
 ```
 
-Ensure that Qt bin directory is in your `PATH` to make the above scripts working. On Windows you have to put MinGW `bin` directory `<qt-root>\<qt-version>\mingw*\bin` into the `PATH` too. The scripts do the full rebuild and it takes a while.
+请确保 Qt 的 bin 目录位于 `PATH` 中，以使上述脚本能够正常工作。在 Windows 上，还必须将 MinGW 的 `bin` 目录 `<qt-root>\<qt-version>\mingw*\bin` 也加入 `PATH`。这些脚本会执行完整重新构建，需要一些时间。
 -->
 
 ## 源码文档

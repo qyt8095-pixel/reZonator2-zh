@@ -1,28 +1,28 @@
 .. _app_settings_export:
 
-Application Settings: Export
-============================
+应用程序设置：导出
+==================
 
-:menuSelection:`Edit --> Settings --> Export`
+:menuSelection:`编辑 --> 设置 --> 导出`
 
   .. image:: img/app_settings_export.png
 
 .. _app_settings_export_opts:
 
-Graph data export options
--------------------------
+图形数据导出选项
+----------------
 
-Default settings that are used for quickly :ref:`exporting graph data <plot_opers_copy_graph_ctx>` via clipboard.
+通过剪贴板快速 :ref:`导出图形数据 <plot_opers_copy_graph_ctx>` 时使用的默认设置。
 
-Plot image export options
--------------------------
+绘图图像导出选项
+----------------
 
 .. _app_settings_export_hide_cursor:
 
-Hide cursor lines
-~~~~~~~~~~~~~~~~~
+隐藏光标线
+~~~~~~~~~~
 
-If the option is enabled, the :ref:`cursor lines <cursor>` are automatically turned off when :ref:`copying a plot <plot_opers_copy_image>` as an image into the clipboard.
+如果启用该选项，在将绘图 :ref:`复制 <plot_opers_copy_image>` 为图像到剪贴板时，:ref:`光标线 <cursor>` 会自动关闭。
 
 .. seeAlso::
 

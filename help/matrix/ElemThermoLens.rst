@@ -1,16 +1,16 @@
 .. index:: single: thermal lens
 
-Thermal Lens
-============
+热透镜
+======
 
 .. |n0| replace:: `n`\ :sub:`0`
 .. |n2| replace:: `n`\ :sub:`2`
 
-The thermal lens has a quadratic transverse variation of refractive index, with either a maximum or minimum on the axis that produces a lensing effect.
+热透镜的折射率沿横向呈二次变化，在轴上有极大值或极小值，从而产生透镜效应。
 
-This element is entirely similar to :doc:`ElemGrinLens`, however instead of setting gradient constant |n2|, you can explicitly assign focal range `F`, and gradient constant is calculated using the :doc:`../calc_grin` tool.
+该元件与 :doc:`ElemGrinLens` 完全相似，只是你可以直接指定焦距范围 `F` ，而不设置梯度常数 |n2| ，梯度常数使用 :doc:`../calc_grin` 工具计算。
 
-The element is cylindrically symmetrical and doesn't imply differences between tangential and sagittal planes.
+该元件是柱对称的，在切向和弧矢平面之间没有区别。
 
     .. image:: ../../img/elem/ElemThermoLens.svg
 
@@ -20,4 +20,4 @@ The element is cylindrically symmetrical and doesn't imply differences between t
     - :doc:`../elem_matrs`
     - :doc:`../catalog`
     - :doc:`../elem_props`
-    - `Gradient-index optics in Wikipedia <https://en.wikipedia.org/wiki/Gradient-index_optics>`_
+    - `维基百科中的渐变折射率光学 <https://en.wikipedia.org/wiki/Gradient-index_optics>`_

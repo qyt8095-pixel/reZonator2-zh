@@ -7,7 +7,7 @@
 
 元件是 |rezonator| 中任何光路图的构成模块。
 
-元件可以描述一般的光学元件，例如 :doc:`反射镜 <matrix/ElemCurveMirror>` 或 :doc:`晶体 <matrix/ElemBrewsterCrystal>`。此外，它还可以表示某种物理但非物质的实体——例如光学元件之间的 :doc:`距离 <matrix/ElemEmptyRange>`。最后，它还可以作为某种虚拟辅助对象——例如 :doc:`点 <matrix/ElemPoint>`。
+元件可以描述一般的光学元件，例如 :doc:`反射镜 <matrix/ElemCurveMirror>` 或 :doc:`晶体 <matrix/ElemBrewsterCrystal>` 。此外，它还可以表示某种物理但非物质的实体——例如光学元件之间的 :doc:`距离 <matrix/ElemEmptyRange>` 。最后，它还可以作为某种虚拟辅助对象——例如 :doc:`点 <matrix/ElemPoint>` 。
 
 |rezonator| 支持一组组织在 :doc:`目录 <catalog>` 中的标准元件。
 

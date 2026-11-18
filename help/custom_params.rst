@@ -1,118 +1,118 @@
 .. _custom_params:
 .. index:: single: custom parameters
 
-Custom Parameters
-=================
+自定义参数
+==========
 
-:menuselection:`Element --> Properties`
+:menuselection:`元件 --> 属性`
 
-Custom parameters allow you to extend elements with additional user-defined parameters beyond their standard built-in parameters. This is useful when you need to track or calculate additional properties specific to your optical system. Custom parameters can be created, edited, and removed. They behave like regular element parameters and can be:
+自定义参数允许你用标准内置参数之外的附加用户定义参数来扩展元件。当你需要跟踪或计算光学系统特有的附加属性时，这很有用。自定义参数可以创建、编辑和删除。它们的行为与常规元件参数相同，可以：
 
-- Linked to :ref:`global parameters <params_window>`
-- Referenced in :doc:`custom functions <custom_funcs>`
-- Adjusted using the :doc:`Adjustment tool <adjust>`
+- 链接到 :ref:`全局参数 <params_window>`
+- 在 :doc:`自定义函数 <custom_funcs>` 中引用
+- 使用 :doc:`调节工具 <adjust>` 进行调节
 
-The custom parameters functionality is accessed through a menu button located in the upper-right  corner of the :guilabel:`Parameters` tab in the :doc:`elem_props` dialog. The menu provides commands for managing custom parameters and parameter presets.
+自定义参数功能通过 :doc:`elem_props` 对话框中 :guilabel:`参数` 选项卡右上角的菜单按钮访问。该菜单提供管理自定义参数和参数预设的命令。
 
   .. image:: img/custom_params.png
 
 .. --------------------------------------------------------------------------
 
-Manage Custom Parameters
-------------------------
+管理自定义参数
+--------------
 
 .. _custom_params_create:
 
-Create New Parameter
-~~~~~~~~~~~~~~~~~~~~
+创建新参数
+~~~~~~~~~~
 
-:menuselection:`Parameters menu --> Add Parameter...`
+:menuselection:`参数菜单 --> 添加参数...`
 
-When creating a new custom parameter, you have to specify the parameter properties:
+创建新的自定义参数时，必须指定参数属性：
 
-- **Label** - Short identifier used in formulas and tables (e.g., ``Pth``, ``alpha``)
-- **Name** - Full descriptive name (e.g., "Threshold power", "Brewster angle") displayed in the Element Properties dialog when the parameter is selected
-- **Description** - Optional detailed description of the parameter displayed in the Element Properties dialog when the parameter is selected
-- **Dimension** - Physical dimension (e.g., Linear, Angular)
+- **标签** - 用于公式和表格的简短标识符（例如 ``Pth`` 、``alpha`` ）
+- **名称** - 完整描述性名称（例如 “阈值功率”、“布儒斯特角”），在元件属性对话框中选中该参数时显示
+- **描述** - 可选的详细描述，在元件属性对话框中选中该参数时显示
+- **量纲** - 物理量纲（例如 线性、角度）
 
-Optionally check :guilabel:`Save as preset` to make this parameter available for reuse (:ref:`see below <custom_params_presets>`).
+也可以勾选 :guilabel:`另存为预设` ，使该参数可重复使用（:ref:`见下文 <custom_params_presets>` ）。
 
   .. image:: img/custom_params_create.png
 
-The new parameter is added to the element's parameters list with an initial value of zero in the most recently used unit for its dimension. You can then:
+新参数将以零为初始值添加到元件的参数列表中，单位为该量纲最近使用的单位。然后你可以：
 
-- Set its value directly
-- Use an :ref:`expression <elem_props_params>`
-- :ref:`Link it <elem_props_link>` to a global parameter
+- 直接设置其值
+- 使用 :ref:`表达式 <elem_props_params>`
+- 将其 :ref:`链接 <elem_props_link>` 到全局参数
 
 .. --------------------------------------------------------------------------
 
 .. _custom_params_edit:
 
-Edit Parameter
-~~~~~~~~~~~~~~
+编辑参数
+~~~~~~~~
 
-:menuselection:`Parameters menu --> Edit Parameter...`
+:menuselection:`参数菜单 --> 编辑参数...`
 
-The :guilabel:`Edit Parameter` command is only available when a custom parameter is selected. Built-in element parameters cannot be edited this way.
+只有选中自定义参数时，:guilabel:`编辑参数` 命令才可用。内置元件参数不能以这种方式编辑。
 
-When you change a custom parameter's dimension, the system automatically converts the current value using SI unit conversion using the most recently used unit for the new dimension. For example, if a parameter currently has a value of ``10 cm`` (Linear dimension) and you change it to Angular dimension, the value converts as ``10 cm → 0.1 m → 0.1 rad → 5.73 deg``. The parameter is reassigned with the converted value in the recent unit for angular dimensions.
+更改自定义参数的量纲时，系统会使用 SI 单位换算自动转换当前值，换算使用新量纲最近使用的单位。例如，如果某参数当前值为 ``10 cm`` （线性量纲），你将其改为角度量纲，则值换算为 ``10 cm → 0.1 m → 0.1 rad → 5.73 deg`` 。该参数将以换算后的值重新赋值，单位为角度量纲最近使用的单位。
 
   .. warning::
-    When changing dimensions, it is your responsibility to ensure the parameter is still used appropriately. If a parameter is linked to a global parameter with a different dimension, the values will be converted using SI units, which may produce unexpected results.
+    更改量纲时，你有责任确保参数仍被恰当使用。如果某参数链接到具有不同量纲的全局参数，值将使用 SI 单位换算，可能会产生意外结果。
 
 .. --------------------------------------------------------------------------
 
 .. _custom_params_remove:
 
-Remove Parameter
-~~~~~~~~~~~~~~~~
+删除参数
+~~~~~~~~
 
-:menuselection:`Parameters menu --> Remove Parameter...`
+:menuselection:`参数菜单 --> 删除参数...`
 
-The :guilabel:`Remove Parameter` command is only available when a custom parameter is selected. Built-in element parameters cannot be removed.
+只有选中自定义参数时，:guilabel:`删除参数` 命令才可用。内置元件参数不能删除。
 
-When you remove a custom parameter:
+删除自定义参数时：
 
-- Any :ref:`parameter link <elem_props_link>` to a global parameter is automatically removed
-- The parameter is deleted from the element
-- Schema events are triggered to notify other parts of the application
+- 与全局参数的任何 :ref:`参数链接 <elem_props_link>` 都会自动删除
+- 该参数从元件中删除
+- 触发光路图事件，以通知应用程序的其他部分
 
 .. --------------------------------------------------------------------------
 
 .. _custom_params_presets:
 
-Parameter Presets
------------------
+参数预设
+--------
 
-Parameter presets allow you to quickly add commonly-used custom parameters without having to specify all properties each time. The system provides both built-in presets and supports custom presets. Custom presets are saved globally in the user's system profile and available for all elements and schemas.
+参数预设允许你快速添加常用自定义参数，而无需每次指定全部属性。系统既提供内置预设，也支持自定义预设。自定义预设全局保存在用户系统配置文件中，适用于所有元件和光路图。
 
-When :ref:`creating a new parameter <custom_params_create>`, check the :guilabel:`Save as preset` option to save it as a reusable preset. The parameter's configuration (label, name, description, and dimension) will be available in the presets menu for future use.
+:ref:`创建新参数 <custom_params_create>` 时，勾选 :guilabel:`另存为预设` 选项，将其保存为可重复使用的预设。该参数的配置（标签、名称、描述和量纲）将在预设菜单中供以后使用。
 
-To create a parameter from a preset, select a preset from the list (built-in or custom presets are shown). The parameter is instantly added with the preset's configuration.
+要从预设创建参数，请从列表中选择一个预设（显示内置预设或自定义预设）。该参数会立即以预设的配置添加。
 
-Each preset in the menu has a dropdown arrow that provides additional options allowing you to modify the preset configuration (custom presets only) or to remove the preset. Built-in presets cannot be edited or removed, but you can hide them by removing them from the configuration and later restore them using :guilabel:`Restore Default Presets`.
+菜单中的每个预设都有一个下拉箭头，提供附加选项，可修改预设配置（仅自定义预设）或删除预设。内置预设不能编辑或删除，但你可以通过将其从配置中删除来隐藏它们，之后使用 :guilabel:`恢复默认预设` 来恢复。
 
-Restoring Default Presets
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+恢复默认预设
+~~~~~~~~~~~~
 
-:menuselection:`Parameters menu --> Restore Default Presets...`
+:menuselection:`参数菜单 --> 恢复默认预设...`
 
-Use this command to clean the presets collection and restore all built-in presets.
+使用此命令清理预设集合并恢复所有内置预设。
 
   .. warning::
-    Restoring default presets cannot be undone. All your custom presets *will be lost*.
+    恢复默认预设无法撤销。你的所有自定义预设 *都将丢失* 。
 
 .. --------------------------------------------------------------------------
 
-Best Practices
---------------
+最佳实践
+--------
 
-- **Meaningful Names** - Choose descriptive aliases and labels that clearly indicate the parameter's purpose
-- **Consistent Dimensions** - When linking custom parameters to global parameters, ensure dimensions match or understand the SI conversion that will occur
-- **Use Presets** - Save frequently-used custom parameters as presets to maintain consistency across your schemas
-- **Document Parameters** - Use the Name and Description fields to provide clear documentation, especially for complex calculations or physical meanings
-- **Avoid Over-complicating** - Create custom parameters only when necessary; excessive parameters can make schemas harder to understand
+- **有意义的名称** - 选择能清楚表明参数用途的描述性别名和标签
+- **一致的量纲** - 将自定义参数链接到全局参数时，确保量纲匹配，或了解将会发生的 SI 换算
+- **使用预设** - 将常用自定义参数保存为预设，以保持各光路图之间的一致性
+- **记录参数** - 使用名称和描述字段提供清晰的说明，特别是对于复杂计算或物理含义
+- **避免过度复杂** - 仅在必要时创建自定义参数；过多的参数会使光路图更难理解
 
 .. --------------------------------------------------------------------------
 
@@ -120,4 +120,4 @@ Best Practices
 
   - :doc:`elem_props`
   - :doc:`custom_funcs`
-  - :doc:`Global Parameters <params_window>`
+  - :doc:`全局参数 <params_window>`

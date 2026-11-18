@@ -105,7 +105,7 @@ bool PlotFunction::checkArgElem()
 {
     if (!_arg.element)
     {
-        setError("No variable element is set (PlotFunction.arg.element == null)");
+        setError("未设置可变元件 (PlotFunction.arg.element == null)");
         return false;
     }
     return true;
@@ -115,7 +115,7 @@ bool PlotFunction::checkArgParam()
 {
     if (!_arg.parameter)
     {
-        setError("No variable parameter is set (PlotFunction.arg.parameter == null)");
+        setError("未设置可变参数 (PlotFunction.arg.parameter == null)");
         return false;
     }
     return true;

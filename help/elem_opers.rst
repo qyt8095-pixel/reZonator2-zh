@@ -1,9 +1,9 @@
 .. _elem_opers:
 
-Element Operations
-==================
+元件操作
+========
 
-If the :ref:`schema window <schema_window>` is active, the :menuSelection:`Element` item appears in the menu bar of the project window. This contains basic commands to operate with elements. Some of these commands are also collected in the context menu of both the :doc:`schema_elems` and :doc:`layout`.
+如果 :ref:`光路图窗口 <schema_window>` 处于活动状态，项目窗口的菜单栏中会出现 :menuSelection:`元件` 项。其中包含操作元件的基本命令。其中一些命令也收录在 :doc:`光路图元件 <schema_elems>` 和 :doc:`布局 <layout>` 的上下文菜单中。
 
 .. tocTree::
   :maxDepth: 1

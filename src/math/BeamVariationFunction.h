@@ -12,7 +12,7 @@ class BeamVariationFunction : public PlotFunction
 {
 public:
     FUNC_ALIAS("BeamVariation")
-    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "Beam Variation"))
+    FUNC_NAME(QT_TRANSLATE_NOOP("Function Name", "光束尺寸变化"))
     FUNC_ICON(":/toolbar/func_beam_variation")
     FUNC_HELP(help_topic())
     static QString help_topic() { return "func_beam_var.html"; }

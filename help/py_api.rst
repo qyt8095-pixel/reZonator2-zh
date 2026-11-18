@@ -4,11 +4,11 @@
 Python API
 ==========
 
-|rezonator| provides a Python API that allows you to write custom calculation and plotting functions. These functions can access schema elements, perform calculations, and generate custom tables and plots. The API provides two main modules: :doc:`rezonator <py_global>` (aliased as ``Z`` for brevity) and :doc:`schema <py_schema>`.
+|rezonator| 提供 Python API，你可以用它编写自定义计算和绘图函数。这些函数可以访问方案元件、执行计算，并生成自定义表格和绘图。该 API 提供两个主要模块：:doc:`rezonator <py_global>` （简写别名为 ``Z`` ）和 :doc:`schema <py_schema>` 。
 
 .. tocTree::
    :maxDepth: 1
-   :caption: API Modules and Classes:
+   :caption: API 模块与类：
 
    py_global
    py_schema
@@ -20,30 +20,30 @@ Python API
    py_round_trip
    py_examples
 
-Important Notes
----------------
+重要说明
+--------
 
-Element Indexing
-~~~~~~~~~~~~~~~~
+元件索引
+~~~~~~~~
 
-Unlike regular Python lists, elements in schema are indexed starting from 1 to be consistent with how they are numbered in the :doc:`schema_elems`.
+与常规 Python 列表不同，方案中的元件从 1 开始索引，以与它们在 :doc:`元件列表 <schema_elems>` 中的编号一致。
 
-Measurement Units
-~~~~~~~~~~~~~~~~~
+计量单位
+~~~~~~~~
 
-All values are in SI units (meters, radians, etc.). Convert them as needed for display in text output. There is no need to convert for :doc:`table <custom_table>` and :doc:`plotting <custom_plot>` functions because both the :doc:`table <table_window>` and :doc:`plot <plot_window>` windows allow for choosing suitable measurement units to display values.
+所有值都使用 SI 单位（米、弧度等）。根据需要在文本输出中显示时进行换算。对于 :doc:`表格 <custom_table>` 和 :doc:`绘图 <custom_plot>` 函数无需换算，因为 :doc:`表格 <table_window>` 和 :doc:`绘图 <plot_window>` 窗口都允许选择合适的计量单位来显示数值。
 
-Temporary Changes
-~~~~~~~~~~~~~~~~~
+临时更改
+~~~~~~~~
 
-Use :ref:`Element.lock() <py_method_elem_lock>` and :ref:`Element.unlock() <py_method_elem_unlock>` methods (or respective :ref:`schema.param_lock() <py_method_schema_lock_param>` and :ref:`schema.param_unlock() <py_method_schema_unlock_param>` working with global parameters) when making temporary parameter :ref:`changes <py_method_elem_set_param>` (e.g., during :doc:`plot function <custom_plot>` calculation) to ensure proper restoration and also to prevent the UI from unnecessary updates.
+在进行临时参数 :ref:`更改 <py_method_elem_set_param>` 时（例如，在 :doc:`绘图函数 <custom_plot>` 计算期间），请使用 :ref:`Element.lock() <py_method_elem_lock>` 和 :ref:`Element.unlock() <py_method_elem_unlock>` 方法（或分别处理全局参数的 :ref:`schema.param_lock() <py_method_schema_lock_param>` 和 :ref:`schema.param_unlock() <py_method_schema_unlock_param>` ），以确保正确恢复，并防止 UI 进行不必要的更新。
 
-A more convenient way is the usage of Python's ``with`` block and the intended :ref:`Element.param_ref() <py_method_elem_param_ref>` or :ref:`schema.param_ref() <py_method_schema_param_ref>` methods returning the :doc:`ParamRef <py_param_ref>` object, which allows for automatically locking/unlocking and parameter value restoring.
+更方便的方法是使用 Python 的 ``with`` 语句块，以及返回 :doc:`ParamRef <py_param_ref>` 对象的 :ref:`Element.param_ref() <py_method_elem_param_ref>` 或 :ref:`schema.param_ref() <py_method_schema_param_ref>` 方法，它允许自动锁定/解锁和参数值恢复。
 
-Performance
-~~~~~~~~~~~
+性能
+~~~~
 
-:ref:`Round-trip matrix <round_trip>` computation is automatically performed before each beam property calculation (e.g., :ref:`RoundTrip.beam_radius() <py_method_rt_beam_radius>`). This guaranties that the actual elements' parameters are taken into account. For multiple queries on the same property, store the result into a local variable rather than recalculating.
+:ref:`往返矩阵 <round_trip>` 计算在每次光束特性计算之前自动执行（例如 :ref:`RoundTrip.beam_radius() <py_method_rt_beam_radius>` ）。这保证了实际的元件参数被纳入考虑。对于同一特性的多次查询，请将结果存入局部变量，而不是重新计算。
 
 .. seeAlso::
 

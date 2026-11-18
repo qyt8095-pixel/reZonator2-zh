@@ -1,25 +1,25 @@
-Table Symbols
-=============
+表格符号
+========
 
-There are cases when several values of the same parameter correspond to one element in the table.
+在某些情况下，表中一个元件对应同一参数的多个值。
 
   .. image:: img/table_symbols_1.png
 
-For example:
+例如：
 
-* The beam radius in the tangential plane and radius of wavefront curvature in both planes are different for points lying at the crystal’s edge inside and outside the medium. 
+* 切向平面内的光束半径和两个平面内的波前曲率半径，对于位于晶体边缘、介质内外的点是不同的。
 
-* Beam parameters for each side and for the middle of the crystal (`z = 0`, `z = L/2` and `z = L` where `z` is the coordinate along the optical axis) are calculated separately. 
+* 晶体每一侧和中部（`z = 0` 、`z = L/2` 和 `z = L` ，其中 `z` 是沿光轴的坐标）的光束参数分别计算。
 
-* The radius of wavefront curvature can be different for beams incident to a curve mirror or a lens and for the reflected or refracted beam.
+* 对于入射到曲面反射镜或透镜上的光束与反射或折射光束，波前曲率半径可能不同。
 
-Certain elements have more than one corresponding row in the data table for these cases. Every such row is marked with a special icon.
+在这些情况下，某些元件在数据表中有不止一个对应行。每个这样的行都用一个特殊图标标记。
 
   .. image:: img/table_symbols_crystal.png
 
   .. image:: img/table_symbols_mirror.png
 
-When you invoke the :ref:`Copy <table_opers_copy>` command via the :menuSelection:`Edit` menu or context menu of the table, the content of selected cells is copied into the clipboard as text. Row icons are also copied in the text form.
+当你通过 :menuSelection:`编辑` 菜单或表格的上下文菜单调用 :ref:`复制 <table_opers_copy>` 命令时，所选单元格的内容会以文本形式复制到剪贴板。行图标也会以文本形式复制。
 
   .. image:: img/table_symbols_copy.png
 

@@ -1,11 +1,11 @@
 .. index:: single: wavelength
 
-Wavelength
-==========
+波长
+====
 
-:menuSelection:`File --> Change Wavelength (F10)`
+:menuSelection:`文件 --> 更改波长 (F10)`
 
-Currently, |rezonator| can work only a single wavelength. When the wavelength is changed, all graphs, special points, and cursor values are automatically recalculated. Alternatively, this dialog can be invoked by double-click on the wavelength value in the status bar of the main window.
+目前，|rezonator| 只能使用单一波长。更改波长时，所有图形、特殊点和光标值都会自动重新计算。也可以通过双击主窗口状态栏中的波长值来调用此对话框。
 
   .. image:: img/wavelen.png
 

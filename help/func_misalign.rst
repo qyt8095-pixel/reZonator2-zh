@@ -3,21 +3,21 @@
 .. |y_eff| replace:: `dy`\ :sub:`eff`
 .. |V_eff| replace:: `dV`\ :sub:`eff`
 
-Misalignments
-=============
+失调
+====
 
-Calculation of misalignment is done according to the book "Lasers" by A.E. Siegman, see chapter 15.4 "Ray optics with misaligned elements". The same is described in A. Gerrard and J. M. Burch, "Introduction to Matrix Methods in Optics", Appendix II.
+失调的计算依据 A.E. Siegman 的著作《Lasers》第 15.4 章“Ray optics with misaligned elements”。A. Gerrard 和 J. M. Burch 的《Introduction to Matrix Methods in Optics》附录 II 中也有相同的描述。
 
-*Misalignment* of an optical element is its displacement to some small distance `dy` and tilt to a small angle `dV` relative to the ideal optical axis of the system.
+光学元件的 *失调* 是指它相对于系统理想光轴位移了一个小距离 `dy` ，并倾斜了一个小角度 `dV` 。
 
   .. image:: img/misalign.png
 
-Misalignments of individual elements are set via :ref:`custom parameters <custom_params>`. For this particular script, it's supposed that those parameters are `dYt` and `dVt` for axial and angular misalignments in the tangential plane, and `dYs` and `dVs` are the same for the sagittal plane, so we call them just `dy` and `dV` in following formulas.
+各个元件的失调通过 :ref:`自定义参数 <custom_params>` 设置。对于这个特定的脚本，假定这些参数在子午面内轴向和角度失调分别为 `dYt` 和 `dVt` ，在弧矢面内分别为 `dYs` 和 `dVs` ，因此在下面的公式中我们简称为 `dy` 和 `dV` 。
 
-Overall Misalignment
-----------------------
+总体失调
+--------
 
-Calculation of :ref:`misalignments <misalign>` is done via extended 3×3 ABCDEF ray transfer matrices where additional `E` and `F` elements represent the element's displacement and tilt, respectively.
+:ref:`失调 <misalign>` 的计算通过扩展的 3×3 ABCDEF 光线传输矩阵完成，其中附加的 `E` 和 `F` 元素分别表示元件的位移和倾斜。
 
   .. tex:
     \begin{bmatrix}
@@ -27,35 +27,35 @@ Calculation of :ref:`misalignments <misalign>` is done via extended 3×3 ABCDEF 
     \end{bmatrix}
   .. image:: img/misalign_matrix_ex.png
 
-Where the `E` and `F` components of an individual element's matrix are calculated from element's ABCD matrix components and misalignment parameters `dy` and `dV` as
+其中，单个元件矩阵的 `E` 和 `F` 分量由元件的 ABCD 矩阵分量和失调参数 `dy` 和 `dV` 计算得出：
 
   .. image:: img/misalign_eq_12.png
 
-Then the overall misalignment vector `E`\ :sub:`0` and `F`\ :sub:`0` which affects the beam displacement and slope after transition through the misaligned system, is calculated via the :ref:`production <round_trip>` of such extended matrices:
+然后，通过这些扩展矩阵的 :ref:`乘积 <round_trip>` 计算总体失调矢量 `E`\ :sub:`0` 和 `F`\ :sub:`0` ，它影响光束通过失调系统后的位移和斜率：
 
   .. image:: img/misalign_eq_16.png
 
-If not involving 3×3 matrices, the overall misalignment of an array of elements having ABCD matrices `M`\ :sub:`1` ... `M`\ :sub:`n` and individual misalignments [`E`\ :sub:`1`, `F`\ :sub:`1`] ... [`E`\ :sub:`n`, `F`\ :sub:`n`] can be expressed as:
+如果不使用 3×3 矩阵，一组具有 ABCD 矩阵 `M`\ :sub:`1` … `M`\ :sub:`n` 和各自失调 [`E`\ :sub:`1` ，`F`\ :sub:`1`] … [`E`\ :sub:`n` ，`F`\ :sub:`n`] 的元件的总体失调可以表示为：
 
   .. image:: img/misalign_eq_17.png
 
-Effective Optical Axis of SP System
------------------------------------
+单程系统的有效光轴
+------------------
 
-Any system with misaligned elements can be converted into an effectively aligned system by physically translating the whole system downward from the reference optical axis by the distance |y_eff| and then physically rotating it toward the system axis by the angle |V_eff|, with the center of rotation at the input plane, by the angle
+任何含有失调元件的系统都可以通过将整个系统从参考光轴向下平移距离 |y_eff| ，然后以输入面为旋转中心、向系统轴方向旋转角度 |V_eff| ，转换为等效对准的系统，旋转角度为
 
   .. image:: img/misalign_eq_18.png
 
-where `L` is the overall system length and `A`, `B`, `C`, `D`, `E`, `F` are matrix elements of the whole system.
+其中 `L` 是系统总长度，`A` 、`B` 、`C` 、`D` 、`E` 、`F` 是整个系统的矩阵元素。
 
-Effective Optical Axis of Resonator
------------------------------------
+谐振腔的有效光轴
+----------------
 
-Position of the effective optical axis is defined as a displacement |y_eff| and slope |V_eff| (relative to the reference optical axis of the system) of some ray that comes back to the original point after the full pass through the resonator (round-trip). In other words, the position of the effective optical axis is a self-conformed misalignment:
+有效光轴的位置定义为某条光线在完整通过谐振腔（往返）后回到原点时的位移 |y_eff| 和斜率 |V_eff| （相对于系统的参考光轴）。换句话说，有效光轴的位置是一种自洽失调：
 
   .. image:: img/misalign_eq_20.png
 
-where `A`, `B`, `C`, `D`, `E`, `F` are matrix elements of the entire system at some reference plane.
+其中 `A` 、`B` 、`C` 、`D` 、`E` 、`F` 是某个参考面处整个系统的矩阵元素。
 
 .. seeAlso::
 

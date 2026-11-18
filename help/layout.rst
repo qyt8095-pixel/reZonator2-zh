@@ -1,37 +1,37 @@
 .. _layout:
 
-Layout
-======
+布局
+====
 
-Schema layout is an automatically formed schematic representation of the schema in linear view, i.e., all bends and folds of the optical axis are ignored and elements are displayed in one line.
+方案布局是方案在线性视图中自动形成的示意图，即忽略光轴的所有弯折，将元件显示在一条线上。
 
-Here is the layout for the “z_crystal” example. It shows how the Z-shaped resonator is unwrapped into the linear view:
+下面是“z_crystal”示例的布局。它展示了 Z 形谐振腔如何展开为线性视图：
 
   .. image:: img/layout.png
 
-Each element type has its own representation on the layout. Note that spherical mirrors are displayed as lenses if they are not placed at the schema's ends. If a beam falls angularly onto a mirror or a lens, the corresponding element is displayed inclined on the layout to indicate that the system is astigmatic.
+每种元件类型在布局中都有自己的表示形式。注意，如果球面镜没有放在方案的端部，会显示为透镜。如果光束以一定角度入射到镜面或透镜上，相应的元件会在布局中倾斜显示，以表示该系统是像散的。
 
-  .. note:: Unlike the :doc:`schema_elems`, elements that are :ref:`disabled <elem_props_lock>` are not displayed on the layout.
+  .. note:: 与 :doc:`schema_elems` 不同，:ref:`禁用 <elem_props_lock>` 的元件不会显示在布局上。
 
-Features
---------
+功能
+----
 
-Interactivity
-~~~~~~~~~~~~~
+交互性
+~~~~~~
 
-The layout is interactive. You can click an element to select it. Hold the :menuSelection:`Ctrl` key to select several elements. The selection is synchronized with the selection in the :doc:`schema_elems`. When an element is selected on the layout, the context menu includes :ref:`some commands <elem_opers>` for elements. When you click on an empty space, the :menuSelection:`Copy Image` command appears in the context menu. It copies the layout content as an image into the clipboard.
+布局是可交互的。你可以点击元件来选中它。按住 :menuSelection:`Ctrl` 键可以选择多个元件。选择与 :doc:`schema_elems` 中的选择同步。当在布局上选中元件时，上下文菜单中包含针对元件的 :ref:`一些命令 <elem_opers>` 。当你点击空白处时，上下文菜单中会出现 :menuSelection:`复制图像` 命令。它将布局内容作为图像复制到剪贴板。
 
-Optional Labels
-~~~~~~~~~~~~~~~
+可选标签
+~~~~~~~~
 
-Element :ref:`labels <elem_props_label>` are shown above elements. To make a better view, you can hide some labels using the respective :ref:`element's option <elem_props_show_label>`.
+元件 :ref:`标签 <elem_props_label>` 显示在元件上方。为了获得更好的视图，你可以使用相应的 :ref:`元件选项 <elem_props_show_label>` 隐藏一些标签。
 
   .. image:: img/layout_hide_labels.png
 
-Narrow View
-~~~~~~~~~~~
+窄视图
+~~~~~~
 
-Element lengths are not displayed to scale on the layout. They all have fixed length. To make a better view, some element types, like :doc:`matrix/ElemEmptyRange` or :doc:`matrix/ElemTiltedInterface`, can have a narrower representation. This can be enabled by another :ref:`element's option <elem_props_draw_narrow>`.
+元件长度在布局上不按比例显示。它们都具有固定长度。为了获得更好的视图，某些元件类型，如 :doc:`matrix/ElemEmptyRange` 或 :doc:`matrix/ElemTiltedInterface` ，可以采用更窄的表示形式。这可以通过另一个 :ref:`元件选项 <elem_props_draw_narrow>` 启用。
 
   .. image:: img/layout_narrow_elem.png
 

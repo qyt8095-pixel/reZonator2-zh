@@ -16,7 +16,7 @@
    info_window
    func_freeze
 
-任何 :ref:`函数 <functions>` 的计算结果都显示在所谓的函数窗口中。所有函数及其窗口根据所得结果的视图分为几种类型。函数类型包括 :ref:`绘图 <plot_window>`、:ref:`表格 <table_window>` 和 :ref:`信息 <info_window>`。
+任何 :ref:`函数 <functions>` 的计算结果都显示在所谓的函数窗口中。所有函数及其窗口根据所得结果的视图分为几种类型。函数类型包括 :ref:`绘图 <plot_window>` 、:ref:`表格 <table_window>` 和 :ref:`信息 <info_window>` 。
 
 .. TODO: 例外是“冻结”函数，其数据保存在光路图文件中。你可以使用专门的程序首选项来禁用将函数窗口保存到光路图文件中，或禁用在加载光路图文件时恢复它们。
 

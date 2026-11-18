@@ -8,21 +8,21 @@ print('\n----------------------------------')
 print('CurveMirror\n')
 # ../help/matrix/ElemCurveMirror.png
 R = 0.1         # ROC
-a = radians(15) # incident angle
+a = radians(15) # 入射角
 Mt = make_abcd(1, 0, -2 / (R * cos(a)), 1)
 Ms = make_abcd(1, 0, -2 * cos(a) / R, 1)
-print_res('Incident angle', a)
+print_res('入射角', a)
 print_abcd('T', Mt)
 print_abcd('S', Ms)
 
 print('\n----------------------------------')
 print('ThinLens\n')
 # ../help/matrix/ElemThinLens.png
-F = 0.1         # focal range
-a = radians(15) # incident angle
+F = 0.1         # 焦距范围
+a = radians(15) # 入射角
 Mt = make_abcd(1, 0, -1 / (F * cos(a)), 1)
 Ms = make_abcd(1, 0, -1 * cos(a) / F, 1)
-print_res('Incident angle', a)
+print_res('入射角', a)
 print_abcd('T', Mt)
 print_abcd('S', Ms)
 
@@ -32,7 +32,7 @@ print('EmptyRange\n')
 L = 0.088
 L1 = L * 0.2
 L2 = L - L1
-print_res('Subrange', L1)
+print_res('子程段', L1)
 M_full = make_abcd(1, L, 0, 1)
 M_lf = make_abcd(1, L1, 0, 1)
 M_rt = make_abcd(1, L2, 0, 1)
@@ -50,8 +50,8 @@ L = 0.088
 n = 1.2
 L1 = L * 0.2
 L2 = L - L1
-print_res('Subrange', L1)
-print_res('Optical path', L * n)
+print_res('子程段', L1)
+print_res('光程', L * n)
 M_full = make_abcd(1, L, 0, 1)
 M_lf = make_abcd(1, L1, 0, 1)
 M_rt = make_abcd(1, L2, 0, 1)
@@ -91,8 +91,8 @@ print('TiltedInterface\n')
 # ../help/matrix/ElemTiltedInterface.png
 n1 = 1.6
 n2 = 3.7
-a = radians(15)          # angle in n1
-b = asin((n1/n2)*sin(a)) # angle in n2
+a = radians(15)          # 在 n1 中的角度
+b = asin((n1/n2)*sin(a)) # 在 n2 中的角度
 M_t = make_abcd(cos(b)/cos(a), 0, 0, (n1/n2)*(cos(a)/cos(b)))
 M_s = make_abcd(1, 0, 0, n1/n2)
 M_t_inv = make_abcd(cos(a)/cos(b), 0, 0, (n2/n1)*(cos(b)/cos(a)))
@@ -102,8 +102,8 @@ print_abcd('M_s', M_s)
 print_abcd('M_inv_t', M_t_inv)
 print_abcd('M_inv_s', M_s_inv)
 print('')
-b = radians(15)          # angle in n2
-a = asin((n2/n1)*sin(a)) # angle in n1
+b = radians(15)          # 在 n2 中的角度
+a = asin((n2/n1)*sin(a)) # 在 n1 中的角度
 M_t = make_abcd(cos(b)/cos(a), 0, 0, (n1/n2)*(cos(a)/cos(b)))
 M_s = make_abcd(1, 0, 0, n1/n2)
 M_t_inv = make_abcd(cos(a)/cos(b), 0, 0, (n2/n1)*(cos(b)/cos(a)))
