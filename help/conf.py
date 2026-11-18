@@ -5,11 +5,11 @@ import os
 import datetime
 
 def get_file_text(file_name):
-    with open(file_name, 'r') as f:
+    with open(file_name, 'r', encoding='utf-8') as f:
         return f.read()
 
 def set_file_text(file_name, text):
-    with open(file_name, 'w') as f:
+    with open(file_name, 'w', encoding='utf-8') as f:
         f.write(text)
 
 # -- Project information -----------------------------------------------------
