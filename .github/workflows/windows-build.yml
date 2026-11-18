@@ -196,6 +196,28 @@ jobs:
           SCCACHE_DIR: ${{ runner.temp }}/sccache
           SCCACHE_CACHE_SIZE: 5G
 
+      - name: Build Chinese help (Sphinx + Qt Help)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Local help is a Qt Help collection (rezonator.qhc) opened with
+          # Qt Assistant from the app folder; useOnlineHelp is off by
+          # default, so without these files in-app help opens nothing.
+          # The help sources are now fully Chinese, so build them here.
+          # qcollectiongenerator / assistant ship with the base Qt install
+          # (qttools is part of it, not an add-on module).
+          foreach ($tool in 'qcollectiongenerator', 'assistant') {
+            if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
+              throw "Qt tool not found on PATH: $tool"
+            }
+          }
+          python -m pip install --quiet sphinx
+          python -m sphinx -b qthelp ./help ./out/help
+          Copy-Item help/rezonator.qhcp out/help/
+          qcollectiongenerator out/help/rezonator.qhcp
+          if (-not (Test-Path out/help/rezonator.qch)) { throw 'rezonator.qch was not built' }
+          if (-not (Test-Path out/help/rezonator.qhc)) { throw 'rezonator.qhc was not built' }
+
       - name: Package portable folder with Qt DLLs
         shell: powershell
         run: |
@@ -224,6 +246,16 @@ jobs:
             Copy-Item "$pyDir\python312.zip" deploy\
           } else {
             Compress-Archive -Path "$pyDir\Lib\*" -DestinationPath deploy\python312.zip -Force
+          }
+          # Chinese help built in the previous step: Qt Help collection
+          # plus Assistant and the QtHelp/QtSql/QtNetwork DLLs it needs
+          # (windeployqt only deploys what rezonator.exe itself links).
+          Copy-Item out/help/rezonator.qch deploy\
+          Copy-Item out/help/rezonator.qhc deploy\
+          $qtBin = Split-Path (Get-Command qcollectiongenerator).Source -Parent
+          Copy-Item "$qtBin\assistant.exe" deploy\
+          foreach ($dll in 'Qt5Help.dll','Qt5Sql.dll','Qt5Network.dll') {
+            if (Test-Path "$qtBin\$dll") { Copy-Item "$qtBin\$dll" deploy\ }
           }
           Get-ChildItem deploy | Select-Object Name, Length
 
@@ -266,11 +298,15 @@ jobs:
           ArchitecturesAllowed=x64
           ArchitecturesInstallIn64BitMode=x64
           [Languages]
-          ; Inno Setup's runner install only ships Default.isl; the
-          ; official ChineseSimplified.isl is a separate download and
-          ; is NOT present, so run 9 failed here with "couldn't open
-          ; include file". Keep English installer UI for now; the
-          ; application itself is Chinese.
+          ; Chinese installer UI: the runner's Inno install ships only
+          ; Default.isl, but the official ChineseSimplified.isl is a
+          ; plain file in the jrsoftware/issrc repo, so download it into
+          ; the compiler's Languages dir before building. The generated
+          ; script itself stays ASCII-only (only the language name is
+          ; referenced here); all Chinese text comes from the .isl file,
+          ; so the earlier AppVerName garbling issue does not apply.
+          ; Chinese is listed first, so it is the default language.
+          Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
           Name: "english"; MessagesFile: "compiler:Default.isl"
           [Tasks]
           Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
@@ -288,6 +324,11 @@ jobs:
           Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
           '@ | Out-File -Encoding utf8 installer.iss
           choco install innosetup -y --no-progress
+          # Official Chinese language file for the installer UI (see
+          # [Languages] above); verified reachable at this URL.
+          $innoDir = 'C:\Program Files (x86)\Inno Setup 6'
+          Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/ChineseSimplified.isl' -OutFile "$innoDir\Languages\ChineseSimplified.isl"
+          if (-not (Test-Path "$innoDir\Languages\ChineseSimplified.isl")) { throw 'ChineseSimplified.isl download failed' }
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss
           Get-ChildItem installer | Select-Object Name, Length
 
