@@ -36,12 +36,14 @@ SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 WAVELENGTH_MKM = 0.64  # 例子的波长 0.64 微米，仅用于对照表里的束腰参考值
 
 # 可调参数：(名字, 单位, 下限, 上限, 粗扫步长)
-# 2026-11-18：ching 授权范围自定义。按典型实验腔取值：腔长以 80 cm
-# 初始值为中心上下各 30 cm；曲率半径取常用镜子 30–100 cm。
+# 2026-11-18：ching 指定范围——腔长 0–2 m，镜片曲率 0–1000 mm
+# （脚本内统一用 cm：腔长 0–200 cm，曲率 0–100 cm）。
+# 注意：曲率半径 0 没有物理意义（平面镜对应无穷大，不是 0），且公式
+# 里要除以 R，R=0 的组合在 stability_margin 里直接按无效跳过。
 PARAMS = [
-    ("L", "cm", 50.0, 110.0, 2.0),    # 腔长
-    ("R1", "cm", 30.0, 100.0, 5.0),   # M1 曲率半径
-    ("R2", "cm", 30.0, 100.0, 5.0),   # M2 曲率半径
+    ("L", "cm", 0.0, 200.0, 2.0),     # 腔长
+    ("R1", "cm", 0.0, 100.0, 5.0),    # M1 曲率半径
+    ("R2", "cm", 0.0, 100.0, 5.0),    # M2 曲率半径
 ]
 PARAM_NAMES = ("腔长 L", "M1 曲率半径 R1", "M2 曲率半径 R2")
 
@@ -57,6 +59,9 @@ def round_trip_matrix(L, R1, R2):
 
 def stability_margin(L, R1, R2):
     """返回 (裕度, g)；不稳定时裕度为 None。"""
+    if R1 == 0 or R2 == 0:
+        # 曲率半径为 0 没有物理意义，且 -2/R 会除零，直接按无效组合跳过
+        return None, float("nan")
     g = float(calc_stab(round_trip_matrix(L, R1, R2)))
     if abs(g) >= 1.0:
         return None, g
