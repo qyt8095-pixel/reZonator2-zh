@@ -44,6 +44,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(MSVC)
     add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
     add_compile_options(/wd4043)  # Disable STL4043 warning about stdext::checked_array_iterator
+    add_compile_options(/utf-8)  # Treat source files as UTF-8 (Chinese UI strings)
 endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Help PrintSupport Svg Widgets)
@@ -121,6 +122,7 @@ set(PROJECT_SOURCES
     src/funcs/MultiCausticParamsDlg.h src/funcs/MultiCausticParamsDlg.cpp
     src/funcs/MulticausticWindow.h src/funcs/MulticausticWindow.cpp
     src/funcs/MultirangeCausticWindow.h src/funcs/MultirangeCausticWindow.cpp
+    src/funcs/OptimizerWindow.h src/funcs/OptimizerWindow.cpp
     src/funcs/PlotFuncWindow.h src/funcs/PlotFuncWindow.cpp
     src/funcs/PlotFuncWindowV2.h src/funcs/PlotFuncWindowV2.cpp
     src/funcs/PlotFuncWindowStorable.h src/funcs/PlotFuncWindowStorable.cpp
@@ -155,6 +157,8 @@ set(PROJECT_SOURCES
     src/math/MultirangeCausticFunction.h src/math/MultirangeCausticFunction.cpp
     src/math/PlotFuncRoundTripFunction.h src/math/PlotFuncRoundTripFunction.cpp
     src/math/PlotFunction.h src/math/PlotFunction.cpp
+    src/math/OptimizerFunction.h src/math/OptimizerFunction.cpp
+    src/math/OptimizerSolver.h src/math/OptimizerSolver.cpp
     src/math/PlotFunctionV2.h src/math/PlotFunctionV2.cpp
     src/math/PlotFunctionUtils.h
     src/math/PumpCalculator.h src/math/PumpCalculator.cpp
@@ -180,6 +184,7 @@ set(PROJECT_SOURCES
     src/tests/test_InfoFunctions.cpp
     src/tests/test_LuaHelper.cpp
     src/tests/test_Math.cpp
+    src/tests/test_Optimizer.cpp
     src/tests/test_ParamEditor.cpp
     src/tests/test_Parameters.cpp
     src/tests/test_ParamsEditor.cpp

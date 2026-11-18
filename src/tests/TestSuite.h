@@ -35,6 +35,7 @@ USE_GROUP(TableFunctionTests)                      // test_TableFunction.cpp
 USE_GROUP(ElementSelectorWidgetTests)              // test_ElemSelectorWidget.cpp
 USE_GROUP(PumpWindowTests)                         // test_PumpWindow.cpp
 USE_GROUP(LuaHelperTests)                          // test_LuaHelper.cpp
+USE_GROUP(OptimizerTests)                          // test_Optimizer.cpp
 USE_GROUP(ProjectOperationsTests)                  // test_ProjectOperations.cpp
 USE_GROUP(FormulaTests)                            // test_Formula.cpp
 USE_GROUP(UtilsTests)                              // test_Utils.cpp
@@ -73,6 +74,7 @@ TEST_SUITE(
     ADD_GROUP(ElementSelectorWidgetTests),
     ADD_GROUP(PumpWindowTests),
     ADD_GROUP(LuaHelperTests),
+    ADD_GROUP(OptimizerTests),
     ADD_GROUP(ProjectOperationsTests),
     ADD_GROUP(FormulaTests),
     ADD_GROUP(UtilsTests),

@@ -10,6 +10,7 @@
 #include "../funcs/PlotFuncWindowV2.h"
 #include "../funcs/MultibeamCausticWindow.h"
 #include "../funcs/MultirangeCausticWindow.h"
+#include "../funcs/OptimizerWindow.h"
 #include "../funcs/StabilityMapWindow.h"
 #include "../funcs/StabilityMap2DWindow.h"
 #include "../funcs/BeamParamsAtElemsWindow.h"
@@ -21,6 +22,7 @@
 #include "../math/BeamParamsAtElemsFunction.h"
 #include "../math/MultibeamCausticFunction.h"
 #include "../math/MultirangeCausticFunction.h"
+#include "../math/OptimizerFunction.h"
 #include "../math/StabilityMapFunction.h"
 #include "../math/StabilityMap2DFunction.h"
 #include "../math/BeamParamsAtElemsFunction.h"
@@ -56,6 +58,7 @@ CalcManager::CalcManager(Schema *schema, QWidget *parent) :
     registerWindowConstructor<MultibeamCausticWindow, MultibeamCausticFunction>();
     registerWindowConstructor<BeamVariationWindow, BeamVariationFunction>();
     registerWindowConstructor<BeamParamsAtElemsWindow, BeamParamsAtElemsFunction>();
+    registerWindowConstructor<OptimizerWindow, OptimizerFunction>();
     registerWindowConstructor<CustomTableFuncWindow, CustomTableFunction>();
     registerWindowConstructor<CustomPlotFuncWindow, CustomPlotFunction>();
 }
@@ -116,6 +119,36 @@ void CalcManager::funcBeamVariation()
 void CalcManager::funcBeamParamsAtElems()
 {
     showTableFunc<BeamParamsAtElemsFunction>();
+}
+
+void CalcManager::funcOptimizer()
+{
+    // OptimizerWindow is not a PlotFuncWindow, so it needs its own opener
+    // (showPlotFunc casts to PlotFuncWindow).
+    RETURN_IF_SCHEMA_EMPTY
+
+    auto ctor = WindowsManager::getConstructor(OptimizerFunction::_alias_());
+    if (!ctor) return;
+
+    auto wnd = ctor(schema());
+    if (!wnd) return;
+
+    auto optWnd = dynamic_cast<OptimizerWindow*>(wnd);
+    if (!optWnd)
+    {
+        qWarning() << "Bad window class for function" << OptimizerFunction::_alias_();
+        delete wnd;
+        return;
+    }
+
+    if (!optWnd->configure())
+    {
+        delete wnd;
+        return;
+    }
+
+    WindowsManager::instance().show(wnd);
+    optWnd->update();
 }
 
 void CalcManager::funcCustomTable()

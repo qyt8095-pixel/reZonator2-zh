@@ -181,6 +181,7 @@ void ProjectWindow::createActions()
     actnFuncMultirangeCaustic = A_(tr("多区间焦散线…"), _calculations, SLOT(funcMultirangeCaustic()), ":/toolbar/func_multi_caustic");
     actnFuncMultibeamCaustic = A_(tr("多光束焦散线…"), _calculations, SLOT(funcMultibeamCaustic()), ":/toolbar/func_multi_beam_caustic");
     actnFuncBeamVariation = A_(tr("光束尺寸变化…"), _calculations, SLOT(funcBeamVariation()), ":/toolbar/func_beam_variation");
+    actnFuncOptimizer = A_(tr("谐振腔优化…"), _calculations, SLOT(funcOptimizer()), ":/toolbar/func_optimizer");
     actnFuncBeamParamsAtElems = A_(tr("元件处光束参数"), _calculations, SLOT(funcBeamParamsAtElems()), ":/toolbar/func_beamdata");
     actnFuncGenericPlot = A_(tr("新建通用绘图窗口"), this, SLOT(newGenericPlotWindow()), ":/toolbar/gauss_far_zone");
 #ifdef Z_USE_PYTHON
@@ -241,7 +242,7 @@ void ProjectWindow::createMenuBar()
 
     menuFunctions = Ori::Gui::menu(tr("函数"), this,
         { actnFuncRoundTrip, actnFuncMatrixMult, nullptr,
-          actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, nullptr,
+          actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, actnFuncOptimizer, nullptr,
           actnFuncCaustic, actnFuncMultirangeCaustic, actnFuncMultibeamCaustic,
           actnFuncBeamParamsAtElems, nullptr, actnFuncRepRate, nullptr,
           //actnFuncGenericPlot, nullptr,
@@ -277,7 +278,7 @@ void ProjectWindow::createToolBars()
         actnFileNew, Ori::Gui::menuToolButton(_mruMenu, actnFileOpen),
         actnFileSave, nullptr, actnFileProps, actnFilePump, actnFileSummary , nullptr,
         actnEditCut, actnEditCopy, actnEditPaste, nullptr, actnFuncRoundTrip, nullptr,
-        actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, nullptr,
+        actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, actnFuncOptimizer, nullptr,
         actnFuncCaustic, actnFuncMultirangeCaustic, actnFuncMultibeamCaustic, actnFuncBeamParamsAtElems, nullptr,
         actnFuncRepRate, nullptr, actnWndParams, actnWndPumps, actnWndMemos, nullptr, actnToolAdjust, nullptr,
         actnToolsGaussCalc, actnToolsCalc, actnToolGrinLens, //actnToolIris
@@ -412,6 +413,7 @@ void ProjectWindow::updateActions()
     actnFilePump->setVisible(isSchemaSP);
     actnFuncStabMap->setVisible(!isSchemaSP);
     actnFuncStabMap2d->setVisible(!isSchemaSP);
+    actnFuncOptimizer->setVisible(!isSchemaSP);
     actnFuncMultibeamCaustic->setVisible(isSchemaSP);
     actnFileSave->setEnabled(schema()->modified());
     if (schema()->memo)

@@ -69,13 +69,19 @@ def stability_margin(L, R1, R2):
 
 
 def waist_at_m1(L, R1, R2):
-    """M1 处束腰参考值（mm），仅作对照，不参与优化目标。"""
+    """M1 处束腰参考值（mm），仅作对照，不参与优化目标。
+    注意：calc_w 要求矩阵与波长用同一单位制；本原型把 L/R 当作 cm，
+    所以波长也要换算成 cm（0.64 微米 = 6.4e-5 cm），算出的 w 是 cm 再转 mm。
+    （2026-11-18 修正：之前直接传了以米为单位的波长，与 cm 矩阵混用，
+    束腰被高估了 10 倍，4.51 mm 是错的，正确值约 0.45 mm。
+    另外例子文件里的数值单位其实是 mm，本原型按 cm 理解，L/R 是文件值的 10 倍；
+    裕度只与比值有关所以优化结论不受影响，束腰仅作参考。）"""
     try:
-        w = float(calc_w(round_trip_matrix(L, R1, R2),
-                         WAVELENGTH_MKM * 1e-6, 1))
+        w_cm = float(calc_w(round_trip_matrix(L, R1, R2),
+                            WAVELENGTH_MKM * 1e-4, 1))
     except (ValueError, ZeroDivisionError):
         return float("nan")
-    return w * 1e3
+    return w_cm * 10.0
 
 
 def load_start_point():

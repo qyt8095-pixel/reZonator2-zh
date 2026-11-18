@@ -18,6 +18,7 @@
   func_rt_plot
   func_stabmap
   func_stabmap_2d
+  func_optimizer
   func_beam_var
   func_caustic
   func_caustic_mr

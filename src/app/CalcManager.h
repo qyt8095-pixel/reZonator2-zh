@@ -33,6 +33,7 @@ public slots:
     void funcShowAllMatrices();
     void funcBeamVariation();
     void funcBeamParamsAtElems();
+    void funcOptimizer();
     void funcCustomTable();
     void funcCustomPlot();
 
