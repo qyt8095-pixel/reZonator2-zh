@@ -70,6 +70,7 @@ set(PROJECT_SOURCES
     src/app/CustomElemsManager.h src/app/CustomElemsManager.cpp
     src/app/CustomFuncsLib.h src/app/CustomFuncsLib.cpp
     src/app/HelpSystem.h src/app/HelpSystem.cpp
+    src/app/HeadlessRunner.h src/app/HeadlessRunner.cpp
     src/app/MessageBus.h src/app/MessageBus.cpp
     src/app/PersistentState.h src/app/PersistentState.cpp
     src/app/ProjectOperations.h src/app/ProjectOperations.cpp
