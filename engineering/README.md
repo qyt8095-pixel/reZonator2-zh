@@ -33,6 +33,9 @@ ezdxf，若未装则用手写最小 DXF 写入器）。光学计算一律复用�
 | `rezeng/export.py` | 镀膜表 / `.zmx` / `.dxf` 导出：`coating_table()` / `to_zmx()` / `validate_zmx()` / `thin_lens_spot_check()` / `to_dxf()` / `validate_dxf()` |
 | `rezeng/thermal.py` | 热传导：柱坐标 (r,z) FD 求解器（spsolve）、端帽分段 k/α、板条 2D (x,y)、OPD 拟合与闭环、Fox-Li 相位板，`solve_rod()` / `thermal_report()` |
 | `rezeng/fracture.py` | 热应力与断裂：平面应变 σ_r/σ_θ/σ_z、最大拉应力、裕度与红线，`stress_field()` / `fracture_report()` |
+| `rezeng/foxli.py` | Fox-Li 衍射引擎：混合传播子（BL-ASM + 两步菲涅耳）、分步晶体、往返迭代、D4σ M²，`CavityOperator()` / `foxli_iterate()` / `foxli_report()` / `opd_f_th_to_cli_F()` / `spot_ascii()` / `spot_png()` |
+| `run_foxli.py` | Fox-Li 的命令行入口：`python3 run_foxli.py --rez <file.rez> [--eng <file.eng.json>] [--max-rounds N] [--thermal-power P] [--thermal-eng <thermal.eng.json>] [--paraxial] [--png <spot.png>]` |
+| `demo_foxli.py` | 用户真实腔体交叉验证 + 2/5/10 W 热 M² 退化曲线演示 |
 | `run_thermal.py` | 热传导 + 断裂的命令行入口：`python3 run_thermal.py --rez <file.rez> [--eng <file.eng.json>] [--pump 2,5,10] [--w-l-um 498]` |
 | `demo_thermal.py` | 用户真实腔体 TL1 + 示例参数的 2/5/10 W 热演示 |
 | `run_ghosts.py` | 鬼像/标准具扫描的命令行入口：`python3 run_ghosts.py <file.rez> [side-car] [--wavelength NM]` |
@@ -1774,11 +1777,281 @@ Phase 2 线性模型（锚点 230 mm）没算鼓包，与示例参数的轴
 带（红线 0.50），主值仍 ok；T_max 190.5 °C 已接近 Nd:YVO4
 长期工作的谨慎区间，10 W 档需实测 h 与 σ_fracture 再定。
 
+## FFT Fox-Li 物理光学衍射引擎（Phase 4 M3）
+
+`rezeng/foxli.py`（混合传播子 + 分步晶体 + 往返迭代 +
+D4σ M²），入口 `run_foxli.py`（JSON 报告）与
+`demo_foxli.py`（用户真实腔体交叉验证 + 2/5/10 W 热 M²
+曲线）。纯 Python，不改 C++；求解中间值不写进 `.rez`，
+全部在 side-car `foxli` 一节。
+
+### 往返算符（逐元件，不压缩为单一 ABCD）
+
+`CavityOperator` 按 `.rez` 元件顺序建往返算符：前向腿
+（M1 参考面 → M4）→ 端镜反射 → 返回腿 → M1 反射。
+每段自由空间按元件逐段传播，曲面镜/薄透镜按相位因子
+处理，每元件处乘圆形孔径截断（半径来自 side-car
+`elements` 的 `aperture_diameter_mm` 或 `foxli.apertures`
+覆盖；无孔径数据时不截断并在 `aperture_notes` 中标注）。
+T/S 两平面分别演化（像散腔），输出 w_T/w_S。**绝不把腔
+压成单一等效往返 ABCD**——孔径截断与热 OPD 的空间耦合
+只在逐元件传播中保留（Gemini 评审 §1）。
+
+### 传播子选择与 z_c
+
+约定 `exp(+ikz)`：角谱传递函数
+`exp(+i·k·z·√(1−(λf)²))`，菲涅耳核
+`exp(+i·k·(x₂−x₁)²/(2z))`；会聚透镜乘
+`exp(−i·k·r²/(2f))`，ABCD 的 C 元件镜乘
+`exp(+i·k·C·r²/2)`。场按 FFT 顺序存储（下标 0 为 x=0）。
+
+临界采样距离 `z_c = N·Δx²/λ`（手算复核：N=256、
+Δx=15.625 µm、λ=1064 nm → **58.74 mm**；用户腔网格
+256、窗口 8 mm、Δx=31.25 µm → **235 mm**）。短距
+（z ≤ z_c）用**带限角谱法 BL-ASM**（2× 补零到 512×512 +
+频域截断窗）；长距（z > z_c）用**两步菲涅耳**
+（Two-Step Fresnel，等分步、输入/输出网格尺寸一致）。
+单 FFT 菲涅耳不用作长腿：z=400 mm 时输出步长
+`λz/(NΔx)` = **106.4 µm**，约 0.2 mm 光斑的一半。两步
+菲涅耳在小 z 是错的（等分中间网格比光斑窄、截断光束：
+z=10 mm 时 w 偏大 **+37%**、M²=7.05），所以分发器加了
+护栏：只有当 z > z_c **且**中间半宽 `λz/(4Δx)` ≥ 3 倍
+中间光斑半径时才用两步菲涅耳，否则回退 BL-ASM；负 z
+恒用 ASM。用户腔：d1/d2/d4（372/470/277 mm）走两步菲
+涅耳，d3（25.67 mm）与晶体薄片（6.75 mm）走 ASM。
+
+实测（高斯 w₀=0.2 mm、256、8 mm 窗口）：分发器在
+z=10/30/100/200/300/400/470 mm 全段 w 偏差 **0.00%**、
+M²=1.0000、功率守恒；ASM +400/−400 mm 往返相对 L2 误差
+2.4e-11。
+
+### 晶体分步与锚点焦距的三个定义
+
+27 mm 热透镜晶体做 4 层分步薄透镜（Split-Step）：半片
+玻璃 + 每层一片 OPD 相位板（总 OPD 的 1/4）+ 玻璃片，
+对称 Strang 分裂；玻璃内传播用介质波长 λ/n；相位板
+`exp(+i·k₀·OPD)`，`OPD(r) = −r²/(2f_th) + c₄r⁴ + c₆r⁶`
+（Gemini 评审在相反约定下写 `exp(−ik·OPD)`，此处符号
+由分步–GRIN 对照与 CLI 交叉验证锁定；符号反了会散焦晶
+体，两项验证都失败）。
+
+**锚点 f_th 有三个不同的值，只能用 OPD 等效值**：对用户
+TL1（γL=0.231），`.rez` 的 F=230 mm 是 C++ `calc_focus`
+定义 `F = 1/(tan(γL)·n·γ)`；矩阵等效薄透镜 `−1/C =
+1/(n·γ·sin γL)` = 236.3 mm；分步 OPD 等效值
+`f_th = 1/(n₂L)`（n₂ = n₀γ²）= **234.2 mm**。三者差 ~3%，
+只有 OPD 等效值是抛物折射率分布的忠实分步离散化：
+与精确 GRIN（`qevolve.evolve_element`）对照，4 片时出口
+R 偏差 **−0.08%**、8 片 **−0.02%**；用 `.rez` F 得
+−2.7%，用矩阵 F 得 +1.3%（收敛到错误的连续极限）。
+`CavityOperator` 的锚点直接由 γ 算
+`f_th = 1/(n₀γ²L)`（T/S 可分别取值，散焦 γ<0 时 f_th
+为负），不读 `.rez` F。**拟合 OPD 另有钳制**：`fit_opd`
+只在 r ≤ 1.5·w_L 内拟合，超出拟合半径多项式发散（5 W
+示例在 r=2 mm 处 OPD −200 µm、约 190 个波长，网格上严重
+混叠），所以 `crystal_pass` 的 `r_max_m` 把 OPD 在拟合
+半径外钳制为该半径处的值（`phase_plate()` 现返回
+`r_fit_max_mm`；锚点二次项不限幅）。
+
+### 收敛与本征模
+
+初场：CLI 高斯解（参考面光斑）叠加 **5% 随机复噪声**
+（固定种子可复现；噪声功率占比 noise_frac²，测试锁定
+0.05 → 0.25%）。纯高斯会锁死在对称模上，纯随机收敛太
+慢。**有 OPD 时初场必须是该热透镜腔自身的 CLI 高斯**：
+`resolve_foxli` 把晶体 F 覆盖为与 OPD 的 f_th 等效的 CLI
+F（`opd_f_th_to_cli_F`：f_th=351 mm → F=346.8 mm；
+f_th=877.5 mm → F=873.3 mm；f_th=93.2 mm → F=89.0 mm，
+由 γ=1/√(n₀f_thL)、F=1/(tan(γL)·n·γ) 换算）再取 CLI 光
+束——用锚点腔（F=230 mm）的高斯作初场，等于从热腔多
+个模式的叠加态出发，而无损耗算符没有甄别能力（见下）。
+
+双收敛判据（Gemini 评审 §2）：`|γ_n − γ_{n−1}|/|γ_n| <
+1e-5` **且**场重叠缺陷 `1 − |⟨E_n, E_{n−1}⟩|/(‖E_n‖‖E_{n−1}‖)
+< 1e-5`；`γ_n = ⟨E_{n−1}, E_n⟩/‖E_{n−1}‖²`（归一化前），
+往返衍射损耗 `L_diff = 1 − |γ|²`；迭代上限 1000 圈。若
+两个损耗相近的模式拍频导致不收敛，输出明确标注
+`converged=False` + 当前 γ 与重叠值，不编造收敛结果：
+重叠缺陷连续 50 圈相对改善 <1% 且 γ 已稳定时判为
+`plateau=True`、提前停止。
+
+**无损耗算符的功率迭代本质上不收敛**（实测，不是理论
+推测）——这是 Fox-Li 方法本身的特性，不是代码 bug：往
+返算符近乎幺正，所有模式的 |γ| 都 ≈1，没有损耗甄别，
+功率迭代只能让场在模式叠加态里旋转，无法选出单一本征
+模。证据有三：① 无孔径 5% 噪声起点重叠缺陷在 ~6e-4 处
+进入平台（75 圈判 plateau，L_diff ≈ 1.1e-3，而真实功率
+损耗仅 1.2e-6——L_diff 在此被模式混合主导，不是真实损
+耗）；② 锚点算符从偏离的初场（w=0.12 mm 而非本征模
+0.100 mm）出发也不收敛（缺陷卡在 8.4e-3）；③ 纯二次
+f_th=351 mm 从正确的热腔高斯出发，缺陷仍以每圈 ~0.4%
+缓慢衰减（60 圈 5.8e-4），严格 1e-5 判据需 ~1000 圈，
+平台检测会提前触发——场本身已是高斯（w 与 CLI 差 0.6%、
+M²=1.004），只是缺陷判据达不到。所以交叉验证从纯 CLI
+高斯出发（它是无孔径算符的本征模，2 圈收敛，见下）；
+**热球差演示必须加小孔径提供模式甄别**（M2 半径 2.0 mm，
+见热 M² 一节），否则强球差下迭代直接发散（5 W 全 OPD
+无孔径 100 圈缺陷 0.32、M² 漂到 6–10）。**Arnoldi
+加速已试过、不可行**：`scipy.sparse.linalg.eigs` 在本征
+值密集分布于单位圆上时 270 次矩阵–向量乘（289 s）仍只
+得到 3% 残差的混合模（M1 w 偏大 58%、M²=1.59），不是
+基模；README 留作后续（更合适的本征求解器或 Gouy 相位
+滤波），不纳入本块。
+
+### M² 与光斑输出
+
+D4σ M² **必须含位置–角度协方差项**
+`M_x² = 4π√(σ_x²σ_fx² − σ_{x,fx}²)`，或先传播到束腰再
+用 `M_x² = 4πσ_{x0}σ_{fx}`。非束腰截面直接套用
+`4πσ_xσ_{fx}` 会严重虚高：R=100 mm、w=0.2 mm 的曲率
+波前，naive 值 1.55、协方差修正后 1.00（测试锁定两者），
+与传播到束腰（z₀=−58.2 mm）再算的 M² 一致（±0.02）。
+
+输出：收敛后（或 plateau）的二维光斑强度图——数值数组
+（`foxli_report` 的 `field`）+ 可选 PNG（`spot_png`，
+matplotlib；未装时返回 False、不安装）+ ASCII 摘要
+（`spot_ascii`，对数标度 64×24）；各参考面处的 w_D4σ、
+M²、L_diff、收敛圈数与 γ（`foxli_report` 的 `beam` 逐元
+件对照 CLI）。
+
+### 交叉验证（验收标准，实测）
+
+关闭所有孔径截断与高阶像差（c₄=c₆=0）、纯 CLI 高斯起
+点、用户真实腔体：
+
+| 面 | w_T/mm（Fox-Li） | CLI/mm | 偏差 | M²_T |
+|---|---|---|---|---|
+| M1 | 0.0998 | 0.1000 | −0.2% | 1.0000 |
+| d1/M2 | 1.2664 | 1.2641 | +0.2% | 1.0000 |
+| d2/M3 | 0.4896 | 0.4892 | +0.1% | 1.0000 |
+| d3/TL1 | 0.5057 | 0.5054 | +0.1% | 1.0000 |
+| d4/M4 | 0.2051 | 0.2057 | −0.3% | 1.0000 |
+
+2 圈收敛，L_diff = **1.4e-6**（< 1e-4），M² 全段
+∈ [1.00, 1.02]，w 偏差全段 <1%——**验收标准全部满足**。
+带 5% 噪声的同配置 60 圈不收敛（plateau 机制，见上），
+但 w/M² 仍在 1% / 1.02 内（M1 w +0.74%、M²=1.0036），
+报告如实写 `converged=False`。
+
+孔径算例（M2 半径 2.0 mm，光斑 w=1.26 mm）：58 圈收敛，
+L_diff = **0.0128**，与截断估计
+`1−(1−exp(−2a²/w²))²` = 0.0133（往返两次）量级一致；
+硬边衍射使 M²=1.26、D4σ w 偏大 +30%（衍射环抬高二阶
+矩，物理效应，不是数值误差）。
+
+### 热球差 M² 退化（演示，示例参数）
+
+M2 相位板（dn/dT 拟合，`thermal_report` 的
+`phase_plate`；**不含端面鼓包**——鼓包主导热透镜，见
+M2 节，含鼓包的拟合 f_th 在 5 W 为 107.8 mm 而非 351 mm；
+Fox-Li 相位板目前只接 dn/dT 拟合）按泵浦功率取 2/5/10 W
+三档；每档各跑两次——全 OPD（二次 + c₄/c₆）与纯二次
+（c₄=c₆=0），分离球差的贡献。10 W 拟合 f_th=175.5 mm
+（D=5.70/m）落在稳区 I/II 之间的间隙（腔失稳），故 10 W
+档二次项改用轴上（近轴）f_th=93.2 mm（D=10.73/m，稳区
+II 内），c₄/c₆ 保留拟合值，并注明原因（模平均透镜不是
+稳定性判据，约束模看到的是中心强曲率）。**三档都加小孔
+径（M2 半径 2.0 mm）选模**：无损耗算符的功率迭代无法收
+敛（见上），强球差下无孔径时 5 W 全 OPD 100 圈缺陷仍
+0.32；孔径是 Fox-Li 建模选择，纯二次列给出孔径自身的
+贡献，球差的增量效应是全 OPD 与纯二次之差。
+
+| 泵浦 | f_th/mm | M² 全 OPD（T） | M² 纯二次（T） | w(M1)/mm 全/纯二次 | 收敛 |
+|---|---|---|---|---|---|
+| 2 W | 877.5 | 10.22 | 3.38 | 0.617 / 0.268 | 全 30 圈 / 纯 12 圈 |
+| 5 W | 351.0 | 5.83 | 1.13 | 0.389 / 0.132 | 全 42 圈 / 纯 19 圈 |
+| 10 W | 93.2（近轴） | 2.97* | 1.58 | 0.800 / 1.175 | 全 **未收敛**（100 圈）/ 纯 95 圈 |
+
+\* 10 W 全 OPD 未收敛：100 圈时 M²=2.97，200 圈时漂到
+5.03（缺陷仍 0.075），数值不可靠，只说明该档示例参数
+下模式严重畸变、Fox-Li 无法稳定——10 W 档不是可用的
+演示工作点。**曲线不是单调的**，原因不在球差本身，而
+在傍轴透镜随功率变化：2 W 的 f_th=877.5 mm 靠近稳区 I
+下沿（D=1.14/m），模斑巨大、孔径截断主导 M²（纯二次
+已达 3.38）；5 W 在稳区 I 中部，球差主导（全 5.83 vs
+纯 1.13，增量 ~5 倍）；10 W 在稳区 II，模斑又大
+（M1 w=1.04 mm）且球差最强。**这组演示数不是他的真实
+激光的预测**：真实热 OPD（实测或 M2 真实热参数）与真实
+孔径拿到后要重算；自洽做法是 Fox-Li 模斑与热 OPD 拟合
+的 w_L 迭代（本块未做，见局限性）。
+
+### 局限性
+
+- **模式拍频与无损耗收敛**：无孔径/弱甄别时功率迭代收敛
+  极慢或平台化（上文），需本征求解器或孔径提供甄别；
+  报告如实标 `plateau`，不编造收敛。**热球差演示用小孔
+  径（M2 半径 2.0 mm）选模**，这是 Fox-Li 的建模选择，
+  不是真实镜面口径（真实镜面 Ø25.4 mm，相对 1.26 mm 光
+  斑几乎无截断）；纯二次对照列给出孔径自身的贡献
+  （M²≈1.1），球差的增量效应是全 OPD 与纯二次之差。
+  真实孔径拿到后应改用真实值重算。
+- **初场必须与算符的腔一致**：有 OPD 时初场取热透镜腔
+  自身的 CLI 高斯（`opd_f_th_to_cli_F` 换算），不是锚点
+  腔的高斯；否则迭代从多模式叠加态出发，在无损耗算符
+  上无法收敛。
+- **OPD 钳制**：二次项延展全网格（傍轴透镜），只有拟合
+  的 c4/c6 在 r_fit 外冻结；光束宽于拟合半径时（如本演示
+  5 W 档模斑胀到 1.66 mm 而拟合半径仅 0.747 mm），冻结
+  的球差项本身成为一个人为边界，结果需按自洽性解读。
+  钳制二次项是错的（已修，见上文）：它会把透镜截成硬
+  边，纯二次对照 M² 变成 1.42。
+- **网格尺寸与计算时间**：N=256、窗口 8 mm 时单圈约
+  **1.2 s**（24 次 512² FFT 量级）；60 圈约 70 s、100 圈
+  约 2 分钟。窗口 4 mm 会截断 M2 光斑（w=1.26 mm，单程
+  损耗 ~0.65%），破坏 L_diff < 1e-4 的判据，故用户腔用
+  8 mm 窗口（截断 ~2e-9）。更大网格/更长迭代按比例变慢；
+  Arnoldi 加速已试过不可行（上文），留作后续。
+- **相位板不含鼓包**：`thermal_report` 的 `phase_plate`
+  是 dn/dT 拟合；鼓包主导时（5 W 含鼓包 f_th=107.8 mm
+  vs 纯 dn/dT 351 mm）需另行接入含鼓包拟合。
+- **自洽性**：Fox-Li 用的 OPD 按固定 w_L 拟合，若算出
+  的模斑与 w_L 不符（本演示 5 W 档），应迭代 w_L →
+  OPD → 模斑直至自洽；本块只做单程演示。
+- **单圈传播子近似**：两步菲涅耳在小 z 有已知失效（见
+  上），由分发器护栏规避；晶体分步为 Strang 分裂（4 片
+  时 R 偏差 0.08%），非精确 GRIN。
+
+### 验证（tests/test_phase4_block3.py，共 30 个）
+
+采样手算（z_c=58.74 mm、单 FFT 步长 106.4 µm）；传播子
+对照（分发器全段 w 偏差 0.00%、M²=1.0000、功率守恒；
+ASM 可逆 2.4e-11；两步菲涅耳长距准确、小 z 失效锁定）；
+分步晶体 vs 精确 GRIN（4 片 R 偏差 0.08%、8 片 0.02%；
+`.rez` F 得 −2.7% 的反例锁定；锚点 f_th=234.2 mm 锁定；
+OPD 钳制锁定——**只钳制 c4/c6，二次项延展全网格**，纯
+二次对照回归测试锁住该修复；无二次项 = 玻璃传播）；初
+场（5% 噪声功率占比 0.25%、种子可复现、纯高斯 M²=1）；
+M² 协方差修正（曲率波前 naive 1.55 vs 修正 1.00、束腰
+传播一致）；收敛判据（恒等算符 2 圈收敛；双模拍频
+plateau 如实报告；相位漂移跑满 max_rounds）；交叉验证
+（无孔径 w<1%、M²∈[1.00,1.02]、L_diff<1e-4；带噪声平
+台化如实报告）；孔径（M2 2.0 mm 收敛、L_diff 量级与截断
+估计一致）；热球差（5 W 相位板 + M2 孔径选模 M²>1.5；
+纯二次对照 M²∈[1.00,1.02]、w 与 CLI 差 <3%）；side-car
+`foxli` 一节校验（合法通过、8 类非法值拒绝）。
+
+### 演示（用户真实腔体 + 示例参数）
+
+```sh
+python3 demo_foxli.py
+python3 run_foxli.py --rez /path/to/upload.rez --eng tests/data/example-foxli.eng.json [--max-rounds 60] [--thermal-power 5] [--paraxial] [--png /tmp/spot.png]
+```
+
+`demo_foxli.py`：交叉验证（2 圈收敛、L_diff=1.4e-6、
+M1 光斑 ASCII + PNG `demo_foxli_spot.png`）与 2/5/10 W
+热 M² 曲线（全 OPD vs 纯二次对照，M2 孔径选模）。
+`run_foxli.py`：单次 Fox-Li 报告（JSON 到 stdout，光斑
+ASCII 含在 `spot_ascii` 中）；`--thermal-power P` 从 M2
+热求解器取 P 瓦时的相位板作 OPD（thermal 一节来自
+`--thermal-eng`，默认与 `--eng` 同文件），`--paraxial`
+改用轴上 f_th。全部演示数用示例参数，**不是他的真实激
+光的预测**。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（284 个）
+python3 -m unittest discover -s tests        # 全部测试（314 个）
 python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
 python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
 python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
@@ -1806,6 +2079,8 @@ python3 run_redlight.py /path/to/cavity.rez [side-car] [--w0 0.5] [--double-pass
 python3 run_export.py /path/to/cavity.rez [side-car] --coating --zmx /tmp/cavity.zmx --dxf /tmp/cavity.dxf --thin-lens-check  # 镀膜表 / .zmx / .dxf 导出
 python3 run_thermal.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--pump 2,5,10] [--w-l-um 498]  # 热传导 + 断裂报告（JSON 输出到 stdout）
 python3 demo_thermal.py                         # 用户真实腔体 TL1 + 示例参数的 2/5/10 W 热演示
+python3 run_foxli.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--max-rounds 60] [--thermal-power 5] [--thermal-eng <thermal.eng.json>] [--paraxial] [--png /tmp/spot.png]  # Fox-Li 衍射报告（JSON 输出到 stdout，含光斑 ASCII）
+python3 demo_foxli.py                           # 用户真实腔体交叉验证 + 2/5/10 W 热 M² 曲线演示
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
@@ -1842,3 +2117,8 @@ LIDT（镜面 5、TL1 10 J/cm²）、楔角（TL1 0.1 mrad）、口径
 参数（α_p 10/cm、w_p0 200 µm、M_p² 1.2、η_h 0.24、
 dn/dT 3e-6/K、K_c 5.1 W/mK、h 5000 W/m²K、杆半径 5 mm）
 也都是示例（见“热传导与热断裂”一节），演示用，不是实测。
+`tests/data/example-foxli.eng.json` 同理：Fox-Li 网格与
+迭代参数（256、窗口 8 mm、λ=1064 nm、噪声 5%、种子 0、
+60 圈、容差 1e-5、分步 4 片）也都是示例配置（见“FFT Fox-Li
+物理光学衍射引擎”一节）；无孔径、无 OPD，热 OPD 由演示
+调用 M2 热求解器现场算出，不在 side-car 里。

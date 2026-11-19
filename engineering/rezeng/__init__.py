@@ -92,6 +92,14 @@ from .thermal import (ThermalError, MATERIALS_THERMAL,
 from .fracture import (FractureError, MARGIN_FAIL, MARGIN_WARN,
                        stress_from_profile, stress_field,
                        fracture_margin, fracture_report)
+from .foxli import (FoxLiError, critical_distance,
+                    single_fft_fresnel_step, asm_propagate,
+                    two_step_fresnel_propagate, propagate, opd_profile,
+                    mirror_phase, circular_aperture, crystal_pass,
+                    initial_field, second_moments, waist_m2,
+                    spot_ascii, spot_png,
+                    CavityOperator, foxli_iterate, resolve_foxli,
+                    foxli_report)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -176,4 +184,10 @@ __all__ = [
     "FractureError", "MARGIN_FAIL", "MARGIN_WARN",
     "stress_from_profile", "stress_field", "fracture_margin",
     "fracture_report",
+    "FoxLiError", "critical_distance", "single_fft_fresnel_step",
+    "asm_propagate", "two_step_fresnel_propagate", "propagate",
+    "opd_profile", "mirror_phase", "circular_aperture",
+    "crystal_pass", "initial_field", "second_moments", "waist_m2",
+    "CavityOperator", "foxli_iterate", "resolve_foxli",
+    "foxli_report", "spot_ascii", "spot_png",
 ]

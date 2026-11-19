@@ -760,13 +760,19 @@ def analytic_f_th_gaussian(P_heat_W, dn_dT_per_K, k_W_per_mK, w_p_m):
 def phase_plate(fit):
     """Fox-Li phase-plate coefficients from an OPD fit.
 
-    ``{"f_th_mm", "c4_per_m3", "c6_per_m5", "rms_m"}`` for
-    ``OPD(r) = -r^2/(2 f_th) + c4 r^4 + c6 r^6`` (M3 input).
+    ``{"f_th_mm", "c4_per_m3", "c6_per_m5", "rms_m", "r_fit_max_mm"}``
+    for ``OPD(r) = -r^2/(2 f_th) + c4 r^4 + c6 r^6`` (M3 input).
+    The polynomial is only valid for ``r <= r_fit_max_mm``: the
+    Fox-Li crystal pass holds it constant beyond that radius
+    (the raw polynomial diverges catastrophically outside the fit
+    region -- at r = 2 mm the 5 W example gives OPD ~ -200 um,
+    ~190 wavelengths, hopelessly aliased on the grid).
     """
     return {"f_th_mm": float(fit["f_th_m"]) * 1e3,
             "c4_per_m3": fit["c4_per_m3"],
             "c6_per_m5": fit["c6_per_m5"],
-            "rms_m": fit["rms_m"]}
+            "rms_m": fit["rms_m"],
+            "r_fit_max_mm": float(fit["r_fit_max_m"]) * 1e3}
 
 
 # --- Side-car resolution + report ----------------------------------------------

@@ -79,7 +79,7 @@ def new_eng():
             "elements_ext": {}, "gain_and_pump": {}, "nonlinear_shg": {},
             "mopa_chain": {}, "tolerances": [], "output_mirror": {},
             "surfaces": {}, "materials": {}, "layout": {},
-            "thermal": {}}
+            "thermal": {}, "foxli": {}}
 
 
 def _is_number(value):
@@ -152,7 +152,7 @@ def validate_eng(data):
                        "elements_ext", "gain_and_pump", "nonlinear_shg",
                        "mopa_chain", "tolerances", "output_mirror",
                        "surfaces", "materials", "layout", "thermal",
-                       "notes"):
+                       "foxli", "notes"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -718,4 +718,48 @@ def validate_eng(data):
                             "nu", "sigma_fracture_MPa", "n_1064"):
                     _pos(problems, "thermal.material_overrides", key,
                          overrides.get(key))
+
+    # -- foxli (Phase 4 block 3: Fox-Li diffraction engine) -----------
+    # All fields are optional; the solver falls back to the .rez
+    # wavelength, a 256x256 grid over 8 mm, 5% noise, seed 0,
+    # 1000 rounds, tol 1e-5 and 4 crystal slices.
+    foxli = _sub(problems, data, "foxli",
+                 {"grid_size", "window_mm", "wavelength_nm",
+                  "noise_frac", "seed", "max_rounds", "tol",
+                  "n_slices", "apertures", "opd"})
+    if foxli is not None:
+        for key in ("grid_size", "max_rounds", "n_slices", "seed"):
+            value = foxli.get(key)
+            if value is not None and (
+                    not isinstance(value, int)
+                    or isinstance(value, bool) or value < 0
+                    or (key != "seed" and value < 1)):
+                problems.append("foxli.%s must be an integer%s, got %r"
+                                % (key, " >= 1" if key != "seed"
+                                   else " >= 0", value))
+        _pos(problems, "foxli", "window_mm", foxli.get("window_mm"))
+        _pos(problems, "foxli", "wavelength_nm",
+             foxli.get("wavelength_nm"))
+        _frac(problems, "foxli", "noise_frac", foxli.get("noise_frac"),
+              lo=0.0, hi=1.0, lo_ok=True, hi_ok=True)
+        _frac(problems, "foxli", "tol", foxli.get("tol"),
+              lo=0.0, hi=1.0, lo_ok=False, hi_ok=False)
+        apertures = foxli.get("apertures")
+        if apertures is not None:
+            if not isinstance(apertures, dict):
+                problems.append("foxli.apertures is not an object")
+            else:
+                for label, radius in apertures.items():
+                    _pos(problems, "foxli.apertures", label, radius)
+        opd = _sub(problems, foxli, "opd",
+                   {"f_th_mm", "c4_per_m3", "c6_per_m5", "r_fit_max_mm"})
+        if opd is not None:
+            _pos(problems, "foxli.opd", "f_th_mm", opd.get("f_th_mm"))
+            _pos(problems, "foxli.opd", "r_fit_max_mm",
+                 opd.get("r_fit_max_mm"))
+            for key in ("c4_per_m3", "c6_per_m5"):
+                value = opd.get(key)
+                if value is not None and not _is_number(value):
+                    problems.append("foxli.opd.%s must be a number, "
+                                    "got %r" % (key, value))
     return problems
