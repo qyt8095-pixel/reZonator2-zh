@@ -36,7 +36,9 @@ Format (version 1; see ``engineering/README.md`` for the full spec)::
 
 Every field except ``format_version`` is optional. Missing data never
 gets a default: the checks report ``nodata`` for it instead of
-computing a pass from an invented number.
+computing a pass from an invented number. The same rule holds for
+the Phase 2 sections (``gain_and_pump``, ``nonlinear_shg``): a
+missing essential field raises an error naming the field.
 """
 
 import json
@@ -74,7 +76,7 @@ def new_eng():
     """An empty side-car document with the documented sections."""
     return {"format_version": FORMAT_VERSION,
             "laser": {}, "board": {}, "elements": {},
-            "gain_and_pump": {}}
+            "gain_and_pump": {}, "nonlinear_shg": {}}
 
 
 def _is_number(value):
@@ -144,7 +146,7 @@ def validate_eng(data):
                         % (version, FORMAT_VERSION))
     for key in data:
         if key not in ("format_version", "laser", "board", "elements",
-                       "gain_and_pump"):
+                       "gain_and_pump", "nonlinear_shg"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -310,4 +312,64 @@ def validate_eng(data):
                  thermal.get("dn_dT_per_K"))
             _pos(problems, "gain_and_pump.thermal", "K_c_W_per_mK",
                  thermal.get("K_c_W_per_mK"))
+    # -- nonlinear_shg (Phase 2 SHG module) -------------------------
+    # All fields are optional; missing ones are reported as nodata by
+    # rezeng.shg.resolve_shg, never filled with invented defaults.
+    # The MATERIALS table in rezeng.shg holds typical literature
+    # values, but it is only applied through the explicit
+    # fill_typical() helper, never silently.
+    shg = _sub(problems, data, "nonlinear_shg",
+               {"enabled", "mode", "crystal_element_id", "material",
+                "length_mm", "d_eff_pm_V", "n_omega", "n_2omega",
+                "phase_matching", "walkoff_mrad", "walkoff_plane",
+                "delta_T_C", "temp_acceptance_C_cm", "delta_k_per_m",
+                "single_frequency", "wavelength_2omega_nm", "notes"})
+    if shg is not None:
+        if shg.get("enabled") is not None \
+                and not isinstance(shg.get("enabled"), bool):
+            problems.append("nonlinear_shg.enabled must be a boolean, "
+                            "got %r" % (shg.get("enabled"),))
+        if shg.get("mode") is not None \
+                and shg.get("mode") not in ("intracavity", "extracavity"):
+            problems.append("nonlinear_shg.mode must be 'intracavity' "
+                            "or 'extracavity', got %r" % (shg.get("mode"),))
+        if shg.get("crystal_element_id") is not None \
+                and not isinstance(shg.get("crystal_element_id"), str):
+            problems.append("nonlinear_shg.crystal_element_id must be a "
+                            "string, got %r"
+                            % (shg.get("crystal_element_id"),))
+        if shg.get("material") is not None \
+                and not isinstance(shg.get("material"), str):
+            problems.append("nonlinear_shg.material must be a string, "
+                            "got %r" % (shg.get("material"),))
+        for key in ("length_mm", "d_eff_pm_V", "n_omega", "n_2omega",
+                    "wavelength_2omega_nm"):
+            _pos(problems, "nonlinear_shg", key, shg.get(key))
+        if shg.get("phase_matching") is not None \
+                and str(shg.get("phase_matching")).upper() \
+                not in ("CPM", "NCPM"):
+            problems.append("nonlinear_shg.phase_matching must be 'CPM' "
+                            "or 'NCPM', got %r"
+                            % (shg.get("phase_matching"),))
+        _pos(problems, "nonlinear_shg", "walkoff_mrad",
+             shg.get("walkoff_mrad"), allow_zero=True)
+        if shg.get("walkoff_plane") is not None \
+                and str(shg.get("walkoff_plane")).upper() not in ("T", "S"):
+            problems.append("nonlinear_shg.walkoff_plane must be 'T' or "
+                            "'S', got %r" % (shg.get("walkoff_plane"),))
+        if shg.get("delta_T_C") is not None \
+                and not _is_number(shg.get("delta_T_C")):
+            problems.append("nonlinear_shg.delta_T_C must be a number, "
+                            "got %r" % (shg.get("delta_T_C"),))
+        _pos(problems, "nonlinear_shg", "temp_acceptance_C_cm",
+             shg.get("temp_acceptance_C_cm"))
+        if shg.get("delta_k_per_m") is not None \
+                and not _is_number(shg.get("delta_k_per_m")):
+            problems.append("nonlinear_shg.delta_k_per_m must be a "
+                            "number, got %r" % (shg.get("delta_k_per_m"),))
+        if shg.get("single_frequency") is not None \
+                and not isinstance(shg.get("single_frequency"), bool):
+            problems.append("nonlinear_shg.single_frequency must be a "
+                            "boolean, got %r"
+                            % (shg.get("single_frequency"),))
     return problems

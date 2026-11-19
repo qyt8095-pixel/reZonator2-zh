@@ -145,8 +145,15 @@ def waist_from_q(q, lam_m):
 # --- Element GRIN parameters ----------------------------------------------
 
 #: Element types that carry a length and can host the gain medium.
+#: ElemPlate is included: its C++ matrix is [[1, L/n], [0, 1]] with
+#: submatrices TS1_ = [[1, z/n], [0, 1/n]] -- exactly the gamma = 0
+#: branch of the evolver (a real dielectric slab). ElemMediumRange
+#: is NOT a slab in this sense: the C++ matrix ignores n entirely
+#: ([[1, L], [0, 1]]), so it must not be used where refraction
+#: matters (see rezeng.shg.resolve_shg).
 _RANGE_TYPES = ("ElemEmptyRange", "ElemMediumRange", "ElemGrinLens",
-                "ElemGrinMedium", "ElemThermoLens", "ElemThermoMedium")
+                "ElemGrinMedium", "ElemThermoLens", "ElemThermoMedium",
+                "ElemPlate")
 
 
 def element_grin_params(data, label):
@@ -231,6 +238,8 @@ def element_matrix(data, label):
 
     * ``ElemEmptyRange`` / ``ElemMediumRange``: ``[[1, L], [0, 1]]``
       (geometric length; the ray vector is geometric, so no ``/n``).
+    * ``ElemPlate``: ``[[1, L/n], [0, 1]]`` (a real dielectric slab;
+      the refraction is in the matrix, unlike ElemMediumRange).
     * ``ElemFlatMirror``: identity.
     * ``ElemCurveMirror``: ``[[1, 0], [C, 1]]`` with
       ``C_T = -2/(R*cos(alpha))``, ``C_S = -2*cos(alpha)/R``.
@@ -254,6 +263,15 @@ def element_matrix(data, label):
         if L_m is None or not math.isfinite(L_m):
             raise QevolveError("element %r has no length" % (label,))
         M = np.array([[1.0, L_m], [0.0, 1.0]])
+        return M, M.copy()
+    if etype == "ElemPlate":
+        L_m = param_value_si(data, label, "L")
+        n0 = param_value_si(data, label, "n")
+        if L_m is None or not math.isfinite(L_m):
+            raise QevolveError("element %r has no length" % (label,))
+        if n0 is None or not math.isfinite(n0) or n0 <= 0:
+            raise QevolveError("element %r has no usable n" % (label,))
+        M = np.array([[1.0, L_m / n0], [0.0, 1.0]])
         return M, M.copy()
     if etype == "ElemFlatMirror":
         return I, I.copy()

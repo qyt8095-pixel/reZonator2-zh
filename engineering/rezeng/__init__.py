@@ -32,6 +32,13 @@ from .power import (PowerError, resolve_params, param_F_current,
                     higher_order_gains, two_mode_m2, multimode_threshold,
                     thermal_kappa, thermal_focal_lengths, pump_scan,
                     toc_scan, H_PLANCK, C_LIGHT)
+from .shg import (SHGError, MATERIALS, material_reference, fill_typical,
+                  resolve_shg, boyd_kleinman_h, aperture_length,
+                  focusing_parameter, shg_coefficient_K, single_pass_eta,
+                  shg_beam_in_crystal, shg_K_for_point, shg_output_beam,
+                  green_noise_assessment, gamma_round_trip,
+                  solve_shg_intracavity, solve_shg_extracavity,
+                  shg_pump_scan, insert_crystal_element, EPS0)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -58,4 +65,11 @@ __all__ = [
     "higher_order_gains", "two_mode_m2", "multimode_threshold",
     "thermal_kappa", "thermal_focal_lengths", "pump_scan",
     "toc_scan", "H_PLANCK", "C_LIGHT", "ETA_Q_MAX",
+    "SHGError", "MATERIALS", "material_reference", "fill_typical",
+    "resolve_shg", "boyd_kleinman_h", "aperture_length",
+    "focusing_parameter", "shg_coefficient_K", "single_pass_eta",
+    "shg_beam_in_crystal", "shg_K_for_point", "shg_output_beam",
+    "green_noise_assessment", "gamma_round_trip",
+    "solve_shg_intracavity", "solve_shg_extracavity",
+    "shg_pump_scan", "insert_crystal_element", "EPS0",
 ]
