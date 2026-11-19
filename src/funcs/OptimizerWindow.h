@@ -1,6 +1,7 @@
 #ifndef OPTIMIZER_WINDOW_H
 #define OPTIMIZER_WINDOW_H
 
+#include "../core/Units.h"
 #include "../io/ISchemaWindowStorable.h"
 #include "../math/OptimizerFunction.h"
 #include "../windows/SchemaWindows.h"
@@ -70,6 +71,7 @@ private slots:
     void removeTarget();
     void onVariableCellChanged(int row, int col);
     void onTargetCellChanged(int row, int col);
+    void onLengthUnitChanged(int index);
 
 private:
     enum VarCols
@@ -119,6 +121,11 @@ private:
     QPushButton* _btnRemoveTarget;
     QSpinBox* _maxIter;
     QLabel* _meritLabel;
+    QComboBox* _lengthUnitCombo;
+    /// Display unit for all length quantities in this window (beam radius
+    /// targets and measured values, length-dimension variables). Internal
+    /// computation and stored values always stay in SI.
+    Z::Unit _lengthUnit = Z::Units::mm();
     Ori::Widgets::StatusBar* _statusBar;
     bool _running = false;
     bool _stopFlag = false;
@@ -138,12 +145,17 @@ protected:
 
     void rebuildVariableTable();
     void rebuildTargetTable();
+    void refreshUnitLabels();
     void refreshCurrentValues();
     void refreshTargetResults();
     void refreshResultValues();
     void refreshButtons();
     void showResultSummary();
     void setControlsEnabled(bool enabled);
+
+    /// Unit used to display a variable's values: the window's length unit
+    /// for linear-dimension parameters, the parameter's own unit otherwise.
+    Z::Unit displayUnit(Z::Unit paramUnit) const;
 
     int rowOfCellWidget(QWidget* w, QTableWidget* table) const;
     void onVariableModeChanged(QWidget* combo);
@@ -175,7 +187,7 @@ public:
         QVector<double> candidatesSi;
     };
 
-    explicit OptimizerVariableDlg(Schema* schema);
+    explicit OptimizerVariableDlg(Schema* schema, Z::Unit lengthUnit);
 
     const Result& result() const { return _result; }
 
@@ -192,6 +204,7 @@ private slots:
 private:
     Schema* _schema;
     Result _result;
+    Z::Unit _lengthUnit;
     ElemAndParamSelector* _elemSelector;
     QComboBox* _mode;
     QLineEdit* _minEdit;
@@ -221,7 +234,7 @@ public:
         double weight = 1.0;
     };
 
-    explicit OptimizerTargetDlg(Schema* schema);
+    explicit OptimizerTargetDlg(Schema* schema, Z::Unit lengthUnit);
 
     const Result& result() const { return _result; }
 
@@ -236,6 +249,7 @@ private slots:
 
 private:
     Result _result;
+    Z::Unit _lengthUnit;
     ElemSelectorWidget* _elemSelector;
     QComboBox* _kind;
     QLineEdit* _targetEdit;

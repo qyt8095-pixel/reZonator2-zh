@@ -25,6 +25,7 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QToolBar>
 
@@ -115,7 +116,6 @@ void OptimizerWindow::createContent()
     _varTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _varTable->horizontalHeader()->setSectionResizeMode(VAR_COL_ENABLED, QHeaderView::ResizeToContents);
     _varTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _varTable->setToolTip(tr("下限、上限与候选值以各参数自身的单位输入；优化值列在运行结束后显示最优参数"));
     connect(_varTable, &QTableWidget::cellChanged, this, &OptimizerWindow::onVariableCellChanged);
 
     _btnAddVar = new QPushButton(tr("添加变量"));
@@ -128,10 +128,9 @@ void OptimizerWindow::createContent()
     _targetTable = new QTableWidget();
     _targetTable->setColumnCount(TGT_COLS_COUNT);
     _targetTable->setHorizontalHeaderLabels({
-        tr("目标元件"), tr("指标"), tr("目标值 (mm)"), tr("权重"), tr("实测值"), tr("误差贡献")});
+        tr("目标元件"), tr("指标"), tr("目标值 (%1)").arg(_lengthUnit->name()), tr("权重"), tr("实测值"), tr("误差贡献")});
     _targetTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _targetTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _targetTable->setToolTip(tr("光斑目标值以 mm 输入；稳区中心目标不需要指定元件"));
     connect(_targetTable, &QTableWidget::cellChanged, this, &OptimizerWindow::onTargetCellChanged);
 
     _btnAddTarget = new QPushButton(tr("添加目标"));
@@ -155,11 +154,21 @@ void OptimizerWindow::createContent()
     _maxIter->setToolTip(tr("Nelder-Mead 最大迭代次数（每个连续变量组合）"));
     _meritLabel = new QLabel(tr("Merit：—"));
 
+    _lengthUnitCombo = new QComboBox();
+    _lengthUnitCombo->addItem(Z::Units::mm()->name(), Z::Units::mm()->alias());
+    _lengthUnitCombo->addItem(Z::Units::mkm()->name(), Z::Units::mkm()->alias());
+    _lengthUnitCombo->setCurrentIndex(_lengthUnitCombo->findData(_lengthUnit->alias()));
+    _lengthUnitCombo->setToolTip(tr("窗口内长度量（光斑目标值与实测值、长度类变量）的显示与输入单位"));
+    connect(_lengthUnitCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        this, &OptimizerWindow::onLengthUnitChanged);
+
     auto controlBar = new QWidget();
     Ori::Layouts::LayoutH({
         _btnStart, _btnStop,
         new QLabel(tr("最大迭代次数")), _maxIter,
-        _meritLabel, Ori::Layouts::Stretch(),
+        _meritLabel,
+        new QLabel(tr("长度单位")), _lengthUnitCombo,
+        Ori::Layouts::Stretch(),
         _btnApply, _btnRevert
     }).useFor(controlBar);
 
@@ -167,6 +176,8 @@ void OptimizerWindow::createContent()
     auto targetGroup = Ori::Gui::groupV(tr("目标"), {_targetTable, targetButtons});
     setContent(Ori::Layouts::LayoutV({varGroup, targetGroup, controlBar})
         .setMargin(4).setSpacing(4).makeWidget());
+
+    refreshUnitLabels();
 }
 
 void OptimizerWindow::update()
@@ -228,6 +239,33 @@ void OptimizerWindow::refreshButtons()
     setControlsEnabled(!_running);
 }
 
+Z::Unit OptimizerWindow::displayUnit(Z::Unit paramUnit) const
+{
+    return (paramUnit && Z::Units::guessDim(paramUnit) == Z::Dims::linear())
+        ? _lengthUnit : paramUnit;
+}
+
+void OptimizerWindow::onLengthUnitChanged(int)
+{
+    if (_updatingTables || _running)
+        return;
+    _lengthUnit = Z::Units::findByAlias(_lengthUnitCombo->currentData().toString(),
+        Z::Units::mm());
+    refreshUnitLabels();
+    rebuildVariableTable();
+    rebuildTargetTable();
+}
+
+void OptimizerWindow::refreshUnitLabels()
+{
+    _targetTable->setHorizontalHeaderItem(TGT_COL_VALUE,
+        new QTableWidgetItem(tr("目标值 (%1)").arg(_lengthUnit->name())));
+    _targetTable->setToolTip(tr("光斑目标值以 %1 输入；稳区中心目标不需要指定元件")
+        .arg(_lengthUnit->name()));
+    _varTable->setToolTip(tr("长度类参数的下限、上限与候选值以 %1 输入，其他参数以自身的单位输入；优化值列在运行结束后显示最优参数")
+        .arg(_lengthUnit->name()));
+}
+
 //------------------------------------------------------------------------------
 //                              Variable table
 //------------------------------------------------------------------------------
@@ -276,7 +314,7 @@ void OptimizerWindow::rebuildVariableTable()
         itMin->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
         if (v.param)
         {
-            auto unit = v.param->value().unit();
+            auto unit = displayUnit(v.param->value().unit());
             itMin->setText(v.mode == OptimizerFunction::VarMode::Continuous
                 ? Z::format(unit->fromSi(v.minSi))
                 : formatCandidates(v.candidatesSi, unit));
@@ -288,7 +326,7 @@ void OptimizerWindow::rebuildVariableTable()
         {
             itMax->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
             if (v.param)
-                itMax->setText(Z::format(v.param->value().unit()->fromSi(v.maxSi)));
+                itMax->setText(Z::format(displayUnit(v.param->value().unit())->fromSi(v.maxSi)));
         }
         else
         {
@@ -300,7 +338,7 @@ void OptimizerWindow::rebuildVariableTable()
         auto* itCurrent = new QTableWidgetItem();
         itCurrent->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         if (v.param)
-            itCurrent->setText(formatSi(v.param->value().toSi(), v.param->value().unit()));
+            itCurrent->setText(formatSi(v.param->value().toSi(), displayUnit(v.param->value().unit())));
         _varTable->setItem(row, VAR_COL_CURRENT, itCurrent);
 
         auto* itResult = new QTableWidgetItem();
@@ -321,7 +359,7 @@ void OptimizerWindow::refreshCurrentValues()
     {
         const auto& v = vars.at(row);
         if (auto* it = _varTable->item(row, VAR_COL_CURRENT))
-            it->setText(v.param ? formatSi(v.param->value().toSi(), v.param->value().unit()) : QString());
+            it->setText(v.param ? formatSi(v.param->value().toSi(), displayUnit(v.param->value().unit())) : QString());
     }
     _updatingTables = false;
 }
@@ -337,7 +375,7 @@ void OptimizerWindow::refreshResultValues()
         const auto& v = vars.at(row);
         if (auto* it = _varTable->item(row, VAR_COL_RESULT))
             it->setText(hasResult && row < best.size() && v.param
-                ? formatSi(best.at(row), v.param->value().unit()) : QString());
+                ? formatSi(best.at(row), displayUnit(v.param->value().unit())) : QString());
     }
     _updatingTables = false;
 }
@@ -383,7 +421,7 @@ void OptimizerWindow::onVariableCellChanged(int row, int col)
     }
     if (!v.param)
         return;
-    auto unit = v.param->value().unit();
+    auto unit = displayUnit(v.param->value().unit());
 
     if (col == VAR_COL_MIN)
     {
@@ -470,7 +508,7 @@ void OptimizerWindow::rebuildTargetTable()
         if (needValue)
         {
             itValue->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
-            itValue->setText(Z::format(Z::Units::mm()->fromSi(t.targetSi)));
+            itValue->setText(Z::format(_lengthUnit->fromSi(t.targetSi)));
         }
         else
         {
@@ -509,7 +547,7 @@ void OptimizerWindow::refreshTargetResults()
             else if (t.kind == OptimizerFunction::TargetKind::StabilityCenter)
                 it->setText(Z::format(t.currentSi));
             else
-                it->setText(Z::format(Z::Units::mm()->fromSi(t.currentSi)));
+                it->setText(Z::format(_lengthUnit->fromSi(t.currentSi)));
         }
         if (auto* it = _targetTable->item(row, TGT_COL_CONTRIB))
             it->setText(std::isnan(t.contribution) ? QStringLiteral("—") : Z::format(t.contribution));
@@ -565,13 +603,13 @@ void OptimizerWindow::onTargetCellChanged(int row, int col)
         double val = item->text().toDouble(&ok);
         if (!ok || !(val > 0))
         {
-            Ori::Gui::PopupMessage::warning(tr("请输入大于 0 的目标值（mm）。"));
+            Ori::Gui::PopupMessage::warning(tr("请输入大于 0 的目标值（%1）。").arg(_lengthUnit->name()));
             _updatingTables = true;
-            item->setText(Z::format(Z::Units::mm()->fromSi(t.targetSi)));
+            item->setText(Z::format(_lengthUnit->fromSi(t.targetSi)));
             _updatingTables = false;
             return;
         }
-        t.targetSi = Z::Units::mm()->toSi(val);
+        t.targetSi = _lengthUnit->toSi(val);
         return;
     }
     if (col == TGT_COL_WEIGHT)
@@ -597,7 +635,7 @@ void OptimizerWindow::onTargetCellChanged(int row, int col)
 
 void OptimizerWindow::addVariable()
 {
-    OptimizerVariableDlg dlg(schema());
+    OptimizerVariableDlg dlg(schema(), _lengthUnit);
     if (!dlg.run())
         return;
     const auto& r = dlg.result();
@@ -636,7 +674,7 @@ void OptimizerWindow::removeVariable()
 
 void OptimizerWindow::addTarget()
 {
-    OptimizerTargetDlg dlg(schema());
+    OptimizerTargetDlg dlg(schema(), _lengthUnit);
     if (!dlg.run())
         return;
     const auto& r = dlg.result();
@@ -792,6 +830,7 @@ bool OptimizerWindow::storableWrite(QJsonObject& root, Z::Report*)
     root["function"] = QJsonObject({
         { "variables", varsJson },
         { "targets", targetsJson },
+        { "lengthUnit", _lengthUnit->alias() },
     });
     return true;
 }
@@ -801,6 +840,15 @@ bool OptimizerWindow::storableRead(const QJsonObject& root, Z::Report* report)
     auto funcJson = root["function"].toObject();
     if (funcJson.isEmpty())
         return true;
+
+    auto unitAlias = funcJson["lengthUnit"].toString();
+    if (!unitAlias.isEmpty())
+    {
+        _lengthUnit = Z::Units::findByAlias(unitAlias, Z::Units::mm());
+        QSignalBlocker blocker(_lengthUnitCombo);
+        _lengthUnitCombo->setCurrentIndex(_lengthUnitCombo->findData(_lengthUnit->alias()));
+        refreshUnitLabels();
+    }
 
     auto varsJson = funcJson["variables"].toArray();
     for (const auto& varValue : varsJson)
@@ -876,8 +924,8 @@ bool OptimizerWindow::storableRead(const QJsonObject& root, Z::Report* report)
 //                              OptimizerVariableDlg
 //------------------------------------------------------------------------------
 
-OptimizerVariableDlg::OptimizerVariableDlg(Schema* schema)
-    : RezonatorDialog(DontDeleteOnClose | UseHelpButton), _schema(schema)
+OptimizerVariableDlg::OptimizerVariableDlg(Schema* schema, Z::Unit lengthUnit)
+    : RezonatorDialog(DontDeleteOnClose | UseHelpButton), _schema(schema), _lengthUnit(lengthUnit)
 {
     setWindowTitle(tr("添加变量"));
     setObjectName("OptimizerVariableDlg");
@@ -935,12 +983,15 @@ void OptimizerVariableDlg::guessBounds()
     if (!param)
         return;
     auto unit = param->value().unit();
-    double current = param->value().value();
+    // Length-dimension parameters are shown in the window's length unit;
+    // other parameters keep their own unit.
+    Z::Unit dispUnit = (Z::Units::guessDim(unit) == Z::Dims::linear()) ? _lengthUnit : unit;
+    double current = dispUnit->fromSi(param->value().toSi());
     double minV = current > 0 ? current * 0.5 : (current < 0 ? current * 2 : -1);
     double maxV = current > 0 ? current * 2 : (current < 0 ? current * 0.5 : 1);
     _minEdit->setText(Z::format(minV));
     _maxEdit->setText(Z::format(maxV));
-    _unitLabel->setText(unit->name());
+    _unitLabel->setText(dispUnit->name());
 }
 
 void OptimizerVariableDlg::collect()
@@ -959,6 +1010,7 @@ void OptimizerVariableDlg::collect()
     _result.param = param;
     _result.mode = OptimizerFunction::VarMode(_mode->currentData().toInt());
     auto unit = param->value().unit();
+    Z::Unit dispUnit = (Z::Units::guessDim(unit) == Z::Dims::linear()) ? _lengthUnit : unit;
     if (_result.mode == OptimizerFunction::VarMode::Continuous)
     {
         bool okMin = false, okMax = false;
@@ -966,14 +1018,14 @@ void OptimizerVariableDlg::collect()
         double maxV = _maxEdit->text().toDouble(&okMax);
         if (!okMin || !okMax)
             return WidgetResult::fail(_minEdit, tr("请输入有效的下限和上限。")).show(this);
-        _result.minSi = unit->toSi(minV);
-        _result.maxSi = unit->toSi(maxV);
+        _result.minSi = dispUnit->toSi(minV);
+        _result.maxSi = dispUnit->toSi(maxV);
         if (!(_result.minSi < _result.maxSi))
             return WidgetResult::fail(_minEdit, tr("下限必须小于上限。")).show(this);
     }
     else
     {
-        if (!parseCandidates(_candidatesEdit->text(), unit, _result.candidatesSi)
+        if (!parseCandidates(_candidatesEdit->text(), dispUnit, _result.candidatesSi)
             || _result.candidatesSi.isEmpty())
             return WidgetResult::fail(_candidatesEdit, tr("请输入至少一个候选值，用逗号分隔。")).show(this);
     }
@@ -984,8 +1036,8 @@ void OptimizerVariableDlg::collect()
 //                              OptimizerTargetDlg
 //------------------------------------------------------------------------------
 
-OptimizerTargetDlg::OptimizerTargetDlg(Schema* schema)
-    : RezonatorDialog(DontDeleteOnClose | UseHelpButton)
+OptimizerTargetDlg::OptimizerTargetDlg(Schema* schema, Z::Unit lengthUnit)
+    : RezonatorDialog(DontDeleteOnClose | UseHelpButton), _lengthUnit(lengthUnit)
 {
     setWindowTitle(tr("添加目标"));
     setObjectName("OptimizerTargetDlg");
@@ -999,13 +1051,13 @@ OptimizerTargetDlg::OptimizerTargetDlg(Schema* schema)
     connect(_kind, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &OptimizerTargetDlg::kindChanged);
 
     _targetEdit = new QLineEdit();
-    _targetEdit->setPlaceholderText(tr("目标光斑半径，mm"));
+    _targetEdit->setPlaceholderText(tr("目标光斑半径，%1").arg(_lengthUnit->name()));
     _weightEdit = new QLineEdit(QStringLiteral("1"));
 
     auto form = new QFormLayout();
     form->addRow(tr("目标元件"), _elemSelector);
     form->addRow(tr("指标"), _kind);
-    form->addRow(tr("目标值 (mm)"), _targetEdit);
+    form->addRow(tr("目标值 (%1)").arg(_lengthUnit->name()), _targetEdit);
     form->addRow(tr("权重"), _weightEdit);
 
     mainLayout()->addLayout(form);
@@ -1044,8 +1096,8 @@ void OptimizerTargetDlg::collect()
         bool ok = false;
         double v = _targetEdit->text().toDouble(&ok);
         if (!ok || !(v > 0))
-            return WidgetResult::fail(_targetEdit, tr("请输入大于 0 的目标光斑半径（mm）。")).show(this);
-        _result.targetSi = Z::Units::mm()->toSi(v);
+            return WidgetResult::fail(_targetEdit, tr("请输入大于 0 的目标光斑半径（%1）。").arg(_lengthUnit->name())).show(this);
+        _result.targetSi = _lengthUnit->toSi(v);
     }
     bool okW = false;
     double w = _weightEdit->text().toDouble(&okW);
