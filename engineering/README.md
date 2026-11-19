@@ -13,7 +13,10 @@ Python 不重算光学。
 | `rezeng/cli.py` | `run_headless` / `run_headless_file`：调 `--headless` 批量求值 |
 | `rezeng/eng.py` | side-car `<file>.rez.eng.json` 读写与格式校验 |
 | `rezeng/checks.py` | LIDT / 孔径截断 / 面包板检查，`run_checks()` |
+| `rezeng/solves.py` | Pickup 与束腰 Solves，`apply_pickup()` / `solve_waist_size()` / `solve_waist_position()` / `apply_solution()` |
 | `run_checks.py` | 检查的命令行入口：`python3 run_checks.py <file.rez> [side-car]` |
+| `run_solves.py` | Solves 的命令行入口：`python3 run_solves.py pickup|waist-size|waist-position …` |
+| `demo_solves.py` | 用户真实腔体的 Pickup + 束腰 Solve 端到端演示（输出到 /tmp） |
 | `tests/` | `unittest` 测试（`python3 -m unittest discover -s tests`） |
 
 协议（stdin/stdout JSON、批量求值、失败语义）见
@@ -158,13 +161,120 @@ loss = exp(-2 · a² / w²)     a = 孔径半径，w = max(w_T, w_S)（保守取
 - CLI 退码：只要产出报告就是 0（哪怕有 `fail`，那是数据不是错误）；
   只有读文件失败、CLI 失败等硬错误才非零。
 
+## Solves
+
+求解一律调 `--headless` 批量求值（光学不重算），解写回 `.rez`
+时保留原有 unit、`schema_version` 与未知键。求解变量必须是**未被
+驱动的元件参数**（被 `formulas` / `param_links` 驱动的参数 CLI
+会拒绝改写，`check_overridable` 会先报错）。
+
+### 1. Pickup（`apply_pickup`）
+
+把“某元件参数跟随另一参数”的关系写成**原生**机制，UI 打开后
+关系仍然生效、保存不丢：
+
+- 源参数挂到一个全局参数（已链接时复用该全局参数；否则新建
+  `PK_E<源元件序号>_<参数>`，如 `PK_E1_L`）；
+- 从参数挂到另一个全局参数 `PK_E<从元件序号>_<参数>`；
+- 全局参数之间写一条 `formulas`：`code = "k * <源全局> + <b_si>"`
+  （Lua 表达式，SI 单位；`k` 无量纲，`b` 按从参数的单位给出），
+  `param_deps = [源全局]`；
+- 两条 `param_links` 把全局参数分别复制进源、从元件参数（链接按
+  SI 值复制，单位自动换算）。
+
+`formulas` 只能驱动**全局参数**（`SchemaReaderJson::readFormula`），
+所以元件到元件的 Pickup 必须经过全局参数中转——这正是应用自己
+的 `global_params.rez` 例子用的做法。源、从参数必须是同一量纲
+（长度/角度/无量纲）；从参数已被别的 formula/link 驱动时报错，
+不静默覆盖；链式 Pickup 允许（一个 Pickup 的从值可以做下一个
+Pickup 的源）。`verify_pickup()` 做纯检查：公式、两条链接、全局
+参数存在，且存入的从值等于 `k·源+b`。
+
+**加载语义（重要，已对真实程序验证）：公式在加载时不重算**
+——`Formula::calculate` 只在依赖参数变化时触发。所以
+`apply_pickup` 写入的是**一致快照**（存入的从值已等于
+`k·源+b`），加载后光学与原来完全一致；在 UI 里改源全局参数时，
+公式重算、链接传播，跟随关系生效；但只改源全局参数的存值而不
+更新从值时，从值会 stale，直到在 UI 里碰一下源参数。求解写回
+（`apply_solution`）因此拒绝被驱动的参数，不会只写一半。
+
+示例（用户真实腔体）：`d4.L = 0.5 * d1.L + 90.862702 mm`
+（b 按当前值算出，使腔体光学不变），生成 `PK_E1_L` /
+`PK_E7_L` 与公式 `0.5 * PK_E1_L + 0.09086270242273697`；
+CLI 加载后 g_T 与原来 12 位小数一致；源改为 340 mm（从值同步
+改为 260.862702 mm）时，光学与直接改 `d1` / `d4` 的结果一致。
+
+### 2. 束腰 Solves（`solve_waist_size` / `solve_waist_position`）
+
+变量是某元件的某参数（如 `d1:L` 或 `M2:R`），目标是某**光束段**
+的束腰：
+
+- `element` 指定光束段：取该元件**离开后**的光束段（即该元件
+  `(w, R)` 所属的段）；同一段内任意元件推出的束腰一致，跨聚焦
+  元件后会变（协议 §3/§4）。
+- 束腰由该段元件的 `(w, R)` 按高斯公式推导（`waist_from_wr`，
+  与协议 §4 一致），**不用**顶层 `waist` 字段冒充指定位置的束腰。
+- 位置坐标：`s = 0` 在第一个元件的平面，沿元件列表方向增大；
+  元件的平面是它的**出口平面**（带 `L` 的元件含自身长度）。
+  目标可以是绝对 `s`（mm），也可以是 `("ref", label, offset_mm)`
+  （相对某元件平面的位置，`offset > 0` 为下游）。用户腔体总长
+  1171.318 mm。
+- `plane` 选 `"T"` 或 `"S"`（像散腔两者不同，分别求解）。
+
+求解器：先在搜索区间上做一次批量扫描（默认 17 点，一个 CLI
+调用），再：
+
+| 扫描结果 | 做法 |
+|---|---|
+| 有变号括号 | 对离当前值最近的括号用 Brent 法（`scipy.optimize.brentq`）；多括号时警告并列出其余括号 |
+| 无变号 | 在最优可行区间上对 `\|残差\|` 做有界最小化（`minimize_scalar`，Brent） |
+| 残差处处≈0 | 退化情形（如平端镜处束腰位置恒为 0）：返回当前值并警告 |
+| 全程不可行 | 无解，`converged: false` |
+
+**不可行点**：失稳（`stable: false`，无本征模）与被 CLI 拒绝的
+值（参数越界、被驱动）都当作不可行，绝不作为解；扫描中遇到会
+警告计数。收敛判据：`|残差| ≤ 1e-9 × max(|目标|, 1e-3)`（mm），
+括号宽度 `xtol = 1e-12`（变量的 SI 单位）。达不到判据时返回最优
+点并报告 `converged: false`，不编造解。结果结构：
+
+```json
+{"kind": "waist_size", "variable": {"label": "d1", "alias": "L", "unit": "mm"},
+ "element": "M1", "plane": "T", "target": "w0 = 0.12 mm",
+ "solved_value": 0.36544872414414764, "solved_value_display": 365.44872414414766,
+ "residual_mm": 4.95e-15, "residual_rel": 4.1e-14,
+ "iterations": 6, "evaluations": 23, "converged": true,
+ "warnings": ["1 of 17 scan points are infeasible ..."], "brackets_si": [[0.364375, 0.3675]]}
+```
+
+`solved_value` 是 SI 单位，`solved_value_display` 是参数原单位；
+`evaluations` 是 CLI 求值点数（扫描 + 迭代），`iterations` 是
+迭代次数。写回用 `apply_solution(data, variable, solved_value_si)`：
+依赖图检查 + 原单位换算 + CLI 守卫（长度 ≥ 1e-6 m，R/F ≠ 0）。
+
+用户腔体实测（`demo_solves.py`）：
+
+| 求解 | 解 | 独立 CLI 复核残差 |
+|---|---|---|
+| `w0` 在 M1 处 = 0.12 mm，变量 `d1` | d1 = 365.4487 mm | 4.1e-14 相对误差 |
+| M4 段束腰在 s = 1100 mm，变量 `d1` | d1 = 296.3413 mm | 9.7e-14 相对误差 |
+| M4 段束腰在 M4 平面，变量 `d1` | **无解**（残差在稳定区内恒 > 0，趋近稳定边界时才 → 0；最优 d1 = 373.125 mm，残差 0.126 mm） | — |
+| `w0` 在 M1 处 = 0.15 mm，变量 `d1` | 两解（d1 ≈ 253 mm 与 342.04 mm），取离当前值近的 342.04 mm | < 1e-6 相对误差 |
+
+搜索区间默认是当前值的 [0.5×, 2×]（长度参数；负值镜像，不跨
+0；角度 ±5°），可用 `bounds_si` 指定；长度下界不得低于 1e-6 m，
+R/F 区间不得跨 0。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试
+python3 -m unittest discover -s tests        # 全部测试（71 个）
 python3 run_checks.py /path/to/cavity.rez    # 手动跑检查（side-car 默认同名 .eng.json）
 python3 run_checks.py cavity.rez other.eng.json
+python3 run_solves.py pickup cavity.rez --driven d4:L --source d1:L --k 0.5 --b 90.862702 --out cavity.pickup.rez
+python3 run_solves.py waist-size cavity.rez --variable d1:L --element M1 --target 0.12 --bounds 330:380 --apply
+python3 run_solves.py waist-position cavity.rez --variable d1:L --element M4 --target-ref M4:0 --bounds 270:380
+python3 demo_solves.py                        # 用户真实腔体的端到端演示（输出到 /tmp）
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体

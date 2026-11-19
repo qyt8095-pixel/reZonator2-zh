@@ -15,6 +15,11 @@ from .checks import (run_checks, lidt_fluence_J_per_cm2,
                      LIDT_WARN_RATIO, LIDT_FAIL_RATIO,
                      APERTURE_WARN_SINGLE, APERTURE_WARN_TOTAL,
                      BOARD_GRID_TOL_MM)
+from .solves import (PickupError, SolveError, apply_pickup, find_pickup,
+                     verify_pickup, solve_waist_size, solve_waist_position,
+                     apply_solution, waist_from_wr,
+                     element_plane_position_mm, total_length_mm,
+                     wavelength_nm)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -24,4 +29,9 @@ __all__ = [
     "run_checks", "lidt_fluence_J_per_cm2", "aperture_loss_fraction",
     "combined_loss", "LIDT_WARN_RATIO", "LIDT_FAIL_RATIO",
     "APERTURE_WARN_SINGLE", "APERTURE_WARN_TOTAL", "BOARD_GRID_TOL_MM",
+    "PickupError", "SolveError", "apply_pickup", "find_pickup",
+    "verify_pickup", "solve_waist_size", "solve_waist_position",
+    "apply_solution", "waist_from_wr",
+    "element_plane_position_mm", "total_length_mm",
+    "wavelength_nm",
 ]
