@@ -77,7 +77,8 @@ def new_eng():
     return {"format_version": FORMAT_VERSION,
             "laser": {}, "board": {}, "elements": {},
             "elements_ext": {}, "gain_and_pump": {}, "nonlinear_shg": {},
-            "mopa_chain": {}, "tolerances": [], "output_mirror": {}}
+            "mopa_chain": {}, "tolerances": [], "output_mirror": {},
+            "surfaces": {}, "materials": {}, "layout": {}}
 
 
 def _is_number(value):
@@ -149,7 +150,7 @@ def validate_eng(data):
         if key not in ("format_version", "laser", "board", "elements",
                        "elements_ext", "gain_and_pump", "nonlinear_shg",
                        "mopa_chain", "tolerances", "output_mirror",
-                       "notes"):
+                       "surfaces", "materials", "layout", "notes"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -498,4 +499,119 @@ def validate_eng(data):
         _pos(problems, "output_mirror", "thickness_mm",
              mirror.get("thickness_mm"))
         _pos(problems, "output_mirror", "n", mirror.get("n"))
+    # -- surfaces (Phase 4 block 1: ghost / etalon scan) -------------
+    # Per-label optical surfaces: {"<label>": {"faces": [{"face":
+    # "front"|"back", "R_1064"/"R_808"/"R_532", "wedge_mrad",
+    # "wedge_plane", "role", "R_face_mm"}]}}. Every field optional;
+    # a missing reflectivity is nodata, never defaulted.
+    surfaces = data.get("surfaces")
+    if surfaces is not None:
+        if not isinstance(surfaces, dict):
+            problems.append("surfaces section is not an object")
+        else:
+            for label, entry in surfaces.items():
+                if not isinstance(entry, dict):
+                    problems.append("surfaces.%s is not an object" % label)
+                    continue
+                for field in entry:
+                    if field not in ("faces", "notes"):
+                        problems.append("unknown key surfaces.%s.%s "
+                                        "(ignored)" % (label, field))
+                faces = entry.get("faces")
+                if faces is None:
+                    continue
+                if not isinstance(faces, list):
+                    problems.append("surfaces.%s.faces must be a list"
+                                    % label)
+                    continue
+                for i, face in enumerate(faces):
+                    where = "surfaces.%s.faces[%d]" % (label, i)
+                    if not isinstance(face, dict):
+                        problems.append("%s is not an object" % where)
+                        continue
+                    for field in face:
+                        if field not in ("face", "R_1064", "R_808",
+                                         "R_532", "wedge_mrad",
+                                         "wedge_plane", "role",
+                                         "R_face_mm", "notes"):
+                            problems.append("unknown key %s.%s (ignored)"
+                                            % (where, field))
+                    if face.get("face") not in (None, "front", "back"):
+                        problems.append("%s.face must be 'front' or "
+                                        "'back', got %r"
+                                        % (where, face.get("face")))
+                    for key in ("R_1064", "R_808", "R_532"):
+                        _frac(problems, where, key, face.get(key),
+                              lo=0.0, hi=1.0, lo_ok=True, hi_ok=True)
+                    if face.get("wedge_mrad") is not None \
+                            and not _is_number(face.get("wedge_mrad")):
+                        problems.append("%s.wedge_mrad must be a number, "
+                                        "got %r"
+                                        % (where, face.get("wedge_mrad")))
+                    if face.get("wedge_plane") is not None \
+                            and str(face.get("wedge_plane")).upper() \
+                            not in ("T", "S"):
+                        problems.append("%s.wedge_plane must be 'T' or "
+                                        "'S', got %r"
+                                        % (where, face.get("wedge_plane")))
+                    if face.get("role") is not None \
+                            and not isinstance(face.get("role"), str):
+                        problems.append("%s.role must be a string, got %r"
+                                        % (where, face.get("role")))
+                    _pos(problems, where, "R_face_mm",
+                         face.get("R_face_mm"))
+    # -- materials (Phase 4 block 1: red light) ----------------------
+    # Per-label material for the Sellmeier library: {"<label>":
+    # {"material": "Nd:YVO4:e", "n_1064": ..., "n_633": ...}}.
+    # Overrides win over the library value.
+    materials = data.get("materials")
+    if materials is not None:
+        if not isinstance(materials, dict):
+            problems.append("materials section is not an object")
+        else:
+            for label, entry in materials.items():
+                if not isinstance(entry, dict):
+                    problems.append("materials.%s is not an object"
+                                    % label)
+                    continue
+                for field in entry:
+                    if field not in ("material", "n_1064", "n_633",
+                                     "notes"):
+                        problems.append("unknown key materials.%s.%s "
+                                        "(ignored)" % (label, field))
+                if entry.get("material") is not None \
+                        and not isinstance(entry.get("material"), str):
+                    problems.append("materials.%s.material must be a "
+                                    "string, got %r"
+                                    % (label, entry.get("material")))
+                _pos(problems, "materials.%s" % label, "n_1064",
+                     entry.get("n_1064"))
+                _pos(problems, "materials.%s" % label, "n_633",
+                     entry.get("n_633"))
+    # -- layout (Phase 4 block 1: .dxf export) -----------------------
+    # Optional 2D board positions overriding the fold-walk drawing:
+    # {"elements": {"<label>": {"x_mm", "y_mm", "angle_deg"}}}.
+    layout = _sub(problems, data, "layout", {"elements", "notes"})
+    if layout is not None:
+        elems = layout.get("elements")
+        if elems is not None:
+            if not isinstance(elems, dict):
+                problems.append("layout.elements is not an object")
+            else:
+                for label, entry in elems.items():
+                    where = "layout.elements.%s" % label
+                    if not isinstance(entry, dict):
+                        problems.append("%s is not an object" % where)
+                        continue
+                    for field in entry:
+                        if field not in ("x_mm", "y_mm", "angle_deg",
+                                         "notes"):
+                            problems.append("unknown key %s.%s (ignored)"
+                                            % (where, field))
+                    for key in ("x_mm", "y_mm", "angle_deg"):
+                        if entry.get(key) is not None \
+                                and not _is_number(entry.get(key)):
+                            problems.append("%s.%s must be a number, "
+                                            "got %r"
+                                            % (where, key, entry.get(key)))
     return problems

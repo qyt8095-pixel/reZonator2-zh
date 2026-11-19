@@ -68,6 +68,20 @@ from .jacobian import (JacobianError, mirror_labels, roundtrip_list,
                        compare_jacobians, screw_turns, direction_table,
                        tilt_to_screws, solve_correction, recenter_guide,
                        FD_STEP_RAD, JACOBIAN_TOL, TPI_PITCH_MM)
+from .ghosts import (GhostError, ETALON_MIN_RR, GHOST_MIN_R,
+                     MODULATION_WARN, WAIST_TOL_ZR, etalon_fsr_Hz,
+                     etalon_modulation, reflect_q,
+                     plate_lateral_offset_mm, divergence_mrad,
+                     build_chain, build_surfaces, surface_angle_mrad,
+                     build_roundtrip_items, scan_etalons, trace_ghost,
+                     scan_ghosts, MATERIAL_TYPES)
+from .redlight import (RedlightError, RED_NM, COLD_F_MM,
+                       DEFAULT_W0_MM, SELLMEIER, MATERIAL_ALIASES,
+                       material_index, element_material, cold_schema,
+                       trace_injected, redlight_report)
+from .export import (ExportError, LIDT_SAFETY_FACTOR, coating_table,
+                     to_zmx, validate_zmx, thin_lens_spot_check,
+                     to_dxf, validate_dxf)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -129,4 +143,18 @@ __all__ = [
     "compare_jacobians", "screw_turns", "direction_table",
     "tilt_to_screws", "solve_correction", "recenter_guide",
     "FD_STEP_RAD", "JACOBIAN_TOL", "TPI_PITCH_MM",
+    "GhostError", "ETALON_MIN_RR", "GHOST_MIN_R",
+    "MODULATION_WARN", "WAIST_TOL_ZR", "etalon_fsr_Hz",
+    "etalon_modulation", "reflect_q",
+    "plate_lateral_offset_mm", "divergence_mrad",
+    "build_chain", "build_surfaces", "surface_angle_mrad",
+    "build_roundtrip_items", "scan_etalons", "trace_ghost",
+    "scan_ghosts", "MATERIAL_TYPES",
+    "RedlightError", "RED_NM", "COLD_F_MM",
+    "DEFAULT_W0_MM", "SELLMEIER", "MATERIAL_ALIASES",
+    "material_index", "element_material", "cold_schema",
+    "trace_injected", "redlight_report",
+    "ExportError", "LIDT_SAFETY_FACTOR", "coating_table",
+    "to_zmx", "validate_zmx", "thin_lens_spot_check",
+    "to_dxf", "validate_dxf",
 ]
