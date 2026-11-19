@@ -73,12 +73,58 @@ def save_eng(path, data):
 def new_eng():
     """An empty side-car document with the documented sections."""
     return {"format_version": FORMAT_VERSION,
-            "laser": {}, "board": {}, "elements": {}}
+            "laser": {}, "board": {}, "elements": {},
+            "gain_and_pump": {}}
 
 
 def _is_number(value):
     return (isinstance(value, (int, float)) and not isinstance(value, bool)
             and math.isfinite(float(value)))
+
+
+def _pos(problems, section, key, value, allow_zero=False):
+    """Append a problem unless ``value`` is a (strictly) positive number.
+    ``None`` (absent) is fine."""
+    if value is None:
+        return
+    ok = _is_number(value) and (float(value) >= 0 if allow_zero
+                                else float(value) > 0)
+    if not ok:
+        problems.append("%s.%s must be a %s number, got %r"
+                        % (section, key,
+                           "non-negative" if allow_zero else "positive",
+                           value))
+
+
+def _frac(problems, section, key, value, lo=0.0, hi=1.0,
+          lo_ok=True, hi_ok=True):
+    """Append a problem unless ``value`` lies in the [lo, hi] interval
+    (endpoints included when ``lo_ok``/``hi_ok``). ``None`` is fine."""
+    if value is None:
+        return
+    if not _is_number(value):
+        problems.append("%s.%s must be a number in [%s, %s], got %r"
+                        % (section, key, lo, hi, value))
+        return
+    v = float(value)
+    if v < lo or (v == lo and not lo_ok) or v > hi or (v == hi and not hi_ok):
+        problems.append("%s.%s must be in [%s, %s], got %r"
+                        % (section, key, lo, hi, value))
+
+
+def _sub(problems, data, key, known):
+    """Return ``data[key]`` when it is an object (else append a problem
+    and return ``None``); report unknown keys inside it."""
+    section = data.get(key)
+    if section is None:
+        return None
+    if not isinstance(section, dict):
+        problems.append("%s section is not an object" % key)
+        return None
+    for field in section:
+        if field not in known:
+            problems.append("unknown key %s.%s (ignored)" % (key, field))
+    return section
 
 
 def validate_eng(data):
@@ -97,7 +143,8 @@ def validate_eng(data):
         problems.append("unsupported format_version %r (expected %d)"
                         % (version, FORMAT_VERSION))
     for key in data:
-        if key not in ("format_version", "laser", "board", "elements"):
+        if key not in ("format_version", "laser", "board", "elements",
+                       "gain_and_pump"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -175,4 +222,92 @@ def validate_eng(data):
                                 problems.append("elements.%s.mount.%s must "
                                                 "be a number, got %r"
                                                 % (label, axis, value))
+
+    # -- gain_and_pump (Phase 2 power solver) -------------------------
+    # All fields are optional; missing ones are reported as nodata by
+    # rezeng.power.resolve_params, never filled with invented defaults.
+    gp = _sub(problems, data, "gain_and_pump",
+              {"gain_element", "crystal", "pump", "cavity", "thermal"})
+    if gp is not None:
+        label = gp.get("gain_element")
+        if label is not None and not isinstance(label, str):
+            problems.append("gain_and_pump.gain_element must be a string, "
+                            "got %r" % (label,))
+        crystal = _sub(problems, gp, "crystal",
+                       {"material", "sigma_em_cm2", "tau_f_us",
+                        "alpha_p_per_cm"})
+        if crystal is not None:
+            if (crystal.get("material") is not None
+                    and not isinstance(crystal["material"], str)):
+                problems.append("gain_and_pump.crystal.material must be a "
+                                "string, got %r" % (crystal["material"],))
+            _pos(problems, "gain_and_pump.crystal", "sigma_em_cm2",
+                 crystal.get("sigma_em_cm2"))
+            _pos(problems, "gain_and_pump.crystal", "tau_f_us",
+                 crystal.get("tau_f_us"))
+            _pos(problems, "gain_and_pump.crystal", "alpha_p_per_cm",
+                 crystal.get("alpha_p_per_cm"), allow_zero=True)
+        pump = _sub(problems, gp, "pump",
+                    {"lambda_p_nm", "P_pump_W", "w_p0_um", "z_p0_mm",
+                     "Mp2", "eta_p", "profile"})
+        if pump is not None:
+            _pos(problems, "gain_and_pump.pump", "lambda_p_nm",
+                 pump.get("lambda_p_nm"))
+            _pos(problems, "gain_and_pump.pump", "P_pump_W",
+                 pump.get("P_pump_W"), allow_zero=True)
+            _pos(problems, "gain_and_pump.pump", "w_p0_um",
+                 pump.get("w_p0_um"))
+            _pos(problems, "gain_and_pump.pump", "z_p0_mm",
+                 pump.get("z_p0_mm"), allow_zero=True)
+            mp2 = pump.get("Mp2")
+            if mp2 is not None and (not _is_number(mp2)
+                                    or float(mp2) < 1.0):
+                problems.append("gain_and_pump.pump.Mp2 must be >= 1, "
+                                "got %r" % (mp2,))
+            _frac(problems, "gain_and_pump.pump", "eta_p",
+                  pump.get("eta_p"), lo=0.0, hi=1.0,
+                  lo_ok=False, hi_ok=True)
+            profile = pump.get("profile")
+            if profile is not None and profile not in ("gaussian",
+                                                       "tophat"):
+                problems.append("gain_and_pump.pump.profile must be "
+                                "'gaussian' or 'tophat', got %r"
+                                % (profile,))
+        cavity = _sub(problems, gp, "cavity",
+                      {"T_oc", "L_i", "eta_mode"})
+        if cavity is not None:
+            _frac(problems, "gain_and_pump.cavity", "T_oc",
+                  cavity.get("T_oc"), lo=0.0, hi=1.0,
+                  lo_ok=True, hi_ok=False)
+            _frac(problems, "gain_and_pump.cavity", "L_i",
+                  cavity.get("L_i"), lo=0.0, hi=1.0,
+                  lo_ok=True, hi_ok=False)
+            _frac(problems, "gain_and_pump.cavity", "eta_mode",
+                  cavity.get("eta_mode"), lo=0.0, hi=1.0,
+                  lo_ok=False, hi_ok=True)
+        thermal = _sub(problems, gp, "thermal",
+                       {"F0_mm", "kappa_th_per_W", "kappa_th_T_per_W",
+                        "kappa_th_S_per_W", "anchor_F_ref_mm",
+                        "anchor_P_ref_W", "P_nom_W", "eta_h",
+                        "dn_dT_per_K", "K_c_W_per_mK"})
+        if thermal is not None:
+            _pos(problems, "gain_and_pump.thermal", "F0_mm",
+                 thermal.get("F0_mm"))
+            for key in ("kappa_th_per_W", "kappa_th_T_per_W",
+                        "kappa_th_S_per_W"):
+                _pos(problems, "gain_and_pump.thermal", key,
+                     thermal.get(key), allow_zero=True)
+            _pos(problems, "gain_and_pump.thermal", "anchor_F_ref_mm",
+                 thermal.get("anchor_F_ref_mm"))
+            _pos(problems, "gain_and_pump.thermal", "anchor_P_ref_W",
+                 thermal.get("anchor_P_ref_W"))
+            _pos(problems, "gain_and_pump.thermal", "P_nom_W",
+                 thermal.get("P_nom_W"))
+            _frac(problems, "gain_and_pump.thermal", "eta_h",
+                  thermal.get("eta_h"), lo=0.0, hi=1.0,
+                  lo_ok=False, hi_ok=True)
+            _pos(problems, "gain_and_pump.thermal", "dn_dT_per_K",
+                 thermal.get("dn_dT_per_K"))
+            _pos(problems, "gain_and_pump.thermal", "K_c_W_per_mK",
+                 thermal.get("K_c_W_per_mK"))
     return problems

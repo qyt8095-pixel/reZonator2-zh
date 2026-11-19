@@ -1,8 +1,10 @@
-# reZonator 工程层（Phase 1）
+# reZonator 工程层（Phase 1–2）
 
-Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查与（后续）
-Solves。只用标准库。光学计算一律复用原生 C++（`rezonator --headless`），
-Python 不重算光学。
+Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查、Solves 与
+功率求解器。只用标准库 + numpy/scipy。光学计算一律复用原生 C++
+（`rezonator --headless`），Python 不重算 ABCD；晶体内部的 q(z)
+演化是 Python 侧的 GRIN 演化器（与 C++ `ElementGrin` /
+`ElementThermalLens` 的定义逐项核对过，见下）。
 
 ## 目录
 
@@ -14,9 +16,13 @@ Python 不重算光学。
 | `rezeng/eng.py` | side-car `<file>.rez.eng.json` 读写与格式校验 |
 | `rezeng/checks.py` | LIDT / 孔径截断 / 面包板检查，`run_checks()` |
 | `rezeng/solves.py` | Pickup 与束腰 Solves，`apply_pickup()` / `solve_waist_size()` / `solve_waist_position()` / `apply_solution()` |
+| `rezeng/qevolve.py` | 晶体内部 q(z) GRIN 演化器（`crystal_slices()` / `evolve_element()`），与 C++ 核对过 |
+| `rezeng/power.py` | 功率求解器：模式 A（Rigrod）、模式 B（三维重叠积分）、热透镜闭环、扫描、高阶模判据 |
 | `run_checks.py` | 检查的命令行入口：`python3 run_checks.py <file.rez> [side-car]` |
 | `run_solves.py` | Solves 的命令行入口：`python3 run_solves.py pickup|waist-size|waist-position …` |
+| `run_power.py` | 功率求解器的命令行入口：`python3 run_power.py --rez <file.rez> [--toc-scan]` |
 | `demo_solves.py` | 用户真实腔体的 Pickup + 束腰 Solve 端到端演示（输出到 /tmp） |
+| `demo_power.py` | 用户真实腔体 + 示例参数的 P_out–P_pump 曲线与 T_opt 扫描演示 |
 | `tests/` | `unittest` 测试（`python3 -m unittest discover -s tests`） |
 
 协议（stdin/stdout JSON、批量求值、失败语义）见
@@ -264,19 +270,223 @@ CLI 加载后 g_T 与原来 12 位小数一致；源改为 340 mm（从值同步
 0；角度 ±5°），可用 `bounds_si` 指定；长度下界不得低于 1e-6 m，
 R/F 区间不得跨 0。
 
+## 功率求解器（Phase 2 block 1）
+
+`rezeng/qevolve.py` + `rezeng/power.py`，入口 `pump_scan()` /
+`toc_scan()`（命令行 `run_power.py`，演示 `demo_power.py`）。
+增益晶体就是 `.rez` 里的热透镜/GRIN 元件（用户真实腔体里 TL1 即
+Nd:YVO4 晶体，L=27 mm）；全部泵浦/晶体参数来自 side-car 的
+`gain_and_pump` 一节，缺失字段报 `PowerError`（不编默认值）。
+
+```json
+"gain_and_pump": {
+  "gain_element": "TL1",
+  "crystal": {"material": "Nd:YVO4", "sigma_em_cm2": 15.6e-19,
+              "tau_f_us": 90.0, "alpha_p_per_cm": 10.0},
+  "pump": {"lambda_p_nm": 808.0, "P_pump_W": 5.0, "w_p0_um": 200.0,
+           "z_p0_mm": 13.5, "Mp2": 1.2, "eta_p": 0.95,
+           "profile": "gaussian"},
+  "cavity": {"T_oc": 0.10, "L_i": 0.02, "eta_mode": null},
+  "thermal": {"F0_mm": null, "kappa_th_per_W": null,
+              "kappa_th_T_per_W": null, "kappa_th_S_per_W": null,
+              "anchor_F_ref_mm": null, "anchor_P_ref_W": null,
+              "P_nom_W": 5.0, "eta_h": 0.24, "dn_dT_per_K": 3.0e-6,
+              "K_c_W_per_mK": 5.1}
+}
+```
+
+| 参数 | 含义 | 单位/备注 |
+|---|---|---|
+| `gain_element` | 增益晶体元件 label（缺省为唯一的 ElemThermoLens/ElemGrinLens） | 必须存在于 `.rez` |
+| `crystal.sigma_em_cm2` | 受激发射截面 σ_em | cm² → m² |
+| `crystal.tau_f_us` | 上能级寿命 τ_f | µs → s |
+| `crystal.alpha_p_per_cm` | 泵浦吸收系数 α_p | /cm → /m；沿 z 按 exp(−αz) 分布，归一化 ∫zp dz = 1 |
+| `pump.lambda_p_nm` / `w_p0_um` / `z_p0_mm` / `Mp2` / `eta_p` | 泵浦波长 / 束腰半径 / 束腰位置（晶体入口起算）/ 光束质量 / 泵浦效率 | w_p(z) = w_p0·√(1+((z−z_p0)/z_R)²)，z_R = πw_p0²/(Mp2·λ_p) |
+| `pump.profile` | `gaussian` 或 `tophat` | 顶帽泵浦在晶体横截面内均匀 |
+| `cavity.T_oc` / `L_i` | 输出耦合透过率 / 腔内往返损耗（不含 T_oc） | δ = T_oc + L_i |
+| `cavity.eta_mode` | 模式 A 的空间重叠效率（缺省由模式 B 的阈值斜率反推，见下） | (0, 1] |
+| `thermal.*` | 热透镜模型（见“热透镜锚定”） | κ_T/κ_S 可独立给 |
+
+### q(z) 演化器与 C++ 的核对结论
+
+动手前逐项读过 `src/core/Elements.cpp`（`ElemCurveMirror` /
+`ElemGrinLens` / `ElemThermoLens` / `ElemEmptyRange`）与
+`GrinCalculator::solve_n2`，并在用户真实腔体上用 CLI 验证：
+
+- 光线矢量是几何量 `(r, θ)`；元件矩阵都是**空气到空气**的。
+- CLI `beam` 列表里某元件的 `(w, R)` 取的是该元件的**出口面、空气侧**；
+  镜面元件的条目是**反射后**的值。验证：把任一 CLI 条目经下一元件的
+  完整矩阵传播，得到下一元件的 CLI 条目（8 个相邻对 × T/S 两面，
+  w 与 R 相对误差均 < 1e-6；测试 `test_chain_consistency`）。
+- GRIN 段梯度常数 `γ = sqrt(n2/n0)`，`n2` 由 `F` 经 `solve_n2` 的
+  精确二分法求出（**不是**薄透镜近似 `γ = 1/sqrt(n·F·L)`——对用户
+  晶体该近似偏 0.9%：精确值 γ=8.5569 /m，n2=158.155 /m²）。
+- 段内子矩阵即 C++ `calcSubmatrices` 的 `TS1_ = M_grin(z)·R_in`，
+  `R_in = [[1,0],[0,1/n0]]`；出口折射 `R_out = [[1,0],[0,n0]]` 把介质
+  侧 q 映回空气侧（`q_air = q_med/n0`）。反例对照：若漏掉 `R_out`
+  （把介质侧 R 当空气侧），TL1 出口 R 与 CLI 差一个因子 ~n0，测试
+  `test_air_side_convention_negative_control` 会失败。
+- `q` 用 ABCD 定律演化，波长取**当地**波长（介质内 `λ = λ0/n`）；
+  T/S 各自独立演化；自由空间段用标准 `[[1,L],[0,1]]` 矩阵。
+- 演化器算出的 TL1 出口 `(w, R)` 与 CLI 一致（相对误差 ~1e-15，
+  测试 `test_tl1_exit_matches_cli`）；扫描中每点都用当时的变异 F
+  重算并复核（`exit_rel_err` > 1e-6 即出警告）。
+
+### 模式 A（Rigrod 快算）
+
+按 spec §4.2.1：
+
+```
+P_th = π·h·ν_p·(w_p² + w_l²)·δ / (4·σ_em·τ_f·η_p·η_abs)
+P_out = [T_oc/(T_oc+L_i)]·η_q·η_abs·η_mode·(P_pump − P_th)   (P_pump > P_th)
+η_abs = 1 − exp(−α_p·L),  η_q = λ_p/λ_l
+```
+
+`w_l` 取晶体各片 `sqrt(w_T·w_S)` 的轴向平均；`w_p` 取泵浦束腰
+`w_p0`。`η_mode` 缺省时由模式 B 反推：对高斯泵浦，
+`η_mode = w_l²(w_l²+2w_p²)/(w_p²+w_l²)²`（由阈值处微分斜率严格导出，
+使模式 A 与模式 B 在阈值处一致）；顶帽泵浦
+`η_mode = tanh(w_p²/w_l²)·w_l²/w_p²`。side-car 可显式覆盖。
+
+### 模式 B（三维重叠积分）
+
+晶体切 N 个轴向片（Gauss-Legendre 节点，`w_T(z)`/`w_S(z)` 取演化器
+输出，椭圆高斯模分布）；泵浦沿 z 按 `exp(−αz)` 吸收。往返增益
+`Γ(P_circ) = (2σ τ_f P_abs/(hν_p))·O(P_circ)`，其中
+
+```
+O(P) = ∫ r_p(x,y,z)·φ_mn(x,y,z) / (1 + Σ_k 2·P_k·φ_k/I_sat) dV
+```
+
+用 `brentq` 求解 `Γ(P_circ) = δ` 的自洽单向腔内功率，
+`P_out = T_oc·P_circ`；低于阈值时 `P_circ = 0`（不是错误）。
+积分用 numpy 向量化：高斯泵浦走 2D Gauss-Hermite（φ_00 的
+`exp(−u²−v²)` 即求积权重），顶帽泵浦走极坐标 Gauss-Legendre。
+
+**SW 腔因子 2（关键）：** 驻波腔的饱和分母必须用
+`1 + (I_+ + I_−)/I_sat = 1 + 2·P_circ·φ/I_sat`——正反两个方向的光
+都饱和反转。漏掉因子 2 会使斜效率虚高一倍。
+`I_sat = h·ν_l/(σ_em·τ_f)`，用**激光**频率（不是泵浦频率）。
+
+### 热透镜闭环与锚定语义
+
+```
+1/F_th(P) = 1/F_0 + κ_th·η_abs·P_pump
+```
+
+κ_th 的解析顺序（`thermal_kappa()`，先到先用）：
+
+1. **显式 κ**：`kappa_th_per_W`（或 `kappa_th_T/S_per_W` 独立给 T/S；
+   只给其一时另一面用 `kappa_th_per_W` 补）。
+2. **标定点**：`anchor_F_ref_mm` @ `anchor_P_ref_W`（某泵浦功率下
+   实测的 F）反推 κ。
+3. **逆向锚定**（缺省）：假设当前 `.rez` 的 F 对应额定泵浦功率
+   `P_nom_W`，反推 κ，并在结果里出警告。**这是没有标定数据时的缺省
+   做法，F(P) 曲线完全取决于这个假设。**
+4. **纯物理估算**：`κ_th ≈ η_h·(dn/dT)/(2π·K_c·w_p²)`，仅当
+   `eta_h`/`dn_dT_per_K`/`K_c_W_per_mK` 三者都给了才用；缺失任一即
+   不用（不编默认值）。
+5. **无热模型**：κ=0，F 在所有泵浦功率下保持 `.rez` 值（并出警告）。
+
+每档泵浦功率：更新 TL1 的 F（经 CLI `mutations` 批量下发，**一次进程
+算多点**，不要每点起进程），重算光斑，再算功率。T/S 的 κ 不同时，
+CLI 变异用平均屈光度 `1/F_cli = (1/F_T + 1/F_S)/2`（原生元件只有一个
+F；差异 > 1% 时出警告）。
+
+**失稳处理：** CLI 返回 `stable: false`（`ok: true`、`beam`/`waist`
+为 null）时该点 `P_out = 0` 并标记 `flag: "thermal_instability"`，
+扫描继续，绝不抛异常中断。注意：用户真实腔体的 g(F) 是**非单调**
+的（见演示），失稳点可以出现在扫描中间、两侧又恢复稳定。
+
+### 扫描
+
+- `pump_scan(data, eng, pump_powers_W)`：P_out–P_pump 曲线，一次 CLI
+  批量调用算全部 F；每点同时给模式 A、模式 B、高阶模净增益。
+- `toc_scan(data, eng, P_pump_W, toc_values)`：固定泵浦功率扫 T_oc，
+  找最大 P_out 对应的 `T_opt`（一次 CLI 调用，损耗 δ 变化不影响光路）。
+
+### 高阶模判据
+
+在 TEM_00 饱和的反转下算 TEM_10 / TEM_01 的往返净增益
+（`higher_order_gains()`，`net10`/`net01` = 增益指数 − δ）；任一
+> 0 即标“多模起振阈值功率”（`multimode_threshold()` 在扫描点之间
+线性插值）。等效 M² 用嵌套双模平衡估算（`two_mode_m2()`）：对每个
+高阶模求解其与 TEM_00 同时满足 `Γ = δ` 的功率占比，
+`M²_x = 1 + 2·P_10/(P_00+P_10+P_01)`（同理 y）；求解失败时退回增益
+裕度启发式并注明 `method`。注意：这里所有模式共用同一 `L_i`，没有
+计入高阶模额外的孔径/衍射损耗，所以算出的多模阈值是**偏低的保守
+估计**。
+
+### 验证（tests/test_power.py，共 38 个）
+
+- **演化器对 CLI**：TL1 出口与链式一致性（< 1e-6），含空气侧约定的
+  反例对照；GRIN 常数与 F↔n2 往返。
+- **三极限一致性**（模式 B vs 模式 A，误差 < 0.5%）：
+  顶帽大泵浦（w_p=10·w_c）下 O(0) 与解析值一致（2.9e-4）；
+  极细激光束（w_c=w_p/100）阈值为均匀泵浦解析阈值的一半（0.5002）；
+  小信号近阈值：模式 A 阈值处的 Γ_0 = δ（2.1e-4），1.05 倍阈值处
+  P_out 一致到 0.3%，阈值处微分斜率一致到 1.5%。
+  （远离阈值时分布模型比 Rigrod 切线略超线性：2 倍阈值处 +9.7%，
+  5 倍阈值处 +21%——这是分布饱和与均匀饱和的模型差异，不是 bug。）
+- **基准算例**（Nd:YVO4：σ_e=15.6e-19 cm²、τ_f=90 µs、w_p=200 µm、
+  w_c=180 µm、δ_0=2%、T_oc=10%）：I_sat = 1.33e7 W/m²（1.33 kW/cm²）；
+  **P_th ≈ 0.12 W（吸收）/ 0.15 W（入射，10 mm 晶体 α_p=1.5/cm）**；
+  模式 A 斜效率 ≈ 34%（该晶体长度下），恒 < 量子亏损上限 75.9%。
+  **注意：Gemini 评审里写的基准范围 P_th 1.2–2.0 W、斜效率 52–58%
+  与它自己的公式不一致**——按 spec §4.2.1 的公式代入同一组参数得
+  到的就是 ~0.12 W（两种独立推导复核过，见测试注释），评审的数值
+  约 10 倍偏高（可能是 σ 的数量级笔误）；斜效率 52–58% 则需要
+  η_mode≈0.87，而分布模型严格导出的高斯泵浦 η_mode=0.695。实现
+  忠实按公式算，测试断言公式值并 guard 住“修公式去凑 1.2 W”的回退。
+- 多模阈值（基准算例）：2.87 W 入射泵浦（18.7 倍阈值）；30 倍阈值
+  处 M²≈1.065（双模平衡）。
+- 失稳点处理（mock CLI）：F 跌破阈值的点标 `thermal_instability`、
+  P_out=0，扫描不中断；批量调用次数断言（一次 CLI 调用算全部点）。
+
+### 演示（用户真实腔体 + 示例参数）
+
+`python3 engineering/demo_power.py`（`--with-m2` 另算 M²）。
+**全部泵浦/晶体参数都是示例**（`tests/data/example-power.eng.json`：
+Nd:YVO4，σ=15.6e-19 cm²，τ=90 µs，α_p=10/cm，808 nm 泵浦，
+w_p0=200 µm，z_p0=晶体中点，Mp2=1.2，η_p=0.95，T_oc=10%，L_i=2%；
+热透镜逆向锚定 P_nom=5 W）。2026-11-19 跑出的结果：
+
+| P_pump (W) | F (mm) | w_l (µm) | P_th_B (W) | P_out_B (W) | 状态 |
+|---|---|---|---|---|---|
+| 0.5 | 2300 | — | — | 0 | 热致失稳 |
+| 1.0 | 1150 | — | — | 0 | 热致失稳 |
+| 2.0 | 575 | 526 | 0.616 | 0.789 | ok |
+| 3.0 | 383 | 452 | 0.428 | 1.580 | ok |
+| 5.0 | 230 | 500 | 0.547 | 2.619 | ok |
+| 7.0 | 164 | — | — | 0 | 热致失稳 |
+| 10.0 | 115 | 429 | 0.373 | 6.007 | ok |
+
+要点：**低泵浦（≤1 W）时腔不稳定**（弱热透镜下 g≈−1.1…−1.5），
+2–5 W 稳定，7 W 附近再次失稳（g≈+1.14），10 W 又恢复稳定——
+g(F) 非单调，失稳带不止一个（独立 Python 往返矩阵复核与 CLI 的
+g 值逐点一致）。T_opt 扫描（5 W）：T_opt=15%，P_out_max=2.631 W
+（T_oc=10% 时 2.619 W，最优区很平）。高阶模净增益全程约 −0.09，
+多模阈值在 0.5–10 W 内未达到（单模）。**以上数值随逆向锚定假设而
+变，不是真实激光的预测**；真实泵浦功率/晶体掺杂/σ/τ/T_oc/L_i
+和 F(P) 标定点仍需用户提供。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（71 个）
+python3 -m unittest discover -s tests        # 全部测试（109 个）
 python3 run_checks.py /path/to/cavity.rez    # 手动跑检查（side-car 默认同名 .eng.json）
 python3 run_checks.py cavity.rez other.eng.json
 python3 run_solves.py pickup cavity.rez --driven d4:L --source d1:L --k 0.5 --b 90.862702 --out cavity.pickup.rez
 python3 run_solves.py waist-size cavity.rez --variable d1:L --element M1 --target 0.12 --bounds 330:380 --apply
 python3 run_solves.py waist-position cavity.rez --variable d1:L --element M4 --target-ref M4:0 --bounds 270:380
 python3 demo_solves.py                        # 用户真实腔体的端到端演示（输出到 /tmp）
+python3 run_power.py --rez /path/to/cavity.rez --toc-scan   # 功率扫描（JSON 输出到 stdout）
+python3 demo_power.py                         # 用户真实腔体 + 示例参数的功率演示
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
 （`~/workspace/user/files/upload.rez`）配的**示例** side-car，所有数
 值都是编的、仅用于演示分级，绝不是用户的真实激光参数。
+`tests/data/example-power.eng.json` 同理：全部泵浦/晶体/热透镜参数
+都是文献典型示例值（见“功率求解器”一节），演示用，不是实测。

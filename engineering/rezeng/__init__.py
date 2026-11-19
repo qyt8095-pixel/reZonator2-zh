@@ -20,6 +20,18 @@ from .solves import (PickupError, SolveError, apply_pickup, find_pickup,
                      apply_solution, waist_from_wr,
                      element_plane_position_mm, total_length_mm,
                      wavelength_nm)
+from .qevolve import (QevolveError, solve_n2, grin_gamma, calc_focus,
+                      q_from_wr, wr_from_q, waist_from_q,
+                      element_grin_params, find_gain_element, beam_entry,
+                      entrance_entry, element_matrix, evolve_element,
+                      crystal_slices)
+from .power import (PowerError, resolve_params, param_F_current,
+                    overlap_eta_mode, mean_mode_radius, mode_a_threshold,
+                    mode_a_output, pump_radius, overlap_integral,
+                    solve_p_circ, small_signal_gain, analytic_overlap,
+                    higher_order_gains, two_mode_m2, multimode_threshold,
+                    thermal_kappa, thermal_focal_lengths, pump_scan,
+                    toc_scan, H_PLANCK, C_LIGHT)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -34,4 +46,16 @@ __all__ = [
     "apply_solution", "waist_from_wr",
     "element_plane_position_mm", "total_length_mm",
     "wavelength_nm",
+    "QevolveError", "solve_n2", "grin_gamma", "calc_focus",
+    "q_from_wr", "wr_from_q", "waist_from_q",
+    "element_grin_params", "find_gain_element", "beam_entry",
+    "entrance_entry", "element_matrix", "evolve_element",
+    "crystal_slices",
+    "PowerError", "resolve_params", "param_F_current",
+    "overlap_eta_mode", "mean_mode_radius", "mode_a_threshold",
+    "mode_a_output", "pump_radius", "overlap_integral",
+    "solve_p_circ", "small_signal_gain", "analytic_overlap",
+    "higher_order_gains", "two_mode_m2", "multimode_threshold",
+    "thermal_kappa", "thermal_focal_lengths", "pump_scan",
+    "toc_scan", "H_PLANCK", "C_LIGHT", "ETA_Q_MAX",
 ]
