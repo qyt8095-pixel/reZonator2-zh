@@ -5,6 +5,7 @@
 #include "../funcs/CausticWindow.h"
 #include "../funcs/CustomPlotFuncWindow.h"
 #include "../funcs/CustomTableFuncWindow.h"
+#include "../funcs/EngineeringBackend.h"
 #include "../funcs/InfoFuncWindow.h"
 #include "../funcs/PlotFuncWindow.h"
 #include "../funcs/PlotFuncWindowV2.h"
@@ -12,6 +13,7 @@
 #include "../funcs/MultirangeCausticWindow.h"
 #include "../funcs/OptimizerWindow.h"
 #include "../funcs/EngineeringHubDialog.h"
+#include "../funcs/RedlightData.h"
 #include "../funcs/StabilityMapWindow.h"
 #include "../funcs/StabilityMap2DWindow.h"
 #include "../funcs/BeamParamsAtElemsWindow.h"
@@ -30,6 +32,8 @@
 #include "../windows/WindowsManager.h"
 
 #include "widgets/OriPopupMessage.h"
+
+#include <QProcess>
 
 template <class TWindow> SchemaWindow* windowConstructor(Schema* schema)
 {
@@ -161,6 +165,190 @@ void CalcManager::funcEngineeringHub()
     auto* dlg = new EngineeringHubDialog(schema()->fileName(), _parent);
     dlg->run();
     delete dlg;
+}
+
+//------------------------------------------------------------------------------
+//                             Red-light toggle
+//------------------------------------------------------------------------------
+
+bool CalcManager::redlightAvailable() const
+{
+    if (schema()->fileName().isEmpty())
+        return false;
+    return !EngineeringBackend::locateEngineeringDir().isEmpty();
+}
+
+BeamParamsAtElemsWindow* CalcManager::beamParamsWindow() const
+{
+    for (auto* wnd : WindowsManager::instance().schemaWindows(_schema))
+        if (auto* bp = dynamic_cast<BeamParamsAtElemsWindow*>(wnd))
+            return bp;
+    return nullptr;
+}
+
+BeamParamsAtElemsWindow* CalcManager::openBeamParamsWindow()
+{
+    if (auto* wnd = beamParamsWindow())
+    {
+        WindowsManager::instance().show(wnd);
+        return wnd;
+    }
+    // Same as showTableFunc<BeamParamsAtElemsFunction>(), but the
+    // caller needs the window pointer to drive the overlay.
+    if (schema()->activeCount() == 0)
+        return nullptr;
+    auto ctor = WindowsManager::getConstructor(BeamParamsAtElemsFunction::_alias_());
+    if (!ctor) return nullptr;
+    auto wnd = ctor(schema());
+    if (!wnd) return nullptr;
+    auto* tableWnd = dynamic_cast<BeamParamsAtElemsWindow*>(wnd);
+    if (!tableWnd || !tableWnd->configure())
+    {
+        delete wnd;
+        return nullptr;
+    }
+    WindowsManager::instance().show(wnd);
+    tableWnd->update();
+    return tableWnd;
+}
+
+void CalcManager::applyRedlightMode(const RedlightReport& report)
+{
+    auto* wnd = openBeamParamsWindow();
+    if (!wnd)
+    {
+        _redlightOn = false;
+        emit redlightModeChanged(false);
+        return;
+    }
+    connect(wnd, &BeamParamsAtElemsWindow::redlightModeCleared,
+            this, &CalcManager::onRedlightCleared, Qt::UniqueConnection);
+    connect(wnd, &QObject::destroyed,
+            this, &CalcManager::onBeamParamsDestroyed, Qt::UniqueConnection);
+    wnd->setRedlightMode(report);
+}
+
+void CalcManager::dropRedlightProcess()
+{
+    if (!_redlightProcess)
+        return;
+    auto* process = _redlightProcess;
+    _redlightProcess = nullptr;
+    disconnect(process, nullptr, this, nullptr);
+    process->kill();
+    process->deleteLater();
+}
+
+void CalcManager::funcRedlightToggle(bool checked)
+{
+    if (checked == _redlightOn && !_redlightProcess)
+        return;
+
+    if (!checked)
+    {
+        // Turning off: cancel a run in flight and restore the
+        // normal 1064 nm display. The window's redlightModeCleared
+        // signal resets the state when the overlay actually drops.
+        dropRedlightProcess();
+        if (_redlightOn)
+        {
+            if (auto* wnd = beamParamsWindow())
+                wnd->setRedlightMode(RedlightReport{});
+            else
+            {
+                _redlightOn = false;
+                emit redlightModeChanged(false);
+            }
+        }
+        return;
+    }
+
+    // Turning on: the backend runs on the saved .rez file, so an
+    // unsaved schema or a missing backend rolls the toggle back.
+    if (schema()->activeCount() == 0)
+    {
+        emit redlightModeChanged(false);
+        return;
+    }
+    const QString rezPath = schema()->fileName();
+    const QString engDir = EngineeringBackend::locateEngineeringDir();
+    const QString script = EngineeringBackend::resolveScript(
+        engDir, QStringLiteral("run_redlight.py"));
+    if (rezPath.isEmpty() || script.isEmpty())
+    {
+        emit redlightModeChanged(false);
+        return;
+    }
+    dropRedlightProcess();
+    auto* process = new QProcess(this);
+    _redlightProcess = process;
+    connect(process,
+            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &CalcManager::onRedlightFinished);
+    connect(process, &QProcess::errorOccurred,
+            this, &CalcManager::onRedlightError);
+    // No side-car argument: run_redlight.py defaults to
+    // <file>.rez.eng.json, and a missing side-car is fine --
+    // the material library is built in.
+    process->start(EngineeringBackend::pythonExecutable(),
+                   QStringList() << script << rezPath);
+}
+
+void CalcManager::onRedlightFinished(int exitCode, QProcess::ExitStatus status)
+{
+    auto* process = qobject_cast<QProcess*>(sender());
+    if (!process || process != _redlightProcess)
+        return;
+    _redlightProcess = nullptr;
+    const QByteArray stdoutData = process->readAllStandardOutput();
+    process->deleteLater();
+
+    if (status != QProcess::NormalExit || exitCode != 0)
+    {
+        emit redlightModeChanged(false);
+        return;
+    }
+    const auto parsed = EngineeringBackend::parseReport(stdoutData);
+    if (!parsed.ok)
+    {
+        emit redlightModeChanged(false);
+        return;
+    }
+    const RedlightReport report = parseRedlightReport(parsed.object);
+    if (!report.ok)
+    {
+        emit redlightModeChanged(false);
+        return;
+    }
+    _redlightOn = true;
+    applyRedlightMode(report);
+    emit redlightModeChanged(true);
+}
+
+void CalcManager::onRedlightError(QProcess::ProcessError)
+{
+    auto* process = qobject_cast<QProcess*>(sender());
+    if (!process || process != _redlightProcess)
+        return;
+    _redlightProcess = nullptr;
+    process->deleteLater();
+    emit redlightModeChanged(false);
+}
+
+void CalcManager::onRedlightCleared()
+{
+    if (!_redlightOn)
+        return;
+    _redlightOn = false;
+    emit redlightModeChanged(false);
+}
+
+void CalcManager::onBeamParamsDestroyed()
+{
+    if (!_redlightOn)
+        return;
+    _redlightOn = false;
+    emit redlightModeChanged(false);
 }
 
 void CalcManager::funcCustomTable()

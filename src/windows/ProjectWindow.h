@@ -85,7 +85,7 @@ private:
             *actnFuncRepRate, *actnFuncMatrixMult,
             *actnFuncCaustic, *actnFuncMultirangeCaustic, *actnFuncBeamVariation,
             *actnFuncMultibeamCaustic, *actnFuncBeamParamsAtElems, *actnFuncGenericPlot,
-            *actnFuncOptimizer, *actnFuncEngineeringHub;
+            *actnFuncOptimizer, *actnFuncEngineeringHub, *actnFuncRedlight;
 
 #ifdef Z_USE_PYTHON
     QAction *actnFuncCustomCode, *actnFuncCustomTable, *actnFuncCustomPlot;
@@ -127,6 +127,13 @@ private:
     void updateActions();
 
     void shortcutEnterActivated();
+
+    /// Sync the red-light toggle with CalcManager's actual mode
+    /// (rollbacks on backend failure, automatic exits when the
+    /// overlay goes stale). Programmatic setChecked() re-enters
+    /// funcRedlightToggle(), which early-returns when the state
+    /// already matches, so this cannot loop.
+    void onRedlightModeChanged(bool on);
 
 private slots:
     void showGrinLens();

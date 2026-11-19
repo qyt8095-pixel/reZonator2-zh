@@ -3,6 +3,7 @@
 
 #include "../core/Schema.h"
 #include "../core/Element.h"
+#include "../funcs/LidtMarks.h"
 #include "../windows/ElementsCatalogDialog.h"
 #include "../windows/SchemaWindows.h"
 
@@ -26,6 +27,11 @@ class SchemaViewWindow: public SchemaMdiChild, public IEditableWindow, public IS
 public:
     SchemaViewWindow(Schema*, CalcManager*);
     ~SchemaViewWindow() override;
+
+    // inherits from SchemaListener: after a file is opened, run the
+    // LIDT check once when a side-car exists (silently skipped when
+    // the schema is unsaved or has no side-car).
+    void schemaLoaded(Schema*) override;
 
     // inherits from BasicMdiChild
     QList<QMenu*> menus() override { return { menuElement }; }
@@ -54,7 +60,8 @@ private:
             *actnElemMatr, *actnElemMatrAll, *actnElemDelete, *actnEditCopy, *actnEditPaste,
             *actnAdjuster, *actnSaveCustom, *actnEditFormula, *actnElemDisable,
             *actnRangeInsert, *actnRangeSplit, *actnRangeMerge, *actnRangeSlide,
-            *actnCtxRangeInsert, *actnCtxRangeSplit, *actnCtxRangeMerge, *actnCtxRangeSlide;
+            *actnCtxRangeInsert, *actnCtxRangeSplit, *actnCtxRangeMerge, *actnCtxRangeSlide,
+            *actnRefreshLidt;
 
     QMenu *menuElement, *menuContextElement, *menuContextLastRow;
     QMenu *menuAdjuster = nullptr;
@@ -62,6 +69,7 @@ private:
     class SchemaLayout *_layout;
     class ElementsTable* _table;
     CalcManager* _calculations;
+    class LidtCheckRunner* _lidtRunner = nullptr;
 
     void createActions();
     void createMenuBar();
@@ -85,6 +93,13 @@ private slots:
     void actionRangeMerge();
     void actionRangeSlide();
     void adjustParam();
+
+    /// Manual LIDT re-check (menu / toolbar). Silent no-op when the
+    /// schema is unsaved, the side-car is missing, or the backend
+    /// is not found; a run already in flight is replaced.
+    void refreshLidtChecks();
+    void onLidtFinished(const QMap<QString, LidtMark>& marks);
+    void onLidtFailed(const QString& error);
     
 private:
     void elemDoubleClicked(Element*);

@@ -7,6 +7,8 @@
 #include "../core/ElementsCatalog.h"
 #include "../core/ElementFormula.h"
 #include "../core/Utils.h"
+#include "../funcs/LidtCheckRunner.h"
+#include "../funcs/LidtMarks.h"
 #include "../funcs/PlotFuncWindow.h"
 #include "../io/Clipboard.h"
 #include "../widgets/ElementsTable.h"
@@ -22,6 +24,7 @@
 #include "helpers/OriWidgets.h"
 
 #include <QAction>
+#include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSplitter>
@@ -54,6 +57,12 @@ SchemaViewWindow::SchemaViewWindow(Schema *owner, CalcManager *calcs) : SchemaMd
     _table->lastRowContextMenu = menuContextLastRow;
     _layout->elementContextMenu = menuContextElement;
     _layout->getSelection = [this]{ return _table->selection(); };
+
+    _lidtRunner = new LidtCheckRunner(this);
+    connect(_lidtRunner, &LidtCheckRunner::finished,
+            this, &SchemaViewWindow::onLidtFinished);
+    connect(_lidtRunner, &LidtCheckRunner::failed,
+            this, &SchemaViewWindow::onLidtFailed);
 }
 
 SchemaViewWindow::~SchemaViewWindow()
@@ -62,6 +71,41 @@ SchemaViewWindow::~SchemaViewWindow()
     schema()->selection().unregisterSelector(_table);
     delete _table;
     delete _layout;
+}
+
+void SchemaViewWindow::schemaLoaded(Schema*)
+{
+    // Auto-run the LIDT check once after a file is opened, but
+    // only when its side-car exists. Unsaved schemas, missing
+    // side-cars and missing backends are silently skipped.
+    _table->clearLidtMarks();
+    refreshLidtChecks();
+}
+
+void SchemaViewWindow::refreshLidtChecks()
+{
+    const QString rezPath = schema()->fileName();
+    if (rezPath.isEmpty())
+        return;
+    const QString engPath = engPathForRez(rezPath);
+    if (!QFileInfo::exists(engPath))
+    {
+        _table->clearLidtMarks();
+        return;
+    }
+    _lidtRunner->run(rezPath, engPath);
+}
+
+void SchemaViewWindow::onLidtFinished(const QMap<QString, LidtMark>& marks)
+{
+    _table->setLidtMarks(marks);
+}
+
+void SchemaViewWindow::onLidtFailed(const QString&)
+{
+    // Silent degradation by design: no backend, no side-car data,
+    // or a failed run leaves the list unmarked, never a popup.
+    _table->clearLidtMarks();
 }
 
 void SchemaViewWindow::createActions()
@@ -86,6 +130,7 @@ void SchemaViewWindow::createActions()
     actnRangeSplit = A_(tr("拆分…"), this, SLOT(actionRangeSplit()), ":/toolbar/elem_split");
     actnRangeMerge = A_(tr("合并…"), this, SLOT(actionRangeMerge()), ":/toolbar/elem_merge");
     actnRangeSlide = A_(tr("滑动…"), this, SLOT(actionRangeSlide()), ":/toolbar/elem_slide");
+    actnRefreshLidt = A_(tr("刷新 LIDT 检查"), this, SLOT(refreshLidtChecks()), ":/toolbar/warning");
     actnCtxRangeInsert = A_(tr("插入到…"), this, SLOT(actionRangeInsert()), ":/toolbar/elem_insert");
     actnCtxRangeSplit = A_(tr("拆分…"), this, SLOT(actionRangeSplit()), ":/toolbar/elem_split");
     actnCtxRangeMerge = A_(tr("合并…"), this, SLOT(actionRangeMerge()), ":/toolbar/elem_merge");
@@ -99,7 +144,8 @@ void SchemaViewWindow::createMenuBar()
     menuElement = Ori::Gui::menu(tr("元件"), this,
         { actnElemAdd, actnElemReplace, actnRangeInsert, actnRangeSplit, actnRangeMerge, actnRangeSlide, nullptr, 
           actnElemMoveUp, actnElemMoveDown, nullptr, actnElemProp, actnEditFormula,
-          actnElemMatr, actnElemMatrAll, nullptr, actnElemDisable, nullptr, actnElemDelete, nullptr, actnSaveCustom });
+          actnElemMatr, actnElemMatrAll, nullptr, actnElemDisable, nullptr, actnElemDelete, nullptr, actnSaveCustom, nullptr,
+          actnRefreshLidt });
 
     menuContextElement = Ori::Gui::menu(this,
         { actnElemProp, actnEditFormula, actnElemMatr, nullptr, actnAdjuster, nullptr,
@@ -118,7 +164,8 @@ void SchemaViewWindow::createToolBar()
         Ori::Gui::textToolButton(actnElemAdd), actnElemReplace,
         actnRangeInsert, actnRangeSplit, actnRangeMerge, actnRangeSlide, nullptr,
         actnElemMoveUp, actnElemMoveDown, nullptr, Ori::Gui::textToolButton(actnElemProp),
-        actnElemMatr, nullptr, actnElemDisable, nullptr, actnElemDelete });
+        actnElemMatr, nullptr, actnElemDisable, nullptr, actnElemDelete, nullptr,
+        actnRefreshLidt });
 }
 
 void SchemaViewWindow::editElement(Element* elem)

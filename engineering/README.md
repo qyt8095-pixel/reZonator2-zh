@@ -2240,11 +2240,9 @@ pythonExecutable`，默认 `python3`）。找不到后端时，对话框
 工程参数全部来自方案文件旁的 side-car（`<方案>.rez.eng.json`），
 求解中间值不写进 `.rez`。
 
-未做的项（明确列出，不硬凑）：**LIDT 红框预警未接入主界面
-元件列表**（checks.py 的结果尚未以 QProcess 方式接入，仍
-是 `run_checks.py` 命令行）；**红光一键切换**只做到
-EngineeringHubDialog 内的红光标签页，未做主界面的一键切换
-按钮；Solves 实时滑块联动推迟到 Phase 4.5。
+未做的项（明确列出，不硬凑）：Solves 实时滑块联动推迟到
+Phase 4.5。以下两项在 Phase 4 后的跟进工作中已完成
+（见下一节）。
 
 C++ 测试：`src/tests/test_EngineeringHub.cpp`（9 个：后端定
 位三档、脚本解析、命令拼接、JSON 解析正/反、解释器缺失、
@@ -2252,6 +2250,76 @@ C++ 测试：`src/tests/test_EngineeringHub.cpp`（9 个：后端定
 ok=6/warn=1），注册在 `src/tests/TestSuite.h`；帮助文本见
 `help/func_engineering_hub.rst`（已加入 `help/functions.rst`
 的函数列表）。
+
+## C++ 原生集成：LIDT 红框与红光一键切换（Phase 4 跟进）
+
+Phase 4 M4 留下的两项主界面工作（C++ 为主，Python 侧零改动——
+`checks.py` 的 JSON 已含 `value`/`limit`，`redlight.py` 的
+材料库内置）：
+
+### LIDT 红框预警（元件列表）
+
+`src/funcs/LidtMarks.h/.cpp`（`parseLidtReport`）解析
+`run_checks.py` 的 JSON：只取 `kind == "lidt"` 且状态为
+`fail`/`warn` 的条目；`ok`/`nodata` 与其他检查项
+（aperture/board）不标记。`src/funcs/LidtCheckRunner.h/.cpp`
+经 QProcess 异步跑 `run_checks.py <rez> <eng>`（与
+EngineeringBackend 同一套定位规则）；新一次运行会丢弃进行
+中的旧运行。`src/widgets/ElementsTable.h/.cpp` 的模型按标记
+着色：`fail`（比值 > 1）浅红底 `0xffc9c9`，`warn`（比值 > 0.8）
+琥珀底 `0xffe4a8`；行 tooltip 为“峰值 X J/cm² / LIDT Y，比值 Z”
+（例如用户腔体 M1：峰值 6.18 J/cm² / LIDT 5.0，比值 1.24）。
+
+触发时机：`src/windows/SchemaViewWindow.h/.cpp` 在 `schemaLoaded`
+时自动跑一次——前提是方案已保存且 `<方案>.rez.eng.json` 存在；
+另有菜单/工具栏入口“刷新 LIDT 检查”手动重跑。光路参数改变后
+**不自动重跑**（避免频繁调 Python），标记反映的是上一次运行
+的结果。side-car 缺失、后端找不到或运行失败时静默清除标记，
+不弹窗、不崩溃。
+
+实测（用户真实腔体 + `tests/data/example-phase4.eng.json`，
+激光与 LIDT 均为示例值）：38 项检查中 LIDT 仅 M1 为 fail
+（6.1755 / 5.0 J/cm²，比值 1.2351），其余 M2/M3/TL1/M4 均为 ok，
+d1–d4 为 nodata；元件列表只标红 M1 一行。
+
+### 红光一键切换（主界面）
+
+主窗口工具栏 + `函数` 菜单新增可勾选的“红光模式”
+（`src/windows/ProjectWindow.h/.cpp`，`CalcManager::
+funcRedlightToggle`）；按下即切换，状态可见（按钮按下/菜单
+勾选），再点一次切回。复用与工程中心红光页同一后端
+`run_redlight.py <rez>`（无 side-car 参数；脚本缺省自动加载
+`<方案>.rez.eng.json`——有 side-car 时楔角等数据照常用，无则
+用内置材料库，仍能跑）。
+
+展示复用主界面已有的“元件处光束参数”表
+（`src/math/BeamParamsAtElemsFunction.h/.cpp` 新增第 4 列
+“X 光轴偏移”；`src/funcs/BeamParamsAtElemsWindow.h/.cpp`
+新增红光覆盖）：红光模式下 W 列显示每元件的 `w_633_T/S`，
+X 列显示 `x_633_T/S`，R/V 列显示 N/A；窗口标题标明当前波长与
+路径，如“元件处光束参数 — 红光 632.8 nm（外部注入）”或
+“……（冷腔本征模）”。正常模式 X 列恒为 0（热本征模光轴即参考
+轴）。切回时恢复 1064 nm 的正常显示。红光报告只描述已保存的
+文件，方案一经编辑即清除覆盖（`recalcRequired` 钩子），避免
+用过期数据误导。
+
+降级行为：未保存方案或找不到后端时按钮置灰，tooltip 说明
+原因（“请先保存方案”/后端未找到）；后端运行失败时开关自动
+弹回，不崩溃。实测（用户真实腔体）：path 为 fallback（冷腔
+g_T −1.95 / g_S −1.99 失稳，自动走外部 HeNe 单程）；无 side-car
+时 M1 w_633_T = 0.1040 mm（vs w_1064_T = 0.1000 mm，+4.0%），
+偏移 0；带示例 side-car（TL1 楔角 0.1 mrad）时 M1 x_633_T =
+−0.0177 mm。
+
+C++ 测试：`src/tests/test_LidtRedlight.cpp`（7 个：LIDT 解析
+只取 warn/fail、空报告、side-car 路径、红光解析 fallback 与
+坏报告拒绝、光束参数红光覆盖端到端、真实后端 smoke——对用户
+腔体跑 `run_checks.py`，断言仅 M1 fail 6.1755/5.0）；另
+`src/tests/test_TableFunction.cpp` 的 `complare_between_elems`
+（11 个）因新增 X 列把 `valCount` 从 3 改为 4，并加了 X 左右
+连续性断言。Python 侧无改动，测试数保持 324；C++ 全套
+555 个（548 + 7）。帮助文本见 `help/func_engineering_hub.rst`
+新增的两节。
 
 ## 依赖清单（Phase 4 M4 新增）
 

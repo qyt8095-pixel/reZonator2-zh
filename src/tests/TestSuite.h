@@ -38,6 +38,7 @@ USE_GROUP(LuaHelperTests)                          // test_LuaHelper.cpp
 USE_GROUP(OptimizerTests)                          // test_Optimizer.cpp
 USE_GROUP(MisalignmentTests)                       // test_Misalignment.cpp
 USE_GROUP(EngineeringHubTests)                     // test_EngineeringHub.cpp
+USE_GROUP(LidtRedlightTests)                       // test_LidtRedlight.cpp
 USE_GROUP(ProjectOperationsTests)                  // test_ProjectOperations.cpp
 USE_GROUP(FormulaTests)                            // test_Formula.cpp
 USE_GROUP(UtilsTests)                              // test_Utils.cpp
@@ -79,6 +80,7 @@ TEST_SUITE(
     ADD_GROUP(OptimizerTests),
     ADD_GROUP(MisalignmentTests),
     ADD_GROUP(EngineeringHubTests),
+    ADD_GROUP(LidtRedlightTests),
     ADD_GROUP(ProjectOperationsTests),
     ADD_GROUP(FormulaTests),
     ADD_GROUP(UtilsTests),

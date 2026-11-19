@@ -183,6 +183,11 @@ void ProjectWindow::createActions()
     actnFuncBeamVariation = A_(tr("光束尺寸变化…"), _calculations, SLOT(funcBeamVariation()), ":/toolbar/func_beam_variation");
     actnFuncOptimizer = A_(tr("谐振腔优化…"), _calculations, SLOT(funcOptimizer()), ":/toolbar/func_optimizer");
     actnFuncEngineeringHub = A_(tr("工程中心…"), _calculations, SLOT(funcEngineeringHub()), ":/toolbar/python_framed");
+    actnFuncRedlight = Ori::Gui::V0::toggledAction(tr("红光模式"),
+        tr("红光模式：在元件处光束参数窗口中显示 632.8 nm 红光光斑与光轴偏移；再次点击切回 1064 nm 工作波长"),
+        _calculations, SLOT(funcRedlightToggle(bool)), ":/toolbar/wavelength");
+    connect(_calculations, &CalcManager::redlightModeChanged,
+            this, &ProjectWindow::onRedlightModeChanged);
     actnFuncBeamParamsAtElems = A_(tr("元件处光束参数"), _calculations, SLOT(funcBeamParamsAtElems()), ":/toolbar/func_beamdata");
     actnFuncGenericPlot = A_(tr("新建通用绘图窗口"), this, SLOT(newGenericPlotWindow()), ":/toolbar/gauss_far_zone");
 #ifdef Z_USE_PYTHON
@@ -245,8 +250,8 @@ void ProjectWindow::createMenuBar()
         { actnFuncRoundTrip, actnFuncMatrixMult, nullptr,
           actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, actnFuncOptimizer, nullptr,
           actnFuncCaustic, actnFuncMultirangeCaustic, actnFuncMultibeamCaustic,
-          actnFuncBeamParamsAtElems, nullptr, actnFuncRepRate, nullptr,
-          //actnFuncGenericPlot, nullptr,
+          actnFuncBeamParamsAtElems, actnFuncRedlight, nullptr, actnFuncRepRate, nullptr,
+          actnFuncEngineeringHub,
         #ifdef Z_USE_PYTHON
           actnFuncCustomCode, actnFuncCustomTable, actnFuncCustomPlot
         #endif
@@ -280,7 +285,7 @@ void ProjectWindow::createToolBars()
         actnFileSave, nullptr, actnFileProps, actnFilePump, actnFileSummary , nullptr,
         actnEditCut, actnEditCopy, actnEditPaste, nullptr, actnFuncRoundTrip, nullptr,
         actnFuncStabMap, actnFuncStabMap2d, actnFuncBeamVariation, actnFuncOptimizer, nullptr,
-        actnFuncCaustic, actnFuncMultirangeCaustic, actnFuncMultibeamCaustic, actnFuncBeamParamsAtElems, nullptr,
+        actnFuncCaustic, actnFuncMultirangeCaustic, actnFuncMultibeamCaustic, actnFuncBeamParamsAtElems, actnFuncRedlight, nullptr,
         actnFuncRepRate, nullptr, actnWndParams, actnWndPumps, actnWndMemos, nullptr, actnToolAdjust, nullptr,
         actnToolsGaussCalc, actnToolsCalc, actnToolGrinLens, //actnToolIris
     }, true));
@@ -419,6 +424,26 @@ void ProjectWindow::updateActions()
     actnFileSave->setEnabled(schema()->modified());
     if (schema()->memo)
         actnWndMemos->setIcon(QIcon(":/toolbar/notepad_1"));
+
+    // Red-light toggle: needs a saved file (the backend runs on
+    // the .rez file) and a locatable Python backend. Greyed out
+    // with a reason in the tooltip when unavailable, never a crash.
+    const bool redlightOk = _calculations->redlightAvailable();
+    actnFuncRedlight->setEnabled(redlightOk);
+    if (redlightOk)
+        actnFuncRedlight->setToolTip(tr("红光模式：在元件处光束参数窗口中显示 632.8 nm 红光光斑与光轴偏移；再次点击切回 1064 nm 工作波长"));
+    else if (schema()->fileName().isEmpty())
+        actnFuncRedlight->setToolTip(tr("红光模式不可用：请先保存方案"));
+    else
+        actnFuncRedlight->setToolTip(tr("红光模式不可用：找不到 Python 工程后端（engineering/、REZONATOR_ENGINEERING_DIR 或设置 EngineeringHub/engineeringDir）"));
+    if (actnFuncRedlight->isChecked() != _calculations->redlightMode())
+        actnFuncRedlight->setChecked(_calculations->redlightMode());
+}
+
+void ProjectWindow::onRedlightModeChanged(bool on)
+{
+    if (actnFuncRedlight->isChecked() != on)
+        actnFuncRedlight->setChecked(on);
 }
 
 void ProjectWindow::updateStatusInfo()
@@ -671,6 +696,7 @@ void ProjectWindow::schemaSaved(Schema*)
 
     updateStatusInfo();
     updateTitle();
+    updateActions();
 }
 
 void ProjectWindow::shortcutEnterActivated()
