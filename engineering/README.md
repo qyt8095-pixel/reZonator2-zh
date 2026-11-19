@@ -26,8 +26,14 @@ Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查、S
 | `rezeng/optimizer.py` | 两阶段优化器：向量化差分进化 + Nelder-Mead 精修，`optimize()` / `optimize_with_discrete()` |
 | `rezeng/zones.py` | 双稳区 1D 扫描 + Brent 边界精修，`scan_zones()` |
 | `rezeng/catalog.py` | 标准件库 + Snap（屈光度最近邻）+ 锁定后重优化，`snap_radius()` / `snap_and_reoptimize()` |
+| `rezeng/montecarlo.py` | 蒙特卡洛公差仿真：分块批量引擎、Wilson 区间、分位数 CI、Spearman + PRCC 敏感度，`run_montecarlo()` |
+| `rezeng/reverse.py` | 逆向拟合：腔外实测光斑反推热透镜屈光度 D_th，`fit_plane()` / `fit_thermal_lens()` / `synthetic_measurements()` |
 | `run_optimizer.py` | 优化器 / Snap 的命令行入口（JSON 配置文件，打印 JSON 结果） |
 | `run_zones.py` | 双稳区扫描的命令行入口：`python3 run_zones.py --rez <file.rez> [--d-max 12] [--n-points 300] [--f-mm 230]` |
+| `run_montecarlo.py` | 蒙特卡洛的命令行入口：`python3 run_montecarlo.py --rez <file.rez> [--n 1000] [--chunk 250] [--seed 0]` |
+| `run_reverse.py` | 逆向拟合的命令行入口：`python3 run_reverse.py --rez <file.rez> --points-T "30:0.21,200:0.39,800:1.33"` |
+| `demo_montecarlo.py` | 用户真实腔体 + 示例公差带的 N=1000 蒙特卡洛演示 |
+| `demo_reverse.py` | 用户真实腔体 + 合成测量数据的逆向拟合演示（3 点恢复 + 2 点远场简并陷阱） |
 | `demo_optimizer.py` | 优化器 + Snap + 双稳区全流程演示（原型复现、束腰目标、用户腔体多目标优化、Snap、Zone 扫描） |
 | `run_checks.py` | 检查的命令行入口：`python3 run_checks.py <file.rez> [side-car]` |
 | `run_solves.py` | Solves 的命令行入口：`python3 run_solves.py pickup|waist-size|waist-position …` |
@@ -1012,14 +1018,240 @@ g 的变号跨过 ±1（测试 `test_boundaries_and_common_zone`）；注
 差 1e-9 已对应 |g| 误差 ~2e-6），所以精度断言以 D 为准，不以
 |g| 残差为准。
 
+## 蒙特卡洛公差仿真（Phase 3 block 2）
+
+`rezeng/montecarlo.py` 的 `run_montecarlo()`：N 个带公差扰动的腔体
+副本，分块（默认 250 点/批）一次 CLI 批量调用求值，输出失稳概率、
+关键光斑/输出功率 95% CI 与敏感度排序。
+
+### 公差模型（side-car `tolerances`）
+
+每条是一条公差变量：`label` + `alias` 定位 `.rez` 参数，`kind`
+决定扰动如何施加，`distribution` 决定分布，`sigma` / `half_width`
+是扰动尺度（`length`/`angle` 用 SI 单位，`relative`/`dioptric`
+用分数）：
+
+| kind | 含义 | 例子 |
+|---|---|---|
+| `length` | 参数值加绝对扰动（SI：L 用 m，角度用 rad） | d1.L 正态 σ=0.5 mm |
+| `relative` | 参数值乘 `(1+δ)` | M2.R 均匀 ±1% |
+| `dioptric` | 在屈光度 `D=1/F` 上加相对扰动，再换回 F | TL1.F 正态 σ=5%（D 空间采样，避开 F→∞ 奇点） |
+| `angle` | 二维失调锥角：θ ~ Rayleigh(σ)，方位角均匀；面内分量 θ·cosφ 施加到 `Alpha` | M2.Alpha σ=0.5 mrad |
+
+分布默认值的理由（不要默认所有公差都是独立正态）：
+
+- 曲率/焦距（`relative`/`dioptric`）默认**均匀分布**：采购曲率
+  通常标称一个对称 ± 带，没有中心聚集； plain 正态会在尾部放
+  不合物理的权重，还可能让 R/F 变号。`truncated_normal` 是备选
+  （供应商分档/定心时）。
+- 长度/角度默认**正态分布**：加工/装配误差围绕标称值聚集。
+- 失调角度必须按二维锥角采样：θx、θy 独立正态采样在角分布上
+  是错的（锥角分布不对）；正确做法是 θ ~ Rayleigh(σ)、方位角
+  均匀。面内分量 θ·cosφ 的边缘分布恰好是 N(0,σ²)。
+- 角度的面外分量无法通过 CLI 施加：`.rez` 里每面镜只有一个
+  `Alpha`（面内倾角），没有 S 面倾角参数；且一阶理论里镜面微倾
+  只改变光束位置/指向，不改变光斑尺寸 w（这正是块 3 雅可比需
+  要 C++ 失调光轴模式的原因）。面外分量只记录在样本里，不参与
+  求值，文档在此写明，不假装它被施加了。
+
+每个变量在 setup 时都过 `check_overridable`（与优化器同一检查）：
+被链接/驱动的参数直接报错，不会让 1000 个样本逐个返回失败。
+随机种子默认固定（`seed=0`），分块只重组批量、不重采样——同
+一种子、不同分块大小的结果完全一致（测试锁定）。
+
+### 统计输出
+
+- **失稳概率**：`p̂ = n_unstable / n_ok`（CLI 拒绝的样本计入
+  `n_failed`，不进分母），95% 置信区间用 **Wilson 得分区间**：
+  `p_CI = [p̂ + z²/(2N) ± z·√(p̂(1−p̂)/N + z²/(4N²))] / (1 + z²/N)`，
+  z=1.96。N=1000、零失稳时上界约 0.38%，正态近似会错给 [0,0]。
+- **光斑/功率 95% CI**：**非参数分位数**（2.5% / 97.5%），不用
+  μ±1.96σ——稳区边缘附近分布严重左偏。光斑统计只覆盖稳定样本
+  （失稳样本没有光束）；功率覆盖全部已完成样本，失稳样本
+  P_out=0（另给稳定子集的 CI 作对照）。功率用模式 A 快算
+  （`resolve_params` 一次 + 每稳定样本一次 `crystal_slices` +
+  `mode_a_output`）；side-car 缺泵浦/晶体参数时功率报 `nodata`，
+  不编默认值。
+- **敏感度排序**：**Spearman 秩相关 + PRCC**（偏秩相关），复用
+  同一批 N 个样本，零额外求值。PRCC 做法：秩变换后，每列对其它
+  列做最小二乘回归取残差，再对残差求相关。**不默认跑 Sobol**：
+  Sobol 要 N(k+2) 次求值，且失稳截断下分方差解失真。光斑敏感度
+  用稳定样本，功率/稳定性敏感度用全部已完成样本（失稳 P_out=0）。
+  常数输入列的 PRCC 为 nan（无信息），不编造数值。
+- **进度/中断**：每批后调用 `progress(done, total)`，返回 False
+  即提前停止，报告标 `interrupted: True`，只覆盖已完成的分块。
+
+### Side-car 字段（`tolerances`）
+
+```json
+{"tolerances": [
+  {"label": "d1", "alias": "L", "kind": "length",
+   "distribution": "normal", "sigma": 0.0005},
+  {"label": "M2", "alias": "R", "kind": "relative",
+   "distribution": "uniform", "half_width": 0.01},
+  {"label": "M2", "alias": "Alpha", "kind": "angle",
+   "distribution": "rayleigh", "sigma": 0.0005},
+  {"label": "TL1", "alias": "F", "kind": "dioptric",
+   "distribution": "normal", "sigma": 0.05}
+]}
+```
+
+### 验证（tests/test_phase3_block2.py，蒙特卡洛部分）
+
+- Wilson 区间手算对照：(0,1000) 上界 0.0038、(500,1000)
+  [0.469,0.531]、(10,100) [0.0552,0.1743]。
+- 采样分布矩对照：Rayleigh 锥角 E[θ²]=2σ²、面内分量 std=σ；
+  均匀相对扰动 |δ|≤a、std=a/√3；截断正态 |δ|≤a；D 空间采样
+  （1/F′ 的均值回到 D0）。
+- 分块一致性：同一种子，chunk 8 / 40 / 13 的失稳数、光斑中位
+  数、敏感度排序完全一致；种子可复现（同种子结果相等，不同
+  种子失稳数不同）；进度回调返回 False 时中断且 n_completed
+  等于已完成的分块大小。
+- Spearman/PRCC 排序对照：合成算例 y=3·x0+噪声，x0 排第一，
+  无关变量 |PRCC|<0.2；常数列返回 None/nan。
+
+### 演示（用户真实腔体 + 示例公差带）
+
+`demo_montecarlo.py`：N=1000，ΔL ±0.5 mm（正态）、ΔR/R ±1%
+（均匀）、Δα 0.5 mrad 锥角（Rayleigh）、Δf_th ±5%（D 空间正
+态），4 次 CLI 批量调用：
+
+| 指标 | 结果 |
+|---|---|
+| 失稳概率 | 153/1000 = 15.30%，Wilson 95% CI [13.20%, 17.66%] |
+| M1 w_T | 中位 0.1049 mm，95% CI [0.0561, 0.1230] mm |
+| M4 w_T | 中位 0.2176 mm，95% CI [0.1095, 0.2755] mm |
+| P_out（全部样本，失稳=0） | 中位 2.794 W，95% CI [0.000, 2.822] W |
+| P_out（仅稳定样本） | 中位 2.802 W，95% CI [2.422, 2.822] W |
+| 敏感度（PRCC vs M1 w_T） | M2.R +0.960 第一，TL1.F −0.942 第二，d1.L −0.447；两面镜的 Alpha ≈0（一阶不影响光斑，符合理论） |
+
+失稳率 15% 高，是因为腔体工作点本来就靠近 Zone I 上沿
+（D=4.348，上沿 4.640）：±5% 的 D_th 扰动加 ±1% 的曲率扰动
+很容易把 g 推出 ±1。公差带与泵浦/晶体参数全是示例，不是
+真实值。
+
+## 逆向拟合（Phase 3 block 2）
+
+`rezeng/reverse.py` 的 `fit_plane()` / `fit_thermal_lens()`：用
+Beam Profiler 在输出镜外 2~3 个位置测得的实际光斑，反推晶体
+内部真实热透镜屈光度 `D_th = 1/f_th`（T/S 各自独立求解——两
+平面解耦）。拟合变量用 `D_th` 而不用 `f_th`（避开 f→∞ 奇点，
+与稳区扫描一致）。
+
+### 模型 w_model(z; D_th)
+
+1. 在 `D_th` 处一次 CLI 求值（热透镜 F 改写为 1/D_th），得腔
+   内光束。
+2. 透射输出光束 = **入射到输出镜的光束**：CLI 报告的前一元件
+   出口条目正好位于输出镜平面，它的 (w,R) 就是透射光束的
+   (w,R)（透射一阶上保持两者不变）。镜面自己的 CLI 条目是
+   **反射光束**，R 符号相反——已在用户腔体上核实：M4 条目
+   R=−99999.99… mm，d4 出口 R=+100000.00… mm，w 相同。输出镜
+   是第一个元件时才用自身条目并翻转 R 符号。
+3. 输出镜基底（平行平板）按 `q → q + L/n` 施加（ElemPlate 矩
+   阵 `[[1,L/n],[0,1]]`），数据来自 side-car `output_mirror`
+   （`thickness_mm`、`n`）。**基底数据缺失时平板直接省略，并
+   报警告 + 误差估计**：用标称 6.35 mm / n=1.45 基底重算各测
+   量点的光斑，取最大相对差——只是量级估计，明确标注，拟合本
+   身不用它。
+4. 自由空间传播到 `z_i`：`q → q + z`。
+
+### M² 处理
+
+CLI 算的是基模（M²=1）光斑。实测 M² 给出时，模型用内嵌高斯
+波长 `λ_eff = M²·λ` 构造 q 并传播——远场光斑随之按 M  scaling。
+实测 M² 缺失时报警告并给偏差估计：拟合会把 M² 误差全部吸收
+进 f_th；报告给出解处的中位 `dw/dD_th` 敏感度，换算成未建模
+M²=1.2 时 D_th 的位移量级与方向（沿 dw/dD_th 的符号，朝最近
+的稳区边界）。
+
+### 求解
+
+`scipy.optimize.least_squares(method='trf')`，残差：
+
+```
+r_i(D_th) = (w_model(z_i; D_th) − w_meas,i) / σ_w，σ_w = 5%·w_meas,i
+r_prior(D_th) = λ·(D_th − D_rez) / σ_prior，σ_prior = 0.5·D_rez，λ = 0.1
+```
+
+`D_th` 的 bounds 取当前工作稳区（`Zone_Common` 中包含当前
+`.rez` 值的那个区间，见 `working_zone_bounds()`）；收敛判据为
+相对残差 RMS < 3%（Beam Profiler 典型误差 2~5%）；
+ftol=xtol=1e-6。失稳/失败的模型求值返回大残差 10.0，不使求解
+器崩溃。
+
+**数值雅可比步长（实测教训）**：CLI 输出的光斑只打印到约
+1e-6 mm，`least_squares` 默认的 sqrt(eps) 步长（~1.5e-8）看到
+的只是量化噪声——h=1e-8 时差商为 0，h=1e-7 时差商偏大 ~20 倍，
+h≥1e-4 才收敛到真雅可比；默认步长下求解器一步就误以为已最
+优。实现用 `diff_step=1e-3`（相对步长），模型在该尺度上光滑，
+截断误差可忽略。
+
+### 可辨识性与简并（必读）
+
+- **至少 3 个点，且跨过束腰 / 覆盖 z_R 两侧**。2 个点理论可
+  解，但工程上极易病态：两点都在远场同一侧时，几乎只量到发
+  散角这 1 个有效信息，束腰位置信息丢失。
+- 在用户腔体上简并是**精确的**，不只是远场近似：`w0(D_th)`
+  在每个稳区内单调，两个稳区的取值范围重叠，所以 Zone I 的
+  D=4.0 /m 与 Zone II 的 D=9.5 /m 给出同一个输出束腰
+  （w0=253 µm，z0=−0.4 mm），各 z 处的光斑差异 <0.4%。任何一
+  组腔外光斑测量都区分不了这对 D——束腰位置 z0 在（近平面）
+  输出镜处基本不动，布点也破不了 Zone I/Zone II 的平局。破
+  局靠的是拟合的 bounds（工作稳区）+ 朝 D_rez 的弱先验。
+- 报告在全部测量点都处于远场同一侧（|z_i−z0| > 2·z_R）时标
+  记 `degeneracy risk` 警告；点数 <3 时也警告。
+
+### 输入要求
+
+- 每平面至少 2 个点（`{"z_mm", "w_mm"}` 或 `(z_mm, w_mm)`），
+  强烈建议 ≥3 个；**传播距离 z_i 必须作为已知输入**（从输出
+  镜面起算，单位 mm）。
+- 输出镜 label（默认 M4）、热透镜参数（默认 TL1:F）、实测
+  M²（可选）、输出镜基底数据（side-car `output_mirror`，可
+  选）。
+- 工作点必须在某个公共稳区内，否则 `working_zone_bounds()`
+  报错——失稳腔的反推没有意义。
+
+### 验证（tests/test_phase3_block2.py，逆向拟合部分）
+
+- R 符号约定：M4 条目 w 与 d4 出口一致、R 符号相反（真实 CLI）。
+- 合成数据恢复：真值 F=250 mm（D=4.0 /m），3 点（z=30/200/
+  800 mm，跨束腰）加 3% 噪声，T/S 两平面恢复误差 0.03% /
+  0.05%，RMS 0.87% / 0.88%，收敛。
+- 简并陷阱：真值 D=9.5 /m（Zone II），2 个远场点（z=1500/
+  2500 mm），D=4.0 与 D=9.5 的模型光斑在测量点处差异 <1%；
+  Zone I 有界拟合收敛到 D=4.0026 /m、RMS 0.06%——“成功”但答案
+  在错误的稳区；`degeneracy risk` 警告被触发（测试锁定）。
+- M² 修正：M²=1.3 的合成数据，不修正时拟合偏差 >2%（且报告
+  给出 `m2_bias_estimate`），修正后恢复误差 <5%。
+- 基底：给基底数据时无警告、无误差估计；缺失时报警告且
+  `substrate_error_estimate.max_rel_diff` 在 (0, 5%) 内。
+- 输入校验：<2 个点、未知输出镜、bounds 不含工作点时均报
+  `ReverseError`。
+
+### 演示（用户真实腔体 + 合成测量数据）
+
+`demo_reverse.py`：测量数据全是合成的（模型生成，真值已知），
+基底数据是示例标称值。
+
+| 演示 | 结果 |
+|---|---|
+| 3 点恢复（真值 F=250 mm，3% 噪声） | T：D=3.9988 /m，误差 0.03%，RMS 0.87%；S：D=3.9979 /m，误差 0.05%，RMS 0.88% |
+| 2 点远场简并（真值 D=9.5 /m，Zone II） | 拟合 D=4.0026 /m（Zone I），RMS 0.06%——收敛但答案错误，演示了陷阱 |
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（202 个）
+python3 -m unittest discover -s tests        # 全部测试（224 个）
 python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
 python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
 python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
+python3 run_montecarlo.py --rez <file.rez> [--n 1000] [--chunk 250] [--seed 0]  # 蒙特卡洛公差（JSON 输出到 stdout）
+python3 demo_montecarlo.py                    # 用户真实腔体 + 示例公差带的 N=1000 蒙特卡洛演示
+python3 run_reverse.py --rez <file.rez> --points-T "30:0.21,200:0.39,800:1.33" [--points-S ...]  # 逆向拟合（JSON 输出到 stdout）
+python3 demo_reverse.py                       # 用户真实腔体 + 合成测量数据的逆向拟合演示（3 点恢复 + 2 点远场简并陷阱）
 python3 run_checks.py /path/to/cavity.rez    # 手动跑检查（side-car 默认同名 .eng.json）
 python3 run_checks.py cavity.rez other.eng.json
 python3 run_solves.py pickup cavity.rez --driven d4:L --source d1:L --k 0.5 --b 90.862702 --out cavity.pickup.rez
@@ -1054,3 +1286,9 @@ ElemMediumRange 的说明）。
 去掉 `param_links` 的 fixture（M1.R/M2.R 不再由全局 R0 链接），
 专供优化器复现 Phase 0 原型最优（见“评价函数与优化器”一节）；
 原文件本身未改动。
+`tests/data/example-mc.eng.json` 同理：公差带（ΔL ±0.5 mm、ΔR/R
+±1%、Δα 0.5 mrad 锥角、Δf_th ±5%）与泵浦/晶体参数也都是示例
+（见“蒙特卡洛公差仿真”一节）。
+`tests/data/example-reverse.eng.json` 同理：输出镜基底数据是标称
+示例值（6.35 mm 熔融石英，n=1.45），真实 M4 基底数据未知
+（见“逆向拟合”一节）。

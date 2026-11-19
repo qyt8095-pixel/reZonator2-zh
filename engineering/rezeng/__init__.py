@@ -57,6 +57,12 @@ from .zones import ZoneError, scan_zones, BRENT_XTOL
 from .catalog import (CatalogError, STOCK_CATALOG, load_catalog_csv,
                       dioptric, dioptric_distance, snap_radius,
                       snap_and_reoptimize)
+from .montecarlo import (MonteCarloError, wilson_interval,
+                         sample_perturbations, run_montecarlo,
+                         DEFAULT_CHUNK_SIZE)
+from .reverse import (ReverseError, output_mirror_q, model_spot,
+                      working_zone_bounds, fit_plane, fit_thermal_lens,
+                      synthetic_measurements)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -107,4 +113,10 @@ __all__ = [
     "CatalogError", "STOCK_CATALOG", "load_catalog_csv",
     "dioptric", "dioptric_distance", "snap_radius",
     "snap_and_reoptimize",
+    "MonteCarloError", "wilson_interval",
+    "sample_perturbations", "run_montecarlo",
+    "DEFAULT_CHUNK_SIZE",
+    "ReverseError", "output_mirror_q", "model_spot",
+    "working_zone_bounds", "fit_plane", "fit_thermal_lens",
+    "synthetic_measurements",
 ]

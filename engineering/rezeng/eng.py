@@ -77,7 +77,7 @@ def new_eng():
     return {"format_version": FORMAT_VERSION,
             "laser": {}, "board": {}, "elements": {},
             "elements_ext": {}, "gain_and_pump": {}, "nonlinear_shg": {},
-            "mopa_chain": {}}
+            "mopa_chain": {}, "tolerances": [], "output_mirror": {}}
 
 
 def _is_number(value):
@@ -148,7 +148,8 @@ def validate_eng(data):
     for key in data:
         if key not in ("format_version", "laser", "board", "elements",
                        "elements_ext", "gain_and_pump", "nonlinear_shg",
-                       "mopa_chain", "notes"):
+                       "mopa_chain", "tolerances", "output_mirror",
+                       "notes"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -450,4 +451,51 @@ def validate_eng(data):
                             problems.append(
                                 "unknown key mopa_chain.stages[%d].%s "
                                 "(ignored)" % (i, field))
+    # -- tolerances (Phase 3 block 2: Monte Carlo) -------------------
+    # Deep validation lives in rezeng.montecarlo._validate_tolerances;
+    # here only the section shape is checked so validate_eng stays a
+    # warning pass, never a hard failure.
+    tolerances = data.get("tolerances")
+    if tolerances is not None:
+        if not isinstance(tolerances, list):
+            problems.append("tolerances section must be a list")
+        else:
+            for i, entry in enumerate(tolerances):
+                if not isinstance(entry, dict):
+                    problems.append("tolerances[%d] is not an object" % i)
+                    continue
+                for field in entry:
+                    if field not in ("label", "alias", "kind",
+                                     "distribution", "sigma", "half_width",
+                                     "notes"):
+                        problems.append("unknown key tolerances[%d].%s "
+                                        "(ignored)" % (i, field))
+                if entry.get("kind") not in (None, "length", "relative",
+                                             "dioptric", "angle"):
+                    problems.append("tolerances[%d].kind must be "
+                                    "'length', 'relative', 'dioptric' or "
+                                    "'angle', got %r" % (i, entry.get("kind")))
+                if entry.get("distribution") not in (
+                        None, "normal", "uniform", "truncated_normal",
+                        "rayleigh"):
+                    problems.append("tolerances[%d].distribution must be "
+                                    "'normal', 'uniform', "
+                                    "'truncated_normal' or 'rayleigh', "
+                                    "got %r"
+                                    % (i, entry.get("distribution")))
+    # -- output_mirror (Phase 3 block 2: reverse fitting) ------------
+    # The output-mirror substrate plate for the cavity-external
+    # propagation: {"label", "thickness_mm", "n"}. All fields
+    # optional; missing data means the plate is omitted (with a
+    # warning and an error estimate in the fit report).
+    mirror = _sub(problems, data, "output_mirror",
+                  {"label", "thickness_mm", "n", "notes"})
+    if mirror is not None:
+        if mirror.get("label") is not None \
+                and not isinstance(mirror.get("label"), str):
+            problems.append("output_mirror.label must be a string, got %r"
+                            % (mirror.get("label"),))
+        _pos(problems, "output_mirror", "thickness_mm",
+             mirror.get("thickness_mm"))
+        _pos(problems, "output_mirror", "n", mirror.get("n"))
     return problems
