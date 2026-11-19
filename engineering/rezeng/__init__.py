@@ -48,6 +48,15 @@ from .dispersion import (DispersionError, round_trip_dispersion,
                          dispersion_report)
 from .mopa import (MOPAError, B_WARN_RAD, fn_pass, ring_grid,
                    fluence_profile, resolve_chain, run_chain)
+from .merit import (MeritError, PENALTY_UNSTABLE, PENALTY_BASE,
+                    PENALTY_SLOPE, validate_targets, evaluate_result,
+                    evaluate_batch)
+from .optimizer import (OptimizerError, BatchEvaluator, optimize,
+                        optimize_with_discrete, MIN_LENGTH_SI, TIE_TOL)
+from .zones import ZoneError, scan_zones, BRENT_XTOL
+from .catalog import (CatalogError, STOCK_CATALOG, load_catalog_csv,
+                      dioptric, dioptric_distance, snap_radius,
+                      snap_and_reoptimize)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -89,4 +98,13 @@ __all__ = [
     "DispersionError", "round_trip_dispersion", "dispersion_report",
     "MOPAError", "B_WARN_RAD", "fn_pass", "ring_grid",
     "fluence_profile", "resolve_chain", "run_chain",
+    "MeritError", "PENALTY_UNSTABLE", "PENALTY_BASE",
+    "PENALTY_SLOPE", "validate_targets", "evaluate_result",
+    "evaluate_batch",
+    "OptimizerError", "BatchEvaluator", "optimize",
+    "optimize_with_discrete", "MIN_LENGTH_SI", "TIE_TOL",
+    "ZoneError", "scan_zones", "BRENT_XTOL",
+    "CatalogError", "STOCK_CATALOG", "load_catalog_csv",
+    "dioptric", "dioptric_distance", "snap_radius",
+    "snap_and_reoptimize",
 ]

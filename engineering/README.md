@@ -1,4 +1,4 @@
-# reZonator 工程层（Phase 1–2）
+# reZonator 工程层（Phase 1–3）
 
 Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查、Solves 与
 功率求解器。只用标准库 + numpy/scipy。光学计算一律复用原生 C++
@@ -22,6 +22,13 @@ Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查、S
 | `rezeng/jones.py` | 琼斯偏振矩阵：波片/偏振片/法拉第/双折射晶体、SW 往返矩阵与本征偏振，`round_trip_jones()` / `jones_report()` |
 | `rezeng/dispersion.py` | GDD/TOD 往返累加器（含 SESAM 参数接口），`round_trip_dispersion()` |
 | `rezeng/mopa.py` | MOPA / 再生放大 Frantz-Nodvik 链路，`resolve_chain()` / `run_chain()` |
+| `rezeng/merit.py` | 评价函数（与 C++ OptimizerWindow 逐项对齐），`evaluate_result()` / `evaluate_batch()` |
+| `rezeng/optimizer.py` | 两阶段优化器：向量化差分进化 + Nelder-Mead 精修，`optimize()` / `optimize_with_discrete()` |
+| `rezeng/zones.py` | 双稳区 1D 扫描 + Brent 边界精修，`scan_zones()` |
+| `rezeng/catalog.py` | 标准件库 + Snap（屈光度最近邻）+ 锁定后重优化，`snap_radius()` / `snap_and_reoptimize()` |
+| `run_optimizer.py` | 优化器 / Snap 的命令行入口（JSON 配置文件，打印 JSON 结果） |
+| `run_zones.py` | 双稳区扫描的命令行入口：`python3 run_zones.py --rez <file.rez> [--d-max 12] [--n-points 300] [--f-mm 230]` |
+| `demo_optimizer.py` | 优化器 + Snap + 双稳区全流程演示（原型复现、束腰目标、用户腔体多目标优化、Snap、Zone 扫描） |
 | `run_checks.py` | 检查的命令行入口：`python3 run_checks.py <file.rez> [side-car]` |
 | `run_solves.py` | Solves 的命令行入口：`python3 run_solves.py pickup|waist-size|waist-position …` |
 | `run_power.py` | 功率求解器的命令行入口：`python3 run_power.py --rez <file.rez> [--toc-scan]` |
@@ -844,11 +851,175 @@ LIDT：再生级第 4 通起 warn、第 7 通起 fail（示例 LIDT
 多；演示看的是单脉冲链路，不是平均功率。真实的 MOPA 种子
 与放大级晶体参数仍需用户提供。
 
+## 评价函数与优化器（Phase 3 block 1）
+
+评价函数与 C++ `OptimizerFunction`（`src/math/OptimizerFunction.h/.cpp`）
+逐项对齐，同一 merit 定义、两端可互相验证。设操作数 `V_k`、目标
+`T_k`、权重 `W_k`：
+
+| 目标 | C++ 定义 | Python（`rezeng/merit.py`） | 说明 |
+|---|---|---|---|
+| 光斑目标 `beam_T` / `beam_S`（某元件处） | `W·((w−T)/T)²` | 相同 | σ 取目标值本身，即相对误差 |
+| 像散 `astigmatism`（某元件处） | `d=\|w_T−w_S\|`，`ref=max(max(w_T,w_S),1e-12)`，`W·(d/ref)²` | 相同（`ref` 下限按 mm 计为 1e-9） | 目标为 0 |
+| 稳定性居中 `stability_center` | `W·(g_T²+g_S²)` | 相同 | 目标 g=0，σ=1 |
+| 束腰 `waist`（某元件所在段） | ——（C++ 无此目标） | `W·((w0−T)/T)²`，w0 由该元件 (w,R) 经 `solves.waist_from_wr` 推导 | Python 侧扩展 |
+| 输出功率 `power_out`（可选） | —— | `W·((P_out−T)/T)²`，P_out 用解析模式 A（`power.mode_a_output`，泵浦束腰 w_p0、增益处几何平均模半径） | 每次评估零额外 CLI 调用；不耦合模式 B 重叠积分（那会使每次评估都变成一次完整功率求解） |
+| 失稳罚项（\|g\|≥1 任一方向） | `1e4 + 1e5·(over_T²+over_S²)` | **`1e6 + 1e4·max(0, max(\|g_T\|,\|g_S\|)−1)²`** | 唯一有意不同处：Python 按 Gemini 评审建议取更大的基底、更缓的斜率；两者同为连续阶跃+斜坡（绝非纯常数死区），都远高于稳区内可达的 merit，且斜率都指回 \|g\|<1 |
+| 失败变异 / 非有限值 / 非有限 merit | `1e9`（`PENALTY_UNSTABLE`） | 相同 | |
+
+变量绑定 `.rez` 参数（label + alias），在归一化 [0,1] 空间优化
+（与 C++ `normValue` / `denormValue` 一致，越界钳制到 [0,1]；
+Nelder-Mead 单纯形可能越界，评估器在入口处统一钳制，见下）。
+连续变量给 `{"label", "alias", "min_si", "max_si"}`（SI 单位）；
+离散变量给 `{"label", "alias", "candidates_si": [...]}`，外层枚举
+组合（上限：纯离散 50000、混合 2048，与 C++ 一致），每组跑一次
+完整两阶段优化。被 `param_links` / `formulas` 驱动的参数不可作
+变量——`BatchEvaluator` 在建构时就用 `check_overridable` 报错，
+而不是让 CLI 每点都拒绝（实测教训：仓库自带的
+`bin/examples/spherical_symm.rez` 里 M1.R/M2.R 都由全局参数 R0
+链接，CLI 会以 "parameter 'M1.R' is driven by a link" 拒绝一切
+改写；原型复现因此用去链接的 fixture
+`tests/data/spherical_symm_free.rez`）。
+
+两阶段优化器（`rezeng/optimizer.py`，`optimize()`）：
+
+- **阶段一**：向量化差分进化
+  `scipy.optimize.differential_evolution(vectorized=True,
+  updating='deferred')`，种群回调一次打包成 1 个 CLI 批量请求
+  （种群 10×D，默认 40 代；`tol=0` 跑满代数；`seed` 固定可复现）。
+  种群规模以 scipy 的 `popsize` 计（种群 = popsize × D）。
+- **阶段二**：Nelder-Mead 精修（与 C++ OptimizerWindow 同一算法），
+  `xatol=1e-4`、`fatol=1e-5`、`maxfev=300`、`adaptive=True`。
+- 不用 basin-hopping（梯度局部求解器遇稳区边界跳变发散），不用
+  SLSQP（数值梯度 + 不连续约束易崩溃）。
+
+等式约束用**参数化降维**，不加罚项：`fixed_total` 约束列出若干
+长度参数与总和，最后一个成员由 `L_n = L_total − ΣL_i` 导出、永
+不作为自由变量，精确满足；导出值非法（≤1e-6 m 或非有限）时该点
+直接判不可行（merit 1e9，不发 CLI 请求）。非线性 Solve 目标转
+为高权重 merit 项（权重放大 10~100 倍），**绝不在优化器每次
+迭代里嵌套 Brent 求根**；优化结束后再单独跑一次 Phase 1 Solve
+做最终微调锁定。
+
+退化最优的 tie-break（与 C++ 文档和 Phase 0 原型同一规则：merit
+近乎相等时取离起点最近者）：先在全部已评估点中取 merit 在
+`TIE_TOL=1e-9` 内且离起点最近者；当最优 merit 基本为零且含
+稳定性居中目标时，再用罚函数最小二乘
+（残差 `[g_T, g_S, 1e-3·(x−x0)]`，`scipy.optimize.least_squares`）
+沿 g=0 表面向起点爬行——只在缓存里挑点可能离真正的最近表面
+点很远。**实测修正**：原型网格搜索报的最优 (L=90, R1=45, R2=60)
+是网格受限的局部结论；连续优化找到的最近表面点是
+(L=83.95, R1=R2=49.17)，归一化距离 0.023（原型点为 0.124），
+两者裕度同为 1.00（|g|≈1e-9）。
+
+实测（`demo_optimizer.py`，示例目标/权重）：
+
+- 原型复现：裕度 0.72 → 1.000000，(83.946, 49.175, 49.175) mm，
+  1521 次评估 / 332 次 CLI 调用 / 10.4 s。
+- 束腰目标：用户腔体 w0(M1)=0.12 mm → d1=365.4502 mm，与 Phase 1
+  Brent 解 365.4487 mm 一致（Δ=0.0015 mm）。
+- 用户腔体多目标（像散@M4 ×10、稳定居中 ×1、光斑@M4 0.21 mm
+  ×1；变量 M2 倾角、d1、M3 R）：merit 1.719 → 1.183；M2 倾角
+  2.5° → 1.711°，**独立复现了 Phase 0 算出的 1.5° 修正方向**；
+  M4 像散 0.0056 mm → 约 5×10⁻⁶ mm（基本归零）；M3 R 触及边界
+  −350 mm；剩余 merit 主要来自稳定性居中（g≈0.81）与光斑
+  （0.317 vs 目标 0.21 mm）的权衡。
+
+## 标准件 Snap（Phase 3 block 1）
+
+吸附用**屈光度空间**最近邻（`rezeng/catalog.py`）：
+
+    d(R, R_std) = |1/R − 1/R_std|        （平镜 1/R = 0）
+
+线性 R 距离是错的：平镜 R=∞ 与 R=10000 mm 光学上几乎等价，
+线性距离却无穷大；而 R=50 与 R=60 线性只差 10 mm，屈光度却差
+20%（实测：d(∞,10000)=1e-4 /mm，d(50,60)=0.0033 /mm）。
+符号保留：凹镜不吸附到凸镜（平镜无符号，两侧皆可）。
+
+内置库 `STOCK_CATALOG` 是**标注为示例的精选曲率序列**
+（±25/38.1/50/75/100/125/150/200/250/300/500/750/1000/2000/
+5000/10000 mm 与平镜，`EXAMPLE-STOCK`），不是真实供应商目录；
+真实库存用 `load_catalog_csv()` 导入 CSV（字段 `vendor,
+part_number, R_mm, diameter_mm, coating`；`R_mm` 可写 `inf` 表
+平镜）。Snap 时可按口径（`min_diameter_mm`）、供应商、镀膜
+子串过滤。
+
+锁定 R 后，保留相邻腔长为自由变量，用**原 merit 函数**跑
+Nelder-Mead 重优化 100~200 步（既补偿臂长又完成评价函数再验
+证），输出 Snap 前后对比表（Δw、Δg、ΔMerit）。
+`snap_and_reoptimize()` 的 "before" 是当前腔体原样（原始曲率、
+当前腔长，一次无改写 CLI 调用），"after" 是吸附 + 重优化结果。
+
+实测（用户腔体，示例目标）：M3 R −450 → −500 mm（EX-R-500，
+屈光度距离 2.22e-4 /mm）；重优化 d2/d3 后 merit 1.718 → 1.380，
+g (0.929, 0.921) → (0.833, 0.828)，M4 光斑 (0.206, 0.211) →
+(0.228, 0.230) mm，像散 0.0056 → 0.0018 mm。注意 d2/d3 顶到了
+设定边界（400/15 mm），说明补偿方向是缩短臂长、边界本身在起
+作用。
+
+## 双稳区扫描（Phase 3 block 1）
+
+泵浦功率通过热透镜起作用：屈光度 `D_th = 1/f_th` 随泵浦功率
+（近似）线性增加，腔体先后穿过 Zone I 与 Zone II，中间隔着失
+稳带。`scan_zones()`（`rezeng/zones.py`）固定其余变量，在
+`D_th ∈ [0, D_max]` 上取 200~500 点、一次 CLI 批量请求扫描，
+再对每个 g 穿过 ±1 的变号区间用 Brent 法（`xtol=1e-9`）精确定
+位 `D_crit`。
+
+像散会使 T/S 稳区错位，因此**必须同时输出** `zones_T`、`zones_S`
+与严格交集 `zones_common`（只按单方向判定是错的）。输出结构
+（JSON）：
+
+    {"lens": {"label": "TL1", "alias": "F"},
+     "d_range": [0.0, 12.0], "n_points": 300,
+     "boundaries": [{"axis": "T"|"S", "g": +1|-1, "D_th": ...,
+                     "f_mm": ..., "bracket": [lo, hi]}],
+     "zones_T": [{"id": "Zone_T_1", "D_range": [lo, hi],
+                  "f_range": [f_hi, f_lo]}],
+     "zones_S": [...],
+     "zones_common": [{"id": "Zone_I"|"Zone_II", ...}],
+     "trajectory": [{"D_th", "g_T", "g_S",
+                     "w_sesam_T_mm", "w_sesam_S_mm",
+                     "w_crystal_T_mm", "w_crystal_S_mm",
+                     "is_stable"}],
+     "working_point": {"D_th", "f_mm", "zone", "is_stable"} | None,
+     "n_cli_calls": int}
+
+`f_range` 为 `[1/D_hi, 1/D_lo]`（mm；D=0 对应无限焦距，记为
+`None`）；`power_range` 仅当调用方给出 `D_th → 泵浦功率` 映射时
+才出现；`opt_path` 可选，嵌入优化器评估点的 `(D_th, merit)`
+序列供轨迹叠加。`w_sesam_*` 为 SESAM/端镜处光斑（默认 M1），
+`w_crystal_*` 为热透镜/增益元件处光斑（默认由
+`find_gain_element` 定位）。
+
+实测（用户腔体，D_th ∈ [0,12] /m，300 点，154 次 CLI 调用）：
+
+| 边界 | D_th (/m) | f (mm) |
+|---|---|---|
+| g_T=−1 / g_S=−1（Zone I 下沿） | 0.973 / 1.001 | 1028.0 / 998.7 |
+| g_T=+1 / g_S=+1（Zone I 上沿） | 4.640 / 4.669 | 215.5 / 214.2 |
+| g_S=+1 / g_T=+1（Zone II 下沿） | 7.294 / 7.302 | 137.1 / 137.0 |
+| g_S=−1 / g_T=−1（Zone II 上沿） | 11.262 / 11.270 | 88.8 / 88.7 |
+
+Zone I（交集）：D ∈ [1.001, 4.640] /m，f ∈ [215.5, 998.7] mm；
+Zone II（交集）：D ∈ [7.302, 11.262] /m，f ∈ [88.8, 137.0] mm。
+当前工作点 F=230 mm（D=4.348 /m）在 Zone I 内、靠近上沿
+（D=4.640）。与 Phase 2 的非单调 g(F) 演示互相印证：F=1150 mm
+（D=0.87）失稳、F=164 mm（D=6.10）失稳、F=115 mm（D=8.70）
+在 Zone II 内稳定。边界精度：在 D_crit ± 1e-6 处直接重算，
+g 的变号跨过 ±1（测试 `test_boundaries_and_common_zone`）；注
+意 |g| 残差本身会被斜率放大（Zone II 远端 dg/dD ~2e3 /m，D 误
+差 1e-9 已对应 |g| 误差 ~2e-6），所以精度断言以 D 为准，不以
+|g| 残差为准。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（184 个）
+python3 -m unittest discover -s tests        # 全部测试（202 个）
+python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
+python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
+python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
 python3 run_checks.py /path/to/cavity.rez    # 手动跑检查（side-car 默认同名 .eng.json）
 python3 run_checks.py cavity.rez other.eng.json
 python3 run_solves.py pickup cavity.rez --driven d4:L --source d1:L --k 0.5 --b 90.862702 --out cavity.pickup.rez
@@ -879,3 +1050,7 @@ python3 demo_mopa.py                          # 示例两级 MOPA 链演示
 （`mopa_amp_sp.rez`、`mopa_regen_sw.rez`）是为演示新建的最小
 SP/SW 文件（晶体均为 ElemPlate，见“SHG 倍频模块”中关于
 ElemMediumRange 的说明）。
+`tests/data/spherical_symm_free.rez` 是 `bin/examples/spherical_symm.rez`
+去掉 `param_links` 的 fixture（M1.R/M2.R 不再由全局 R0 链接），
+专供优化器复现 Phase 0 原型最优（见“评价函数与优化器”一节）；
+原文件本身未改动。
