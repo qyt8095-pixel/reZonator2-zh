@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "mopa_chain": {
+    "seed_source": {
+      "type": "oscillator_ref",
+      "pulse_energy_J": 5e-05,
+      "pulse_duration_s": 4e-11,
+      "rep_rate_Hz": 120000
+    },
+    "stages": [
+      {
+        "stage_id": "amp_1",
+        "rez_file": "mopa_amp_sp.rez",
+        "passes": 2,
+        "gain_element": "CRY",
+        "gain_medium": {
+          "material": "Nd:YVO4",
+          "J_sat_J_per_cm2": 0.12,
+          "small_signal_gain_G0": 4.5,
+          "recovery_time_us": 90,
+          "n2_m2_per_W": 1e-19
+        },
+        "loss_per_pass": 0.0
+      },
+      {
+        "stage_id": "regen_1",
+        "rez_file": "mopa_regen_sw.rez",
+        "passes": 10,
+        "gain_element": "CRY",
+        "gain_medium": {
+          "material": "Nd:YAG",
+          "J_sat_J_per_cm2": 0.66,
+          "initial_stored_energy_J": 0.005
+        },
+        "round_trip_loss": 0.04
+      }
+    ]
+  },
+  "notes": "EXAMPLE DATA ONLY (not the user measured values). Stage rez_file paths resolve relative to the oscillator .rez file directory; the demo writes a copy with absolute paths to /tmp."
+}

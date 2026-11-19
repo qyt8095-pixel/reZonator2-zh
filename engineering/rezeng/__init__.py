@@ -39,6 +39,15 @@ from .shg import (SHGError, MATERIALS, material_reference, fill_typical,
                   green_noise_assessment, gamma_round_trip,
                   solve_shg_intracavity, solve_shg_extracavity,
                   shg_pump_scan, insert_crystal_element, EPS0)
+from .jones import (JonesError, rotation_matrix, retarder_matrix,
+                    half_wave_plate, quarter_wave_plate, polarizer_matrix,
+                    mirror_matrix, matrix_from_spec, build_sequence,
+                    round_trip_jones, eigen_polarization,
+                    polarization_loss, jones_report)
+from .dispersion import (DispersionError, round_trip_dispersion,
+                         dispersion_report)
+from .mopa import (MOPAError, B_WARN_RAD, fn_pass, ring_grid,
+                   fluence_profile, resolve_chain, run_chain)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -64,7 +73,7 @@ __all__ = [
     "solve_p_circ", "small_signal_gain", "analytic_overlap",
     "higher_order_gains", "two_mode_m2", "multimode_threshold",
     "thermal_kappa", "thermal_focal_lengths", "pump_scan",
-    "toc_scan", "H_PLANCK", "C_LIGHT", "ETA_Q_MAX",
+    "toc_scan", "H_PLANCK", "C_LIGHT",
     "SHGError", "MATERIALS", "material_reference", "fill_typical",
     "resolve_shg", "boyd_kleinman_h", "aperture_length",
     "focusing_parameter", "shg_coefficient_K", "single_pass_eta",
@@ -72,4 +81,12 @@ __all__ = [
     "green_noise_assessment", "gamma_round_trip",
     "solve_shg_intracavity", "solve_shg_extracavity",
     "shg_pump_scan", "insert_crystal_element", "EPS0",
+    "JonesError", "rotation_matrix", "retarder_matrix",
+    "half_wave_plate", "quarter_wave_plate", "polarizer_matrix",
+    "mirror_matrix", "matrix_from_spec", "build_sequence",
+    "round_trip_jones", "eigen_polarization",
+    "polarization_loss", "jones_report",
+    "DispersionError", "round_trip_dispersion", "dispersion_report",
+    "MOPAError", "B_WARN_RAD", "fn_pass", "ring_grid",
+    "fluence_profile", "resolve_chain", "run_chain",
 ]

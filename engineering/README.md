@@ -19,13 +19,20 @@ Python 层：`.rez` 解析、单位换算、无头 CLI 封装、工程检查、S
 | `rezeng/qevolve.py` | 晶体内部 q(z) GRIN 演化器（`crystal_slices()` / `evolve_element()`），与 C++ 核对过 |
 | `rezeng/power.py` | 功率求解器：模式 A（Rigrod）、模式 B（三维重叠积分）、热透镜闭环、扫描、高阶模判据 |
 | `rezeng/shg.py` | SHG 倍频：腔内/腔外、走离角、绿光噪声预警，`shg_pump_scan()` |
+| `rezeng/jones.py` | 琼斯偏振矩阵：波片/偏振片/法拉第/双折射晶体、SW 往返矩阵与本征偏振，`round_trip_jones()` / `jones_report()` |
+| `rezeng/dispersion.py` | GDD/TOD 往返累加器（含 SESAM 参数接口），`round_trip_dispersion()` |
+| `rezeng/mopa.py` | MOPA / 再生放大 Frantz-Nodvik 链路，`resolve_chain()` / `run_chain()` |
 | `run_checks.py` | 检查的命令行入口：`python3 run_checks.py <file.rez> [side-car]` |
 | `run_solves.py` | Solves 的命令行入口：`python3 run_solves.py pickup|waist-size|waist-position …` |
 | `run_power.py` | 功率求解器的命令行入口：`python3 run_power.py --rez <file.rez> [--toc-scan]` |
 | `run_shg.py` | SHG 的命令行入口：`python3 run_shg.py --rez <file.rez> [--pump 2,3,5,7,10]` |
+| `run_jones.py` | 琼斯 + 色散的命令行入口：`python3 run_jones.py --rez <file.rez> [--eng <file.eng.json>]` |
+| `run_mopa.py` | MOPA 链路的命令行入口：`python3 run_mopa.py --osc <osc.rez> [--eng <chain.eng.json>]` |
 | `demo_solves.py` | 用户真实腔体的 Pickup + 束腰 Solve 端到端演示（输出到 /tmp） |
 | `demo_power.py` | 用户真实腔体 + 示例参数的 P_out–P_pump 曲线与 T_opt 扫描演示 |
 | `demo_shg.py` | 用户真实腔体 + 插入的 LBO 晶体 + 示例参数的 SHG 演示（NCPM 与 CPM 各跑一次） |
+| `demo_jones.py` | 用户真实腔体 + 示例参数的琼斯往返矩阵、GDD/TOD 与波片角度调谐演示 |
+| `demo_mopa.py` | 示例两级 MOPA 链（单通放大 + 再生放大）逐通能量演示 |
 | `tests/` | `unittest` 测试（`python3 -m unittest discover -s tests`） |
 
 协议（stdin/stdout JSON、批量求值、失败语义）见
@@ -632,11 +639,216 @@ NCPM 只有基频像散比 ~0.98–1.00）。绿光噪声全程 low（η_1pass
 激光的预测**；真实的非线性晶体材料/长度/相位匹配方式、d_eff、
 走离角或温控条件仍需用户提供。
 
+## 琼斯偏振矩阵（Phase 2 block 3）
+
+`rezeng/jones.py`：2×2 复琼斯矩阵沿光路连乘，与 ABCD 独立并行
+（偏振不改变 ABCD，ABCD 也不改变偏振）。基底为实验室 (T, S)
+横向轴；光束正向传播为 +z。
+
+### 元件类型（side-car `elements_ext.<label>.jones`）
+
+| 类型 | 参数 | 矩阵 |
+|---|---|---|
+| `waveplate` | `retardance_rad`（Γ）、`fast_axis_deg`（θ） | `R(θ)·diag(e^{+iΓ/2}, e^{-iΓ/2})·R(−θ)`，快轴超前 +Γ/2；λ/2 即 Γ=π，λ/4 即 Γ=π/2。HWP 把偏振角 α 映为 2θ−α（关于快轴线的反射） |
+| `polarizer` | `Tp`、`Ts`（功率透过率）、`angle_deg` | `R(θ)·diag(√Tp, √Ts)·R(−θ)`；布儒斯特片即 Tp=1、Ts=0 的偏振片 |
+| `faraday` | `rotation_deg`（φ） | `R(φ)`，非互易 |
+| `birefringent` | `retardance_rad`（Γ）、`fast_axis_deg`（θ） | 与 `waveplate` 同形（双折射晶体） |
+| `mirror` | `m_T`、`m_S`（默认 −1、−1） | `diag(m_T, m_S)`；Fresnel 记号下 m_T = −r_p、m_S = r_s（p 轴反射翻转带来的负号），side-car 存的是实验室基底的 (m_T, m_S)，不要直接填 r_p/r_s |
+
+`mirror` 规格只能放在反射镜元件上，其他规格只能放在非反射镜
+元件上（错配会报错）。没有 `jones` 数据的元件按单位矩阵（透射）
+或理想反射镜处理；也可以用 `insertions`（`{"after": <label>,
+"jones": <spec>}`）在不改 `.rez` 的前提下插入虚拟元件（如波片）。
+
+### 反向传播坐标翻转（最大风险点）
+
+端镜反射后光束沿 −z 传播。为使反向横向基底仍与 −z 右手正交，
+保持 S 轴不动、T 轴翻转：`(x_b, y_b) = (−x, y)`。物理直线在
+反向基底里位于 −θ；用 `M = diag(−1, 1)` 共轭回实验室基底后，
+波片的反向矩阵等于其正向矩阵本身 `M·J(−θ)·M = J(θ)`——与矩阵
+对称性 `J^T = J` 一致。Lorentz 互易性在实验室基底里给出本模块
+实际使用的紧凑规则：
+
+- **互易元件：`J_back = J_forward^T`**（转置）；
+- **法拉第旋光器：`J_back = J_forward`**（不转置，非互易）。
+
+波片/偏振片/双折射晶体矩阵对称，转置无影响；真正区分互易旋光
+器与法拉第旋光器的是旋光器：互易旋光器反向为 `R(−φ)`，往返抵
+消（`R(−φ)R(φ) = I`）；法拉第反向仍为 `R(φ)`，往返加倍
+（`R(2φ)`）。直接逆序相乘而不做坐标变换，会把隔离器算成透明
+元件——这是本块最容易错的地方，已用测试锁定
+（`tests/test_block3.py`：法拉第 45° + 偏振片 0° 往返损耗为 1，
+即隔离器行为；若反向误取转置会得到损耗 0）。
+
+### 往返矩阵与功率闭环
+
+SW 腔（元件表 `[M1, …, M4]`）：`J_rt = J_M1 · B · J_M4 · F`，
+`F` 为内部元件正向乘积（按光路顺序，最先遇到的最右），`B` 为
+内部元件反向乘积（逆序 + 上述反向规则）；端镜 M1、M4 各只出现
+一次。SP 为单程乘积，RR 为一圈乘积。`eigen_polarization(J_rt)`：
+模最大的特征值 λ_max 对应本征向量即腔内自洽偏振态，偏振损耗
+`1 − |λ_max|²`。该损耗以可选参数 `extra_loss` 注入功率求解器
+（`power.py` 的 `mode_a_threshold` / `mode_a_output` /
+`solve_p_circ` / `pump_scan` / `toc_scan` 均已接受；`extra_loss=0`
+时与旧调用完全一致）。
+
+注意：SW 腔里单个互易元件正反两次的乘积是 `J^T·J`，对波片即
+延迟加倍——QWP 往返后等效 HWP（测试锁定），HWP 往返后为 −I
+（自抵消）。因此波片角度调谐演示用 QWP：QWP + 偏振片的往返损
+耗为 `sin²(2θ)`。
+
+### 验证（tests/test_block3.py，琼斯部分）
+
+单位矩阵、HWP(0°)/QWP(0°) 已知矩阵、HWP(45°) 旋转、QWP 两次
+=HWP、偏振片投影 `J²=J`、Malus 定律、双偏振片往返损耗 0.75、
+波片+偏振片无损耗（本征态被波片旋转到 45°）、法拉第 45° 往
+返 `=R(90°)`、互易旋光器往返 `=I`、法拉第+偏振片隔离器损耗 1、
+用户腔体 + 示例双折射 Γ=0.15 rad（往返 `diag(e^{+i0.15},
+e^{−i0.15})`，损耗 0）。
+
+### 演示（用户真实腔体 + 示例参数）
+
+`python3 engineering/demo_jones.py`。示例数据见
+`tests/data/example-jones.eng.json`（TL1 双折射 Γ=0.15 rad，
+GVD 245 fs²/mm；M1 SESAM；M4 啁啾镜——**全部是示例**）：
+往返矩阵 `diag(e^{+i0.15}, e^{−i0.15})`，偏振损耗 0；QWP 角度
+调谐（偏振片在 d1，Tp=1、Ts=0）：
+
+| θ（°） | 偏振损耗 | P_out（模式 A，5 W 泵浦） |
+|---|---|---|
+| 0 | 0.00 | 1.653 W |
+| 15 | 0.25 | 0.499 W |
+| 22.5 | 0.50 | 0.275 W |
+| 30 | 0.75 | 0.180 W |
+| 45 | 1.00 | 0.128 W |
+
+损耗为 `sin²(2θ)`。注意：损耗 →1 时不存在自洽偏振态，标量
+`extra_loss` 模型已到极限（仍给出一个小 P_out），完整矢量模型
+在 45° 应给出零输出。真实的波片/偏振片/法拉第参数仍需用户提供。
+
+## 色散累加（GDD/TOD，Phase 2 block 3）
+
+`rezeng/dispersion.py`：`round_trip_dispersion(data, eng)`。
+side-car `elements_ext.<label>` 里按元件给色散系数：
+
+- 透射元件：`gvd_fs2_per_mm`、`tod_fs3_per_mm`，按物理厚度
+  `L`（取该元件 `.rez` 里的 `L` 参数并换算为 mm）累加；
+- 反射元件：`gdd_fs2`、`tod_fs3`（单次反射量），按往返反射
+  次数累加；`role` 可标 `chirped_mirror` / `SESAM` 等。
+
+**SW 腔计数**：端镜（首、尾元件）1 次，腔内其他元件各 2 次
+（折叠镜 M2、M3 与晶体都在内）；SP、RR 各 1 次。输出往返总
+GDD（fs²）与 TOD（fs³）及逐元件明细。SESAM 参数
+（`modulation_depth`、saturation_fluence_uJ_per_cm2）一并进
+side-car，只作接口记录——本块不实现调 Q/锁模动力学。色散系数
+放在无 `L` 参数的元件上会跳过并告警（不静默套用）。
+
+验证：手工小算例、SW 计数（端镜 1、晶体 2）、SP 计数、缺 L
+告警。演示（`demo_jones.py` 后半段）：用户腔体 + 示例参数，
+GDD = 2×27×245 − 150 − 300 = **12780 fs²**，TOD = 2×27×310 +
+500 + 1200 = **18440 fs³**，与手算一致。真实的色散镜 GDD 与
+SESAM 参数仍需用户提供。
+
+## MOPA / 再生放大链路（Phase 2 block 3）
+
+`rezeng/mopa.py`：Frantz-Nodvik 链路编排器，零 C++ 改动。数据
+模型（side-car `mopa_chain`）：
+
+```json
+{
+  "seed_source": {"pulse_energy_J": 5e-5, "pulse_duration_s": 40e-12,
+                  "rep_rate_Hz": 120000},
+  "stages": [
+    {"stage_id": "amp_1", "rez_file": "mopa_amp_sp.rez", "passes": 2,
+     "gain_element": "CRY",
+     "gain_medium": {"material": "Nd:YVO4", "J_sat_J_per_cm2": 0.12,
+                     "small_signal_gain_G0": 4.5, "recovery_time_us": 90,
+                     "n2_m2_per_W": 1e-19}},
+    {"stage_id": "regen_1", "rez_file": "mopa_regen_sw.rez", "passes": 10,
+     "gain_element": "CRY",
+     "gain_medium": {"material": "Nd:YAG", "J_sat_J_per_cm2": 0.66,
+                     "initial_stored_energy_J": 0.005},
+     "round_trip_loss": 0.04}
+  ]
+}
+```
+
+- `seed_source`：种子能量/脉宽/重频（`type` 可写
+  `oscillator_ref`；暂不接振荡器功率求解器，只取种子参数）。
+- 每级：`stage_id`、`rez_file`（相对 side-car 所在目录，或绝对
+  路径）、`passes`（单通级 = 通数，再生级 = 往返数）、
+  `gain_element`（增益晶体元件 label）、`gain_medium`
+  （`material`、`J_sat_J_per_cm2`，以及 `small_signal_gain_G0`
+  或 `initial_stored_energy_J` 二选一；可选 `recovery_time_us`、
+  `n2_m2_per_W`）、再生级的 `round_trip_loss`（每往返损耗，
+  作用于两通之间）。
+- 增益介质两种给定方式：给 `small_signal_gain_G0` 时初始储能
+  由模面积反推（`E_stored = J_sat·ln G0·πw²`，w 取该级晶体处
+  光斑）；给 `initial_stored_energy_J` 时反推 G0。若两者都给且
+  不一致（偏差 >10%）会告警，不静默选一个。
+
+计算：每级先调一次 `--headless` 取增益晶体处的光斑
+（`w_T`、`w_S`，SP 拓扑直接复用；SW 再生腔取稳态光斑）。
+每通把脉冲能量转为径向能量密度
+`J_in(r) = [2·E_in/(π·w²)]·exp(−2r²/w²)`（椭圆光斑用
+`w² = w_T·w_S`），按径向环带应用 Frantz-Nodvik 方程
+`J_out(r) = J_sat·ln[1 + G_0(r)·(exp(J_in(r)/J_sat) − 1)]`，
+其中局域 `G_0(r) = exp(γ(r))`，γ 由该环带剩余储能定；每通
+后更新剩余储能供下一通使用（环带局域耗尽，积分后总能量守恒
+精确成立——输出能量 ≤ 种子 + 各级储能，不会算出永动机）。
+环带用 `u = r²` 上的 Gauss-Legendre 网格（64 环，能量重构
+误差 ~1e-8）；`exp(J_in/J_sat)` 用 `expm1` 的稳定分支
+（`x > 50` 时不溢出）。
+
+每通出口复用 Phase 1 的 LIDT 检查（`checks.py`，
+`lidt_fluence_J_per_cm2`，峰值通量 `2E/(π·w_T·w_S)` 对该级
+side-car 里的晶体 LIDT；无 LIDT 数据时记 `nodata`，不报错）。
+B 积分每通顺带算：`B = (2π/λ)·n_2·I_pk·L`，`I_pk` 为高斯脉
+冲峰值强度（峰值因子 `√(4 ln 2/π)`，取该通出口能量），
+**>3 rad 时警告**自聚焦/光谱畸变（无 `n2` 时 B=0，不告警）。
+再生放大按通数循环 + 每通损耗：SW 级每往返 2 通，两通之间乘
+`(1 − round_trip_loss)`；储能耗尽时增益逐通下降（G0 → 1）。
+
+### 验证（tests/test_block3.py，MOPA 部分）
+
+环带能量重构、F-N 极限（`G0=1` 恒等、小信号 ≈G0 倍、深饱和
+渐近 `J_out → J_in + J_sat·ln G0` 误差 1e-13 量级、大通量不溢
+出）、单通小信号增益、双通增益耗尽、多通储能守恒（饱和种子
+下输出 ≤ 种子 + 储能）、再生 5 往返（10 通，往返增益单调下
+降、储能单调减少）、B 积分警告触发（`n2=1e-17` 时 B≫3）、
+每通 LIDT（`fail`/`nodata`）、链路校验错误。
+
+### 演示（示例两级链）
+
+`python3 engineering/demo_mopa.py`。链路见
+`tests/data/example-mopa.eng.json`，各级 `.rez` 在
+`tests/data/`（`mopa_amp_sp.rez`：SP，种子束腰 200 µm，
+CRY 为 ElemPlate L=10 mm、n=1.82，CLI 核对 w=0.221 mm；
+`mopa_regen_sw.rez`：SW，R=1000 mm 对称腔，CLI 核对稳定
+g=−0.293、CRY 处 w=0.369 mm）。**全部参数都是示例**：
+
+| 级 | 通 | E_in → E_out | 增益 |
+|---|---|---|---|
+| amp_1（Nd:YVO4，G0=4.5） | 1 | 50.0 → 166.9 µJ | 3.338 |
+| amp_1 | 2 | 166.9 → 328.7 µJ | 1.970 |
+| regen_1（Nd:YAG，5 mJ 储能） | 1–2 | 328.7 µJ → 4.35 mJ | 4.767 / 2.773 |
+| regen_1 | … | 逐通增益下降 | … |
+| regen_1 | 20 | 11.74 → 11.90 mJ | 1.013 |
+
+总输出 **11.90 mJ**（50 µJ 种子 → 238 倍；储能上限
+47.54 mJ，守恒成立）；B 积分总计 0.896 rad（<3，无警告）；
+LIDT：再生级第 4 通起 warn、第 7 通起 fail（示例 LIDT
+5.0 J/cm²，通量达 5.56 J/cm²）——这是示例参数下的真实预警，
+不是求解器问题。注意：重频 120 kHz 是种子的，再生级 5 mJ/
+脉冲在 120 kHz 下相当于 600 W 泵浦，实际再生级重频要低得
+多；演示看的是单脉冲链路，不是平均功率。真实的 MOPA 种子
+与放大级晶体参数仍需用户提供。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（150 个）
+python3 -m unittest discover -s tests        # 全部测试（184 个）
 python3 run_checks.py /path/to/cavity.rez    # 手动跑检查（side-car 默认同名 .eng.json）
 python3 run_checks.py cavity.rez other.eng.json
 python3 run_solves.py pickup cavity.rez --driven d4:L --source d1:L --k 0.5 --b 90.862702 --out cavity.pickup.rez
@@ -647,6 +859,10 @@ python3 run_power.py --rez /path/to/cavity.rez --toc-scan   # 功率扫描（JSO
 python3 demo_power.py                         # 用户真实腔体 + 示例参数的功率演示
 python3 run_shg.py --rez /path/to/cavity.rez --pump 2,3,5,7,10  # SHG 扫描（JSON 输出到 stdout）
 python3 demo_shg.py                           # 用户真实腔体 + 插入的 LBO 晶体 + 示例参数的 SHG 演示
+python3 run_jones.py --rez /path/to/cavity.rez [--eng <file.eng.json>]  # 琼斯 + 色散报告（JSON 输出到 stdout）
+python3 demo_jones.py                         # 用户真实腔体 + 示例参数的琼斯/GDD/TOD 演示
+python3 run_mopa.py --osc /path/to/osc.rez --eng <chain.eng.json>  # MOPA 链路（JSON 输出到 stdout）
+python3 demo_mopa.py                          # 示例两级 MOPA 链演示
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
@@ -656,3 +872,10 @@ python3 demo_shg.py                           # 用户真实腔体 + 插入的 L
 都是文献典型示例值（见“功率求解器”一节），演示用，不是实测。
 `tests/data/example-shg.eng.json` 同理：LBO 晶体与倍频参数也都是
 示例（见“SHG 倍频模块”一节）。
+`tests/data/example-jones.eng.json` 同理：双折射、GVD/TOD、SESAM
+与色散镜参数也都是示例（见“琼斯偏振矩阵”“色散累加”两节）。
+`tests/data/example-mopa.eng.json` 同理：种子与两级放大器参数
+也都是示例（见“MOPA / 再生放大链路”一节）；各级 `.rez`
+（`mopa_amp_sp.rez`、`mopa_regen_sw.rez`）是为演示新建的最小
+SP/SW 文件（晶体均为 ElemPlate，见“SHG 倍频模块”中关于
+ElemMediumRange 的说明）。

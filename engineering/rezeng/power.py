@@ -254,23 +254,31 @@ def mean_mode_radius(slices):
     return float(np.mean(w))
 
 
-def mode_a_threshold(params, w_p_m, w_l_m):
-    """Rigrod threshold, *incident* pump power (W)."""
+def mode_a_threshold(params, w_p_m, w_l_m, extra_loss=0.0):
+    """Rigrod threshold, *incident* pump power (W).
+
+    ``extra_loss`` is an additional round-trip loss fraction (e.g.
+    the polarisation loss ``1 - |lambda_max|^2`` from
+    :func:`rezeng.jones.polarization_loss`); it adds to
+    ``T_oc + L_i`` in the threshold and in the slope denominator.
+    """
     eta_abs = params["eta_abs"]
+    delta = params["T_oc"] + params["L_i"] + extra_loss
     return (math.pi * H_PLANCK * (C_LIGHT / params["lambda_p_m"])
             * (w_p_m ** 2 + w_l_m ** 2)
-            * (params["T_oc"] + params["L_i"])
+            * delta
             / (4.0 * params["sigma_em"] * params["tau_f"]
                * params["eta_p"] * eta_abs))
 
 
-def mode_a_output(params, P_pump_inc_W, w_p_m, w_l_m):
+def mode_a_output(params, P_pump_inc_W, w_p_m, w_l_m, extra_loss=0.0):
     """Mode A output. Returns ``{P_out, P_th, slope, eta_mode}`` (W)."""
     eta_mode = params["eta_mode"]
     if eta_mode is None:
         eta_mode = overlap_eta_mode(w_p_m, w_l_m, params["profile"])
-    P_th = mode_a_threshold(params, w_p_m, w_l_m)
-    slope = (params["T_oc"] / (params["T_oc"] + params["L_i"])
+    P_th = mode_a_threshold(params, w_p_m, w_l_m, extra_loss)
+    slope = (params["T_oc"]
+             / (params["T_oc"] + params["L_i"] + extra_loss)
              * params["eta_q"] * params["eta_abs"] * eta_mode)
     P_out = slope * (P_pump_inc_W - P_th) if P_pump_inc_W > P_th else 0.0
     return {"P_out": P_out, "P_th": P_th, "slope": slope,
@@ -418,15 +426,20 @@ def _phi_mode(mode, phi0, X, Y, w_T, w_S):
 # --- Mode B solve -------------------------------------------------------------
 
 def solve_p_circ(params, slices, P_abs_W, delta, n_gh=DEFAULT_N_GH,
-                 n_r=DEFAULT_N_R, n_theta=DEFAULT_N_THETA):
+                 n_r=DEFAULT_N_R, n_theta=DEFAULT_N_THETA,
+                 extra_loss=0.0):
     """Self-consistent one-way circulating power (W) for mode B.
 
     Solves ``(2*sigma*tau_f*P_abs / (h*nu_p*delta)) * O(P) = 1`` by
-    Brent. Returns ``{P_circ, P_out, P_th_abs, converged, evaluations,
-    below_threshold}``. Below threshold ``P_circ = 0`` (not an error).
+    Brent, with the effective round-trip loss ``delta + extra_loss``
+    (``extra_loss`` is an additional loss fraction, e.g. the Jones
+    polarisation loss). Returns ``{P_circ, P_out, P_th_abs, converged,
+    evaluations, below_threshold}``. Below threshold ``P_circ = 0``
+    (not an error).
     """
+    delta_eff = delta + extra_loss
     K = (2.0 * params["sigma_em"] * params["tau_f"] * P_abs_W
-         / (H_PLANCK * (C_LIGHT / params["lambda_p_m"]) * delta))
+         / (H_PLANCK * (C_LIGHT / params["lambda_p_m"]) * delta_eff))
 
     def O(P):
         return overlap_integral(params, slices, P, n_gh=n_gh, n_r=n_r,
@@ -440,7 +453,7 @@ def solve_p_circ(params, slices, P_abs_W, delta, n_gh=DEFAULT_N_GH,
 
     O0 = O(0.0)
     evals[0] += 1
-    P_th_abs = delta * H_PLANCK * (C_LIGHT / params["lambda_p_m"]) \
+    P_th_abs = delta_eff * H_PLANCK * (C_LIGHT / params["lambda_p_m"]) \
         / (2.0 * params["sigma_em"] * params["tau_f"] * O0) \
         if O0 > 0 else float("inf")
     if F(0.0) <= 0:
@@ -754,13 +767,16 @@ def _point_common(P_pump, F_T, F_S, F_cli):
 
 def pump_scan(data, eng, pump_powers_W, T_oc=None, n_z=DEFAULT_N_Z,
               n_gh=DEFAULT_N_GH, binary=None, timeout=None,
-              with_m2=False):
+              with_m2=False, extra_loss=0.0):
     """``P_out`` vs ``P_pump`` at fixed ``T_oc`` (side-car default).
 
     One CLI batch call evaluates all thermal-lens focal lengths; each
     point then runs the q(z) evolver + mode A + mode B + HOM gains.
     Unstable points (``stable: false``) get ``P_out = 0`` and the
     ``thermal_instability`` flag -- the scan never aborts on them.
+    ``extra_loss`` is an additional round-trip loss fraction (e.g.
+    the Jones polarisation loss); it raises the threshold and lowers
+    the output at every point.
     Returns ``{points, summary, params, warnings}``.
     """
     params = resolve_params(data, eng)
@@ -814,15 +830,17 @@ def pump_scan(data, eng, pump_powers_W, T_oc=None, n_z=DEFAULT_N_Z,
         w_l = mean_mode_radius(slices)
         w_p = params["w_p0"]  # mode A uses the pump waist
         P_abs = params["eta_abs"] * P
-        mode_a = mode_a_output(params, P, w_p, w_l)
+        mode_a = mode_a_output(params, P, w_p, w_l, extra_loss)
         try:
-            mode_b = solve_p_circ(params, slices, P_abs, delta, n_gh=n_gh)
+            mode_b = solve_p_circ(params, slices, P_abs, delta, n_gh=n_gh,
+                                  extra_loss=extra_loss)
         except PowerError as e:
             point.update({"status": "failed", "error": str(e)})
             points.append(point)
             continue
         hom = higher_order_gains(params, slices, P_abs,
-                                 mode_b["P_circ"], delta, n_gh=n_gh)
+                                 mode_b["P_circ"], delta + extra_loss,
+                                 n_gh=n_gh)
         point.update({"status": "ok", "w_l_um": w_l * 1e6,
                       "w_p_um": w_p * 1e6,
                       "P_th_A_W": mode_a["P_th"],
@@ -862,7 +880,8 @@ def pump_scan(data, eng, pump_powers_W, T_oc=None, n_z=DEFAULT_N_Z,
                 slices = _slices_for(data, res, params, n_z, F_m=F_cli)
                 m2 = two_mode_m2(params, slices,
                                  params["eta_abs"] * pt["P_pump_W"],
-                                 delta, pt["P_circ"], n_gh=n_gh)
+                                 delta + extra_loss, pt["P_circ"],
+                                 n_gh=n_gh)
                 summary["M2_at_max_pump"] = m2
                 summary["M2_pump_W"] = pt["P_pump_W"]
     return {"points": points, "summary": summary,
@@ -870,12 +889,14 @@ def pump_scan(data, eng, pump_powers_W, T_oc=None, n_z=DEFAULT_N_Z,
 
 
 def toc_scan(data, eng, P_pump_W, toc_values, n_z=DEFAULT_N_Z,
-             n_gh=DEFAULT_N_GH, binary=None, timeout=None):
+             n_gh=DEFAULT_N_GH, binary=None, timeout=None,
+             extra_loss=0.0):
     """``P_out`` vs ``T_oc`` at fixed pump power; finds ``T_opt``.
 
     The cavity optics depend only on the thermal focal length at this
     pump power, so one CLI call suffices; only the loss ``delta``
-    changes across the scan.
+    changes across the scan. ``extra_loss`` is an additional
+    round-trip loss fraction (e.g. the Jones polarisation loss).
     """
     params = resolve_params(data, eng)
     label = params["gain_label"]
@@ -914,8 +935,9 @@ def toc_scan(data, eng, P_pump_W, toc_values, n_z=DEFAULT_N_Z,
         delta = float(T_oc) + params["L_i"]
         params_T = dict(params)
         params_T["T_oc"] = float(T_oc)
-        mode_a = mode_a_output(params_T, P_pump_W, w_p, w_l)
-        mode_b = solve_p_circ(params_T, slices, P_abs, delta, n_gh=n_gh)
+        mode_a = mode_a_output(params_T, P_pump_W, w_p, w_l, extra_loss)
+        mode_b = solve_p_circ(params_T, slices, P_abs, delta, n_gh=n_gh,
+                              extra_loss=extra_loss)
         point = {"T_oc": float(T_oc), "delta": delta,
                  "P_th_A_W": mode_a["P_th"], "P_out_A": mode_a["P_out"],
                  "P_th_B_W": mode_b["P_th_abs"] / params["eta_abs"],

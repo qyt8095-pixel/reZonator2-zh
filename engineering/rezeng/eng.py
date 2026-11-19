@@ -76,7 +76,8 @@ def new_eng():
     """An empty side-car document with the documented sections."""
     return {"format_version": FORMAT_VERSION,
             "laser": {}, "board": {}, "elements": {},
-            "gain_and_pump": {}, "nonlinear_shg": {}}
+            "elements_ext": {}, "gain_and_pump": {}, "nonlinear_shg": {},
+            "mopa_chain": {}}
 
 
 def _is_number(value):
@@ -146,7 +147,8 @@ def validate_eng(data):
                         % (version, FORMAT_VERSION))
     for key in data:
         if key not in ("format_version", "laser", "board", "elements",
-                       "gain_and_pump", "nonlinear_shg"):
+                       "elements_ext", "gain_and_pump", "nonlinear_shg",
+                       "mopa_chain", "notes"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -372,4 +374,80 @@ def validate_eng(data):
             problems.append("nonlinear_shg.single_frequency must be a "
                             "boolean, got %r"
                             % (shg.get("single_frequency"),))
+    # -- elements_ext (Phase 2 block 3: Jones / dispersion / SESAM) --
+    # Per-label extra element data (keys are element labels, so the
+    # section is checked by hand, not with _sub). All fields optional;
+    # unknown keys inside an entry are reported (the jones /
+    # dispersion modules validate the values they actually use).
+    from .dispersion import EXT_KEYS as _EXT_KEYS
+    from .jones import _ALL_TYPES as _JONES_TYPES
+    ext = data.get("elements_ext")
+    if ext is not None:
+        if not isinstance(ext, dict):
+            problems.append("elements_ext section is not an object")
+        else:
+            for label, entry in ext.items():
+                if not isinstance(entry, dict):
+                    problems.append("elements_ext.%s is not an object"
+                                    % label)
+                    continue
+                for field in entry:
+                    if field not in _EXT_KEYS:
+                        problems.append("unknown key elements_ext.%s.%s "
+                                        "(ignored)" % (label, field))
+                jones = entry.get("jones")
+                if jones is not None:
+                    if not isinstance(jones, dict):
+                        problems.append("elements_ext.%s.jones is not an "
+                                        "object" % label)
+                    elif jones.get("type") not in _JONES_TYPES:
+                        problems.append("elements_ext.%s.jones.type must "
+                                        "be one of %s, got %r"
+                                        % (label, ", ".join(_JONES_TYPES),
+                                           jones.get("type")))
+                    elif jones.get("type") == "polarizer":
+                        for k in ("Tp", "Ts"):
+                            _frac(problems,
+                                  "elements_ext.%s.jones" % label,
+                                  k, jones.get(k), lo=0.0, hi=1.0,
+                                  lo_ok=True, hi_ok=True)
+                for k in ("gvd_fs2_per_mm", "tod_fs3_per_mm",
+                          "gdd_fs2", "tod_fs3"):
+                    v = entry.get(k)
+                    if v is not None and not _is_number(v):
+                        problems.append("elements_ext.%s.%s must be a "
+                                        "number, got %r" % (label, k, v))
+                _frac(problems, "elements_ext.%s" % label,
+                      "modulation_depth", entry.get("modulation_depth"),
+                      lo=0.0, hi=1.0, lo_ok=True, hi_ok=True)
+                _pos(problems, "elements_ext.%s" % label,
+                     "saturation_fluence_uJ_per_cm2",
+                     entry.get("saturation_fluence_uJ_per_cm2"))
+    # -- mopa_chain (Phase 2 block 3: MOPA / regenerative chain) -----
+    # Deep validation lives in rezeng.mopa.resolve_chain; here only
+    # the section shape is checked so validate_eng stays a warning
+    # pass, never a hard failure.
+    chain = _sub(problems, data, "mopa_chain",
+                 {"seed_source", "stages"})
+    if chain is not None:
+        seed = chain.get("seed_source")
+        if seed is not None and not isinstance(seed, dict):
+            problems.append("mopa_chain.seed_source is not an object")
+        stages = chain.get("stages")
+        if stages is not None:
+            if not isinstance(stages, list):
+                problems.append("mopa_chain.stages must be a list")
+            else:
+                for i, stage in enumerate(stages):
+                    if not isinstance(stage, dict):
+                        problems.append("mopa_chain.stages[%d] is not an "
+                                        "object" % i)
+                        continue
+                    for field in stage:
+                        if field not in ("stage_id", "rez_file", "passes",
+                                         "gain_element", "gain_medium",
+                                         "round_trip_loss", "loss_per_pass"):
+                            problems.append(
+                                "unknown key mopa_chain.stages[%d].%s "
+                                "(ignored)" % (i, field))
     return problems
