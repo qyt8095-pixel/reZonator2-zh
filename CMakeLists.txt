@@ -154,6 +154,7 @@ set(PROJECT_SOURCES
     src/math/GrinCalculator.h src/math/GrinCalculator.cpp
     src/math/InfoFunctions.h src/math/InfoFunctions.cpp
     src/math/LensCalculator.h
+    src/math/MisalignmentCalculator.h src/math/MisalignmentCalculator.cpp
     src/math/MultibeamCausticFunction.h src/math/MultibeamCausticFunction.cpp
     src/math/MultirangeCausticFunction.h src/math/MultirangeCausticFunction.cpp
     src/math/PlotFuncRoundTripFunction.h src/math/PlotFuncRoundTripFunction.cpp
@@ -185,6 +186,7 @@ set(PROJECT_SOURCES
     src/tests/test_InfoFunctions.cpp
     src/tests/test_LuaHelper.cpp
     src/tests/test_Math.cpp
+    src/tests/test_Misalignment.cpp
     src/tests/test_Optimizer.cpp
     src/tests/test_ParamEditor.cpp
     src/tests/test_Parameters.cpp

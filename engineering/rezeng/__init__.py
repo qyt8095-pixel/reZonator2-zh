@@ -63,6 +63,11 @@ from .montecarlo import (MonteCarloError, wilson_interval,
 from .reverse import (ReverseError, output_mirror_q, model_spot,
                       working_zone_bounds, fit_plane, fit_thermal_lens,
                       synthetic_measurements)
+from .jacobian import (JacobianError, mirror_labels, roundtrip_list,
+                       jacobian_analytic, jacobian_finite_difference,
+                       compare_jacobians, screw_turns, direction_table,
+                       tilt_to_screws, solve_correction, recenter_guide,
+                       FD_STEP_RAD, JACOBIAN_TOL, TPI_PITCH_MM)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -119,4 +124,9 @@ __all__ = [
     "ReverseError", "output_mirror_q", "model_spot",
     "working_zone_bounds", "fit_plane", "fit_thermal_lens",
     "synthetic_measurements",
+    "JacobianError", "mirror_labels", "roundtrip_list",
+    "jacobian_analytic", "jacobian_finite_difference",
+    "compare_jacobians", "screw_turns", "direction_table",
+    "tilt_to_screws", "solve_correction", "recenter_guide",
+    "FD_STEP_RAD", "JACOBIAN_TOL", "TPI_PITCH_MM",
 ]

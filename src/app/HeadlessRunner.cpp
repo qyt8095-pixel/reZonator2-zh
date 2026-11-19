@@ -8,6 +8,7 @@
 #include "../core/Values.h"
 #include "../io/SchemaReaderJson.h"
 #include "../math/BeamCalculator.h"
+#include "../math/MisalignmentCalculator.h"
 
 #include <QDebug>
 #include <QFile>
@@ -15,6 +16,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QMap>
 #include <QSet>
 #include <QStringList>
 
@@ -113,6 +115,11 @@ struct Mutation
     // Filled by resolveMutation(); empty when the mutation failed to resolve.
     std::vector<ResolvedOverride> resolved;
     QString error; // non-empty when the mutation must fail as a whole
+    // Resolved misalignment tilts (mirror element -> delta tilt, radians,
+    // unfolded frame). Empty when the mutation does not request an axis;
+    // `wantsAxis` is true exactly when a `misalign` field was present.
+    QMap<Element*, MisalignmentCalculator::Tilt> misalign;
+    bool wantsAxis = false;
 };
 
 } // namespace
@@ -192,6 +199,12 @@ int runHeadless()
                 && !obj.value(QStringLiteral("overrides")).isObject())
             {
                 printError(QStringLiteral("mutation 'overrides' must be an object"));
+                return 2;
+            }
+            if (obj.contains(QStringLiteral("misalign"))
+                && !obj.value(QStringLiteral("misalign")).isObject())
+            {
+                printError(QStringLiteral("mutation 'misalign' must be an object"));
                 return 2;
             }
             mutations.push_back(std::move(m));
@@ -288,8 +301,8 @@ int runHeadless()
     // Resolution is per mutation; a mutation with any bad override fails
     // as a whole (nothing is applied for it).
     auto resolveMutation = [&](const QJsonObject& mutObj, Mutation& mut) {
-        if (!mutObj.contains(QStringLiteral("overrides")))
-            return; // no overrides: evaluate the base values
+        if (mutObj.contains(QStringLiteral("overrides")))
+        {
         QJsonObject overrides = mutObj.value(QStringLiteral("overrides")).toObject();
         for (auto it = overrides.constBegin(); it != overrides.constEnd(); ++it)
         {
@@ -368,10 +381,108 @@ int runHeadless()
                 mut.resolved.push_back({ param, valueSi });
             }
         }
+        } // no `overrides`: evaluate the base values
+
+        // --- Misalignment tilts (optional per-mutation axis request) ---
+        // {"label": {"dT_mrad": <number>, "dS_mrad": <number>}}: delta
+        // tilts of mirrors, milliradians, in the unfolded frame
+        // (see protocol §12). Both components are optional, default 0.
+        if (!mutObj.contains(QStringLiteral("misalign")))
+            return;
+        mut.wantsAxis = true;
+        if (!isResonator)
+        {
+            mut.error = QStringLiteral(
+                "misalignment axis requires a resonator (SW or RR); "
+                "single-pass schemas have no round-trip axis");
+            return;
+        }
+        QJsonObject misalign = mutObj.value(QStringLiteral("misalign")).toObject();
+        for (auto it = misalign.constBegin(); it != misalign.constEnd(); ++it)
+        {
+            const QString label = it.key();
+            if (!it.value().isObject())
+            {
+                mut.error = QStringLiteral("misalign for element '%1' must be an object")
+                    .arg(label);
+                return;
+            }
+            Element* elem = schema.element(label);
+            if (!elem)
+            {
+                mut.error = QStringLiteral("unknown element '%1'").arg(label);
+                return;
+            }
+            if (elem->disabled())
+            {
+                mut.error = QStringLiteral("element '%1' is disabled").arg(label);
+                return;
+            }
+            if (!MisalignmentCalculator::isMirror(elem))
+            {
+                mut.error = QStringLiteral(
+                    "element '%1' is not a mirror; a misalignment tilt "
+                    "applies to flat/curved mirrors only").arg(label);
+                return;
+            }
+            MisalignmentCalculator::Tilt tilt;
+            QJsonObject t = it.value().toObject();
+            for (auto tit = t.constBegin(); tit != t.constEnd(); ++tit)
+            {
+                const QString key = tit.key();
+                if (key != QLatin1String("dT_mrad") && key != QLatin1String("dS_mrad"))
+                {
+                    mut.error = QStringLiteral("unknown misalignment key '%1' on element '%2' "
+                        "(expected 'dT_mrad' / 'dS_mrad')").arg(key, label);
+                    return;
+                }
+                if (!tit.value().isDouble() || !std::isfinite(tit.value().toDouble()))
+                {
+                    mut.error = QStringLiteral("misalignment value '%1.%2' must be a finite number")
+                        .arg(label, key);
+                    return;
+                }
+                double rad = tit.value().toDouble() * 1e-3; // mrad -> rad
+                if (key == QLatin1String("dT_mrad"))
+                    tilt.dT = rad;
+                else
+                    tilt.dS = rad;
+            }
+            mut.misalign.insert(elem, tilt);
+        }
     };
 
     for (int i = 0; i < mutationsJson.size(); i++)
         resolveMutation(mutationsJson.at(i).toObject(), mutations[i]);
+
+    // --- One MisalignmentCalculator per active element, only when asked ---
+    // Built lazily: requests without `misalign` behave exactly as before
+    // (and single-pass schemas never get here: `misalign` on them fails
+    // per mutation in resolveMutation()).
+    struct ElemAxisCalc
+    {
+        Element* element = nullptr;
+        std::unique_ptr<MisalignmentCalculator> calc;
+    };
+    std::vector<ElemAxisCalc> axisCalcs;
+    bool anyWantsAxis = false;
+    for (const auto& mut : mutations)
+        if (mut.wantsAxis)
+            anyWantsAxis = true;
+    if (anyWantsAxis && isResonator)
+    {
+        for (Element* elem : activeElems)
+        {
+            auto calc = std::make_unique<MisalignmentCalculator>(&schema, elem);
+            if (!calc->ok())
+            {
+                printError(QStringLiteral("cannot create misalignment calculator for element '%1': %2")
+                    .arg(elem->label(), calc->error()));
+                return 1;
+            }
+            axisCalcs.push_back({ elem, std::move(calc) });
+        }
+    }
 
     // Lock + back up every parameter any mutation touches (optimizer pattern:
     // events locked, original values restored when the backups are destroyed).
@@ -398,6 +509,10 @@ int runHeadless()
     };
 
     // --- Evaluate every mutation in-process ---
+    // A null axis is reported once in the top-level warnings (singular
+    // solve at g = +/-1, or a complex round-trip matrix), it is not a
+    // mutation failure.
+    bool axisWarned = false;
     QJsonArray results;
     for (auto& mut : mutations)
     {
@@ -412,6 +527,7 @@ int runHeadless()
             result[QStringLiteral("total_length_mm")] = QJsonValue::Null;
             result[QStringLiteral("beam")] = QJsonValue::Null;
             result[QStringLiteral("waist")] = QJsonValue::Null;
+            result[QStringLiteral("axis")] = QJsonValue::Null;
             results.append(result);
         };
         if (!mut.error.isEmpty())
@@ -446,6 +562,54 @@ int runHeadless()
         result[QStringLiteral("g_S")] = isResonator ? jsonDouble(gS) : QJsonValue::Null;
         result[QStringLiteral("stable")] = isResonator ? QJsonValue(stable) : QJsonValue::Null;
         result[QStringLiteral("total_length_mm")] = totalLengthMm();
+
+        // --- Optical axis under the requested mirror tilts ---
+        // Computed even for unstable cavities (the axis needs no
+        // eigenmode, only a non-singular solve); parallel to `beam`.
+        // Not requested -> null. Singular/complex -> null + one warning.
+        if (mut.wantsAxis && isResonator && !axisCalcs.empty())
+        {
+            QJsonArray axisArr;
+            bool axisOk = true;
+            QString axisProblem;
+            for (auto& ac : axisCalcs)
+            {
+                ac.calc->multMatrix("HeadlessRunner");
+                MisalignmentCalculator::AxisResult ar = ac.calc->calcAxis(mut.misalign);
+                if (!ar.ok)
+                {
+                    axisOk = false;
+                    axisProblem = ar.singular
+                        ? QStringLiteral("axis is singular (cavity at g = +/-1), no unique axis")
+                        : ar.error;
+                    break;
+                }
+                QJsonObject a;
+                a[QStringLiteral("label")] = ac.element->label();
+                a[QStringLiteral("x_T_mm")] = ar.xT * 1e3;
+                a[QStringLiteral("th_T_mrad")] = ar.thT * 1e3;
+                a[QStringLiteral("x_S_mm")] = ar.xS * 1e3;
+                a[QStringLiteral("th_S_mrad")] = ar.thS * 1e3;
+                axisArr.append(a);
+            }
+            if (axisOk)
+            {
+                result[QStringLiteral("axis")] = axisArr;
+            }
+            else
+            {
+                result[QStringLiteral("axis")] = QJsonValue::Null;
+                if (!axisWarned)
+                {
+                    axisWarned = true;
+                    warnings << axisProblem;
+                }
+            }
+        }
+        else
+        {
+            result[QStringLiteral("axis")] = QJsonValue::Null;
+        }
 
         if (isResonator && !stable)
         {

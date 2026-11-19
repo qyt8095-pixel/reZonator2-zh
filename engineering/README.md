@@ -1240,11 +1240,103 @@ h≥1e-4 才收敛到真雅可比；默认步长下求解器一步就误以为�
 | 3 点恢复（真值 F=250 mm，3% 噪声） | T：D=3.9988 /m，误差 0.03%，RMS 0.87%；S：D=3.9979 /m，误差 0.05%，RMS 0.88% |
 | 2 点远场简并（真值 D=9.5 /m，Zone II） | 拟合 D=4.0026 /m（Zone I），RMS 0.06%——收敛但答案错误，演示了陷阱 |
 
+## 装调雅可比与螺丝圈数指南（Phase 3 block 3）
+
+镜面微倾对光斑尺寸 w 的一阶偏导为零，只改变光轴位置/指向；
+没有光轴输出，有限差分对光斑求导只会得到数值噪声。因此 C++ CLI
+增加了失调光轴模式（协议 §12），本节是它的 Python 层
+（`rezeng/jacobian.py`）。
+
+### 坐标系与符号约定（必读）
+
+- **右手坐标系**：S 为全局 +y（折叠面法向）；T = S × z，z 为展开
+  光束前进方向；T/S 两面解耦。
+- **δ_T > 0**：镜面法线向 +T 偏；**δ_S > 0**：法线向 +S 偏。
+- **kick 为 +2δ**：展开坐标系中，每次经过一面镜，光线角获得
+  +2δ 的增量（反射，2 倍因子），**第一遍与返回遍都加**。
+- 光轴输出的参考面 = 该元件的**出射面**（与 beam 条目同一平面），
+  对镜面是反射后的光轴；单位 mm / mrad。
+- **θ 是镜面机械倾角，光束偏转角是其 2 倍**。雅可比的列是机械倾角；
+  螺丝圈数用机械倾角算：`N = θ·L_arm/p`。
+
+### 雅可比矩阵
+
+`jacobian_analytic(data, ref_label)`：解析雅可比——对增广 3×3
+往返系统 `(I−M_rt)v = E_rt` 求导，`dE/dδ_k` 为该镜在往返列表中
+每次出现前的矩阵乘积之和 `Σ P_before·(0,2)`；返回 `(4, 2n)` 数组，
+行 `[x_T, th_T, x_S, th_S]`（mm/mrad、mrad/mrad），列
+`[dT(M1), dS(M1), dT(M2), dS(M2), ...]`。光轴是倾角的**严格线性
+函数**（矩阵与倾角无关），所以雅可比是精确的，不是近似。
+
+`jacobian_finite_difference(data, ref_label, dtheta=1e-4)`：一次 CLI
+批量请求，每倾角一组（Δθ = 1e-4 rad），差分 CLI 光轴输出；
+与解析法一致到 1e-6 量级才算通过（用户真实腔体实测 3.7e-15）。
+
+### 螺丝圈数与方向映射表
+
+- `screw_turns(theta_rad, arm_mm, tpi)`：`N = θ·L_arm/p`，100 TPI
+  p = 0.254 mm/圈，80 TPI p = 0.3175 mm/圈。手算对照：θ = 1 mrad、
+  臂长 50 mm、100 TPI → N = 1e-3·50/0.254 = 0.19685 圈。
+- `tilt_to_screws(dT, dS, tpi, arm_T_mm, arm_S_mm, azimuth_deg)`：
+  按镜架方位角 φ 做 2×2 旋转映射，给出每颗螺丝的圈数与方向。
+- `recenter_guide(...)`：单镜位置回中指南（位置归零，指向残差报告；
+  一面镜不能同时归零四个输出量）。
+
+方向映射表（**背视图**，即从镜架背面、螺丝所在的一侧看向镜面；
+右手螺纹；标准运动学镜架布局：俯仰螺丝 A 在 +T 侧、偏摆螺丝 B
+在 +S 侧）：
+
+| 想要的倾角变化 | 螺丝 | 方向（背视图） |
+|---|---|---|
+| δ_T 增大 | A（俯仰） | 逆时针 CCW |
+| δ_T 减小 | A（俯仰） | 顺时针 CW |
+| δ_S 增大 | B（偏摆） | 逆时针 CCW |
+| δ_S 减小 | B（偏摆） | 顺时针 CW |
+
+顺时针 = 螺丝前进（向镜面顶进该侧边缘，法线向反方向转）。
+方位角 φ ≠ 0 时，螺丝 A/B 的作用方向按 `R(−φ)` 旋转
+（φ = 90° 时纯 δ_T 由 B 螺丝单独产生，方向相反）。
+
+**⚠ 方向映射必须实测标定**：不同镜架的螺丝位置、螺纹旋向可能
+与上表相反。标定方法：单镜拧一颗螺丝已知圈数，看输出光斑是否
+按预测方向移动；若反向，把该镜架的映射表符号取反。用户待提供
+实测单镜微调标定数据（见本节末尾“仍需用户提供的真实参数”）。
+
+### 验证（tests/test_jacobian.py，19 个）
+
+- 解析雅可比 vs 有限差分：M4（输出）与 M1（SESAM）两处参考面，
+  最大绝对差 3.7e-15（要求 < 1e-6）。
+- CLI 光轴线性：M2 +1 mrad = 10 × (+0.1 mrad)；M2+M3 叠加 = 各自之和。
+- 零失调 → 光轴全零；T/S 两面解耦（dT 列只动 T 行）。
+- 平面-平面腔（g=+1）解析雅可比报 `JacobianError`；SP 报
+  `JacobianError`；往返列表 SW/RR 顺序与 C++ 一致。
+- 螺丝换算手算对照（θ=1 mrad、臂长 50 mm：100 TPI 0.19685 圈、
+  80 TPI 0.15748 圈；1 圈 = 5.08 mrad）、方向映射表、方位角 90° 映射。
+
+### 演示（用户真实腔体 + 示例镜架参数）
+
+`demo_jacobian.py`：镜架参数全是**示例**（100 TPI、臂长 50 mm、
+方位角 0°），不是用户的真实镜架。
+
+| 演示 | 结果 |
+|---|---|
+| M2 dT = +0.1 mrad → M4 输出光轴 | x_T = +0.0643 mm，th_T = −0.0006 mrad；x_S = th_S = 0 |
+| M4 处完整雅可比（解析 vs 有限差分） | 最大绝对差 3.7e-15；M2 dT：x_T 0.6435 mm/mrad、th_T −0.0064 mrad/mrad；M4 dT：th_T 1.0065 mrad/mrad |
+| 用 M2 把光斑移回中心 | 修正 dT = −0.1000 mrad；俯仰螺丝 A 拧 0.0197 圈、顺时针（背视图）；位置残差 0，指向残差 < 1e-3 mrad |
+
+### 仍需用户提供的真实参数
+
+- 镜架规格：牙距（100/80 TPI 或其他）、俯仰/偏摆臂长 L_x/L_y、
+  方位角 φ（镜架螺丝轴相对腔 T/S 轴的旋转）。
+- 实测单镜微调标定数据：拧一颗螺丝已知圈数后输出光斑的移动量
+  与方向，用于验证方向映射表（上表）是否与实际镜架一致。
+- 其余 Phase 1/2/3 参数请求仍未答复（见本 README 其它各节）。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（224 个）
+python3 -m unittest discover -s tests        # 全部测试（243 个）
 python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
 python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
 python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
@@ -1266,6 +1358,7 @@ python3 run_jones.py --rez /path/to/cavity.rez [--eng <file.eng.json>]  # 琼斯
 python3 demo_jones.py                         # 用户真实腔体 + 示例参数的琼斯/GDD/TOD 演示
 python3 run_mopa.py --osc /path/to/osc.rez --eng <chain.eng.json>  # MOPA 链路（JSON 输出到 stdout）
 python3 demo_mopa.py                          # 示例两级 MOPA 链演示
+python3 demo_jacobian.py                      # 用户真实腔体 + 示例镜架参数的雅可比/螺丝指南演示
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
