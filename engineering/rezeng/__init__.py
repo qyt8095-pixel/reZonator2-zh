@@ -82,6 +82,16 @@ from .redlight import (RedlightError, RED_NM, COLD_F_MM,
 from .export import (ExportError, LIDT_SAFETY_FACTOR, coating_table,
                      to_zmx, validate_zmx, thin_lens_spot_check,
                      to_dxf, validate_dxf)
+from .thermal import (ThermalError, MATERIALS_THERMAL,
+                      THERMAL_MATERIAL_ALIASES, material_thermal,
+                      heat_source, heat_source_power_W,
+                      solve_poisson_cyl, solve_poisson_slab, solve_rod,
+                      bulge_displacement, opd_from_field, fit_opd,
+                      analytic_f_th_gaussian, on_axis_curvature_c2,
+                      phase_plate, resolve_thermal, thermal_report)
+from .fracture import (FractureError, MARGIN_FAIL, MARGIN_WARN,
+                       stress_from_profile, stress_field,
+                       fracture_margin, fracture_report)
 
 __all__ = [
     "load_rez", "save_rez", "check_overridable", "param_unit",
@@ -157,4 +167,13 @@ __all__ = [
     "ExportError", "LIDT_SAFETY_FACTOR", "coating_table",
     "to_zmx", "validate_zmx", "thin_lens_spot_check",
     "to_dxf", "validate_dxf",
+    "ThermalError", "MATERIALS_THERMAL", "THERMAL_MATERIAL_ALIASES",
+    "material_thermal", "fill_thermal_typical", "heat_source",
+    "heat_source_power_W", "solve_poisson_cyl", "solve_poisson_slab",
+    "bulge_displacement", "opd_from_field", "fit_opd",
+    "analytic_f_th_gaussian", "on_axis_curvature_c2", "phase_plate", "resolve_thermal",
+    "thermal_report",
+    "FractureError", "MARGIN_FAIL", "MARGIN_WARN",
+    "stress_from_profile", "stress_field", "fracture_margin",
+    "fracture_report",
 ]

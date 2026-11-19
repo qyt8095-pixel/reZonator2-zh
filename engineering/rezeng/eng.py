@@ -78,7 +78,8 @@ def new_eng():
             "laser": {}, "board": {}, "elements": {},
             "elements_ext": {}, "gain_and_pump": {}, "nonlinear_shg": {},
             "mopa_chain": {}, "tolerances": [], "output_mirror": {},
-            "surfaces": {}, "materials": {}, "layout": {}}
+            "surfaces": {}, "materials": {}, "layout": {},
+            "thermal": {}}
 
 
 def _is_number(value):
@@ -150,7 +151,8 @@ def validate_eng(data):
         if key not in ("format_version", "laser", "board", "elements",
                        "elements_ext", "gain_and_pump", "nonlinear_shg",
                        "mopa_chain", "tolerances", "output_mirror",
-                       "surfaces", "materials", "layout", "notes"):
+                       "surfaces", "materials", "layout", "thermal",
+                       "notes"):
             problems.append("unknown top-level key %r (ignored)" % (key,))
 
     laser = data.get("laser")
@@ -614,4 +616,106 @@ def validate_eng(data):
                             problems.append("%s.%s must be a number, "
                                             "got %r"
                                             % (where, key, entry.get(key)))
+    # -- thermal (Phase 4 block 2: conduction + fracture) ------------
+    # All fields are optional in the document; the solver raises
+    # ThermalError naming a field it needs (pump power, eta_h,
+    # absorption, h) instead of inventing a value.
+    thermal = _sub(problems, data, "thermal",
+                   {"element", "material", "material_overrides",
+                    "radius_mm", "length_mm", "pump", "cooling",
+                    "end_caps", "grid", "w_L_um", "slab"})
+    if thermal is not None:
+        if thermal.get("element") is not None \
+                and not isinstance(thermal.get("element"), str):
+            problems.append("thermal.element must be a string, got %r"
+                            % (thermal.get("element"),))
+        if thermal.get("material") is not None \
+                and not isinstance(thermal.get("material"), str):
+            problems.append("thermal.material must be a string, got %r"
+                            % (thermal.get("material"),))
+        _pos(problems, "thermal", "radius_mm", thermal.get("radius_mm"))
+        _pos(problems, "thermal", "length_mm", thermal.get("length_mm"))
+        _pos(problems, "thermal", "w_L_um", thermal.get("w_L_um"))
+        pump = _sub(problems, thermal, "pump",
+                    {"P_pump_W", "eta_p", "eta_h", "alpha_p_per_cm",
+                     "w_p0_um", "Mp2", "lambda_p_nm", "z_p0_mm",
+                     "profile"})
+        if pump is not None:
+            _pos(problems, "thermal.pump", "P_pump_W",
+                 pump.get("P_pump_W"))
+            _frac(problems, "thermal.pump", "eta_p", pump.get("eta_p"),
+                  lo=0.0, hi=1.0, lo_ok=False, hi_ok=True)
+            _frac(problems, "thermal.pump", "eta_h", pump.get("eta_h"),
+                  lo=0.0, hi=1.0, lo_ok=False, hi_ok=True)
+            _pos(problems, "thermal.pump", "alpha_p_per_cm",
+                 pump.get("alpha_p_per_cm"))
+            _pos(problems, "thermal.pump", "w_p0_um", pump.get("w_p0_um"))
+            _pos(problems, "thermal.pump", "Mp2", pump.get("Mp2"))
+            _pos(problems, "thermal.pump", "lambda_p_nm",
+                 pump.get("lambda_p_nm"))
+            _pos(problems, "thermal.pump", "z_p0_mm", pump.get("z_p0_mm"),
+                 allow_zero=True)
+            if pump.get("profile") is not None \
+                    and pump.get("profile") not in ("gaussian", "tophat"):
+                problems.append("thermal.pump.profile must be "
+                                "'gaussian' or 'tophat', got %r"
+                                % (pump.get("profile"),))
+        cooling = _sub(problems, thermal, "cooling",
+                       {"h_W_per_m2K", "T_cool_C", "end_faces"})
+        if cooling is not None:
+            _pos(problems, "thermal.cooling", "h_W_per_m2K",
+                 cooling.get("h_W_per_m2K"))
+            if cooling.get("end_faces") is not None \
+                    and cooling.get("end_faces") not in (
+                        "adiabatic", "robin", "dirichlet"):
+                problems.append("thermal.cooling.end_faces must be "
+                                "'adiabatic', 'robin' or 'dirichlet', "
+                                "got %r" % (cooling.get("end_faces"),))
+        caps = thermal.get("end_caps")
+        if caps is not None:
+            if not isinstance(caps, list):
+                problems.append("thermal.end_caps must be a list")
+            else:
+                for i, seg in enumerate(caps):
+                    where = "thermal.end_caps[%d]" % i
+                    if not isinstance(seg, dict):
+                        problems.append("%s is not an object" % where)
+                        continue
+                    for field in seg:
+                        if field not in ("z0_mm", "z1_mm",
+                                        "alpha_per_cm", "k_W_per_mK",
+                                        "material"):
+                            problems.append("unknown key %s.%s (ignored)"
+                                            % (where, field))
+                    _pos(problems, where, "z0_mm", seg.get("z0_mm"),
+                         allow_zero=True)
+                    _pos(problems, where, "z1_mm", seg.get("z1_mm"))
+                    _pos(problems, where, "alpha_per_cm",
+                         seg.get("alpha_per_cm"), allow_zero=True)
+                    _pos(problems, where, "k_W_per_mK",
+                         seg.get("k_W_per_mK"))
+        grid = thermal.get("grid")
+        if grid is not None:
+            if not isinstance(grid, dict):
+                problems.append("thermal.grid is not an object")
+            else:
+                for key in ("Nr", "Nz"):
+                    value = grid.get(key)
+                    if value is not None and (
+                            not isinstance(value, int)
+                            or isinstance(value, bool) or value < 2):
+                        problems.append("thermal.grid.%s must be an "
+                                        "integer >= 2, got %r"
+                                        % (key, value))
+        overrides = thermal.get("material_overrides")
+        if overrides is not None:
+            if not isinstance(overrides, dict):
+                problems.append("thermal.material_overrides is not an "
+                                "object")
+            else:
+                for key in ("k_W_per_mK", "dn_dT_per_K",
+                            "alpha_a_per_K", "alpha_c_per_K", "E_GPa",
+                            "nu", "sigma_fracture_MPa", "n_1064"):
+                    _pos(problems, "thermal.material_overrides", key,
+                         overrides.get(key))
     return problems

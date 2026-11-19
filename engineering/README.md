@@ -31,6 +31,10 @@ ezdxf，若未装则用手写最小 DXF 写入器）。光学计算一律复用�
 | `rezeng/ghosts.py` | 鬼像/标准具扫描：表面反射率剪枝、标准具 FSR/调制深度、一阶鬼像 q(z) 追迹与烧镜点检查（3×3 失调光轴），`scan_ghosts()` / `scan_etalons()` / `trace_ghost()` |
 | `rezeng/redlight.py` | 632.8 nm 红光对照：Sellmeier 系数库、冷腔态重算、冷腔失稳时回退到外部 HeNe 注入追迹，`redlight_report()` |
 | `rezeng/export.py` | 镀膜表 / `.zmx` / `.dxf` 导出：`coating_table()` / `to_zmx()` / `validate_zmx()` / `thin_lens_spot_check()` / `to_dxf()` / `validate_dxf()` |
+| `rezeng/thermal.py` | 热传导：柱坐标 (r,z) FD 求解器（spsolve）、端帽分段 k/α、板条 2D (x,y)、OPD 拟合与闭环、Fox-Li 相位板，`solve_rod()` / `thermal_report()` |
+| `rezeng/fracture.py` | 热应力与断裂：平面应变 σ_r/σ_θ/σ_z、最大拉应力、裕度与红线，`stress_field()` / `fracture_report()` |
+| `run_thermal.py` | 热传导 + 断裂的命令行入口：`python3 run_thermal.py --rez <file.rez> [--eng <file.eng.json>] [--pump 2,5,10] [--w-l-um 498]` |
+| `demo_thermal.py` | 用户真实腔体 TL1 + 示例参数的 2/5/10 W 热演示 |
 | `run_ghosts.py` | 鬼像/标准具扫描的命令行入口：`python3 run_ghosts.py <file.rez> [side-car] [--wavelength NM]` |
 | `run_redlight.py` | 红光对照的命令行入口：`python3 run_redlight.py <file.rez> [side-car] [--red-nm NM] [--w0 MM] [--double-pass]` |
 | `run_export.py` | 导出的命令行入口：`python3 run_export.py <file.rez> [side-car] [--coating] [--zmx OUT.zmx] [--dxf OUT.dxf] [--thin-lens-check] [--no-ezdxf]` |
@@ -1620,11 +1624,161 @@ M4 HR；8 行衬底背面/晶体面 AR）。要点：M1 SESAM 正面通量
 1.465 J/cm²；TL1 两面约 0.25 J/cm²。`.zmx` 与 `.dxf` 各导出
 一份到 /tmp（不污染仓库），验证结果见上两节。
 
+## 热传导与热断裂（Phase 4 M2）
+
+`rezeng/thermal.py`（柱坐标 FD 求解器 + OPD 闭环）与
+`rezeng/fracture.py`（平面应变应力 + 断裂裕度），入口
+`run_thermal.py`（JSON 报告）与 `demo_thermal.py`（用户真实
+腔体 TL1 的 2/5/10 W 扫描）。纯 Python，不改 C++；求解中间值
+不写进 `.rez`，全部在 side-car `thermal` 一节。
+
+### 离散化与边界条件
+
+柱坐标 (r, z) 稳态泊松方程 `∇·(k∇T) + Q(r,z) = 0`，有限差分
++ `scipy.sparse.linalg.spsolve`（稀疏直接 LU，不写 SOR）。
+默认网格 Nr×Nz = 60×150；r=0 奇点用 L'Hôpital 展开
+（径向拉普拉斯化为 `2∂²T/∂r² ≈ 4(T₁−T₀)/Δr²`）；圆柱侧面
+Robin 边界 `−k∂T/∂r = h(T − T_cool)`；两端面按对流/绝热可
+选（`end_faces: adiabatic|robin|dirichlet`）。**h 没有默认值**：
+它决定绝对温度，必须由用户给定（铟箔接触典型 5000 W/m²K
+只是示例值）；不给 h 时 `resolve_thermal` 直接报错。
+
+### 热源
+
+`Q(r,z) = η_h·α(z)·P_pump/[2πw_p²(z)]·exp(−2r²/w_p²(z))·exp(−∫₀^z α dz′)`，
+泵浦沿 z 按 Beer–Lambert 指数衰减、径向高斯/平顶可选
+（`profile: gaussian|tophat`）；w_p(z) 按泵浦高斯光束发散
+（M_p²、λ_p、腰位 z_p0）。**注意：Gemini 评审给的高斯热源
+前置因子错了 4 倍**——`η_h·α·P/(2πw_p²)·exp(−2r²/w_p²)`
+对 r 积分只得到 `η_h·P_abs/4`，正确前置因子是 `2/(πw_p²)`
+（标准光束强度归一化）；能量平衡测试已锁定。求解后 Q 按离散
+积分重标定（形状不变），使总产热严格等于 `η_h·P_abs`。
+
+### 端帽键合晶体
+
+`thermal.end_caps` 给出分段 `[{z0_mm, z1_mm, alpha_per_cm,
+k_W_per_mK}]`：无掺杂端帽区 α=0（Q=0，只导热）；界面处导热
+系数取调和平均 `k_{i+1/2} = 2k_i·k_{i+1}/(k_i + k_{i+1})`。
+`thermal.pump.alpha_p_per_cm` 与 `end_caps` 二选一。
+
+### 板条（Slab）
+
+板条破坏轴对称性，不可硬套柱坐标。`solve_poisson_slab`
+用直角坐标 2D (x,y) 网格：上下大面 Robin 冷却、左右侧面
+绝热；支持与柱坐标相同的热源/端帽分段形式。3D 板条未实现，
+需要时应报 `ThermalError` 而不是静默近似。
+
+### 材料库与各向异性
+
+`MATERIALS_THERMAL` 内置 Nd:YVO4、Nd:YAG、Yb:YAG、
+Yb:YVO4、Ti:sapphire 的热学参数（k、dn/dT、α_T、E、ν、
+σ_fracture、n），来源为公开文献值（Koechner；Innocenzi
+et al.；Castech 数据表；YAG/蓝宝石手册值），side-car 只存
+材料 ID + 可选覆盖值（`material_overrides`）。**Nd:YVO4 各
+向异性必须显式处理**：α_c ≈ 11.4e-6/K 是 α_a ≈ 4.4e-6/K 的
+2.6 倍。应力按 α_a 算主值、按 α_c 算保守界，报告同时给出
+两者并在 `warnings` 中标注；用各向同性近似时结论要留余量。
+
+### 应力与断裂裕度
+
+`rezeng/fracture.py`：平面应变解析公式（Koechner）给出
+σ_r/σ_θ/σ_z，取全域最大拉应力
+`σ_max = max(σ_r, σ_θ, σ_z)`（只看正值拉应力，脆性晶体抗
+压不抗拉）；安全裕度 `= 1 − σ_max/σ_fracture`，工程红线
+≥50%（安全系数 ≥2）：低于红线报 `fail`、50–70% 报 `warn`、
+≥70% 为 `ok`。应力分两项报告：z 平均主值与逐层局部峰值，
+取两者较大者作判据。端面鼓包
+`u_z(r) ≈ (1+ν)α_T∫ΔT dz`（z_eff 默认取 R0，积分到精确
+z_eff，含插值）。
+
+**局限性（评审指出，文档必须写明）**：平面应变公式会低估
+泵浦端面峰值拉应力 20%~40%；抛光表面微裂纹会使实际
+σ_fracture 骤降至理论值一半。裕度结论要留安全余量，不能
+贴着红线用。另：应力公式只计热应力，不含装夹/胶合预应力。
+
+### OPD 闭环
+
+沿 z 积分 `OPD(r) = ∫₀^L (dn/dT)·ΔT(r,z) dz + (n−1)·u_z(r)`，
+在激光模斑范围 r ≤ 1.5·w_L 内做偶次多项式拟合
+`OPD(r) = c₀ + c₂r² + c₄r⁴ + c₆r⁶`，提取等效焦距
+`f_th = −1/(2c₂)` 与球差系数 c₄/c₆；`phase_plate()`
+输出给 M3 Fox-Li 的相位板（`f_th_mm`、`c4_per_m3`、
+`c6_per_m5`、`rms_m`）。闭环分两层：
+
+- **轴上闭环（求解器验证）**：直接曲率 `2∫T″(0,z)dz`
+  与解析值 `−∫Q(0,z)/k·dz` 的恒等式（绝热端面，精确成立），
+  实测偏差 **−0.00%**（60×150 与 240×600 网格一致）。这是
+  本块的验收标准。
+- **模平均拟合（工程量）**：r ≤ 1.5·w_L 的拟合值是模斑范围
+  内的*有效*透镜，不是轴上透镜。用户腔体 w_L ≈ 498 µm ≫
+  w_p = 200 µm 时，模斑采到平坦的外围 OPD，拟合 f_th 比轴
+  上值长 **+88.3%**（与功率无关的几何效应）。比较 Phase 2
+  线性模型时用轴上值，Fox-Li 相位板用拟合值，不要混用。
+
+**高斯 vs 平顶因子 2**：高斯泵浦的轴上热透镜
+`1/f = η_h·P_abs·(dn/dT)/(π·K·w_p²)`；Phase 2 的线性模型
+系数 κ 是平顶结果（恰为高斯的一半）。闭环测试用高斯解析
+值，线性模型比对时另附因子 2 的说明，不要直接断言 <10%。
+
+### 网格收敛性（实测，200 µm 泵浦）
+
+| 网格 | T_max 温升 | 拟合 f_th |
+|---|---|---|
+| 60×150 | 91.3 K | 134.9 mm |
+| 120×300 | 83.6 K（−8.4%） | 155.3 mm（+15.2%） |
+| 240×600 | 81.8 K（−2.2%） | 163.7 mm（+5.4%） |
+
+二阶收敛（每加密一倍误差约 ÷4）。**60×150 默认网格对
+200 µm 泵浦偏粗**（T_max 高估 ~12%、f_th 低估 ~19%）；
+演示 side-car 用 120×300。spsolve 实测：60×150 求解
+0.239 s（含组装；Gemini 评审说的 20–50 ms 是纯求解量级，
+实测组装占大头），120×300 约 1 s，240×600 约 4 s。
+
+### 验证（tests/test_phase4_block2.py，共 23 个）
+
+解析解对照（均匀产热圆柱 + 固定边温，与解析式吻合到
+1e-9；常数温度场 → 应力为零；线性温度场 → 解析值对照）；
+制造解（圆柱 + 板条各一，Robin/绝热/Dirichlet 全覆盖）；
+能量平衡（高斯/平顶，离散积分 = η_h·P_abs）；端帽
+（端帽区 Q=0、界面 k 调和平均）；轴上闭环（直接曲率与
+解析值偏差 0.00%）；拟合范围效应（窄拟合 r≤1.0·w_L 与解
+析值偏差 −1.8%，宽拟合 r≤1.5·w_L 长 +6.2%）；网格收敛
+（二阶速率 + 120 vs 240 的界）；应力阈值（裕度分段）；
+spsolve 计时（打印实测值）。
+
+### 演示（用户真实腔体 TL1 + 示例参数）
+
+```sh
+python3 demo_thermal.py
+python3 run_thermal.py --rez /path/to/upload.rez --eng tests/data/example-thermal.eng.json --w-l-um 498.3 --pump 2,5,10
+```
+
+w_L = 498.3 µm（CLI 光束在 TL1 入/出口的平均值）。示例参数：
+27 mm Nd:YVO4、α_p=10/cm、w_p0=200 µm、M_p²=1.2、η_h=0.24、
+dn/dT=3e-6/K（Phase 2 示例覆盖值；库值 3.9e-6/K）、K=5.1、
+h=5000 W/m²K（铟箔示例）、杆半径 5 mm——**全部是示例值，
+不是实测**。
+
+| 泵浦 | T_max | 鼓包 | σ_a / 裕度 | σ_c / 裕度 | f_th 轴上 | f_th 拟合 | f_th 含鼓包 | 锚点 |
+|---|---|---|---|---|---|---|---|---|
+| 2 W | 54.1 °C | 0.325 µm | 1.86 MPa / 0.965 | 4.83 MPa / 0.909 | 465.9 mm | 877.5 mm | 269.6 mm | 575 mm |
+| 5 W | 105.3 °C | 0.813 µm | 4.66 MPa / 0.912 | 12.08 MPa / 0.772 | 186.4 mm | 351.0 mm | 107.8 mm | 230 mm |
+| 10 W | 190.5 °C | 1.625 µm | 9.32 MPa / 0.824 | 24.15 MPa / 0.544 | 93.2 mm | 175.5 mm | 53.9 mm | 115 mm |
+
+轴上闭环偏差 −0.00%（三档一致）。结论：**端面鼓包主导热
+透镜**——5 W 时含鼓包 f_th=107.8 mm，纯 dn/dT 为 186.4 mm；
+Phase 2 线性模型（锚点 230 mm）没算鼓包，与示例参数的轴
+上值差 −19%，与含鼓包值差 −53%。锚点本身是 Phase 2 的假设
+值，与示例材料参数并不自洽；真实锚点应由实测光斑经 Phase 3
+逆向拟合得到。10 W 时保守界（α_c）裕度 0.544，已进 warn
+带（红线 0.50），主值仍 ok；T_max 190.5 °C 已接近 Nd:YVO4
+长期工作的谨慎区间，10 W 档需实测 h 与 σ_fracture 再定。
+
 ## 运行与测试
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（261 个）
+python3 -m unittest discover -s tests        # 全部测试（284 个）
 python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
 python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
 python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
@@ -1650,6 +1804,8 @@ python3 demo_jacobian.py                      # 用户真实腔体 + 示例镜�
 python3 run_ghosts.py /path/to/cavity.rez [side-car] [--wavelength 1064]  # 鬼像/标准具扫描（JSON 输出到 stdout）
 python3 run_redlight.py /path/to/cavity.rez [side-car] [--w0 0.5] [--double-pass]  # 632.8 nm 红光对照（JSON 输出到 stdout）
 python3 run_export.py /path/to/cavity.rez [side-car] --coating --zmx /tmp/cavity.zmx --dxf /tmp/cavity.dxf --thin-lens-check  # 镀膜表 / .zmx / .dxf 导出
+python3 run_thermal.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--pump 2,5,10] [--w-l-um 498]  # 热传导 + 断裂报告（JSON 输出到 stdout）
+python3 demo_thermal.py                         # 用户真实腔体 TL1 + 示例参数的 2/5/10 W 热演示
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
@@ -1682,3 +1838,7 @@ LIDT（镜面 5、TL1 10 J/cm²）、楔角（TL1 0.1 mrad）、口径
 （镜面 Ø25.4、TL1 Ø10 mm）、脉冲参数（1 mJ、10 ns、1 kHz）
 也都是示例（见“鬼像/标准具扫描”“镀膜表”两节）；演示的
 `.zmx` / `.dxf` / JSON 报告写到 /tmp，不进仓库。
+`tests/data/example-thermal.eng.json` 同理：泵浦/晶体/冷却
+参数（α_p 10/cm、w_p0 200 µm、M_p² 1.2、η_h 0.24、
+dn/dT 3e-6/K、K_c 5.1 W/mK、h 5000 W/m²K、杆半径 5 mm）
+也都是示例（见“热传导与热断裂”一节），演示用，不是实测。
