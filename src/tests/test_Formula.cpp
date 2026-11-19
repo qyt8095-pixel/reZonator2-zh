@@ -104,7 +104,7 @@ TEST_METHOD(calculate_sets_error_when_empty)
     f.calculate();
     ASSERT_IS_FALSE(f.ok())
     ASSERT_IS_TRUE(tgt.failed())
-    ASSERT_IS_TRUE(tgt.error().contains("empty"))
+    ASSERT_IS_TRUE(tgt.error().contains("公式为空"))
 }
 
 TEST_METHOD(calculate_sets_error_when_bad_code)

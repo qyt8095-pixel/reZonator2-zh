@@ -431,6 +431,7 @@ namespace Caustic {
 #define TEST_CAUSTIC_FUNC(tripType, mode) \
     TEST_SCHEMA(tripType) \
     CausticFunction func(s.schema); \
+    func.setPump(s.schema->activePump()); \
     func.setMode(mode); \
     func.arg()->element = s.elem_L_foc; \
     func.arg()->range.start = 0_m; \
@@ -683,6 +684,7 @@ namespace MultirangeCaustic {
     v2.range.points = 10; \
     func.setArgs({v1, v2}); \
     func.setMode(mode); \
+    func.setPump(s.schema->activePump()); \
     func.calculate(); \
     ASSERT_FUNC_OK
 

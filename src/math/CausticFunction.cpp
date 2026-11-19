@@ -101,6 +101,8 @@ void CausticFunction::calculate(CalculationMode calcMode)
 bool CausticFunction::prepareSinglePass(Element* ref)
 {
     if (!_pump)
+        _pump = schema()->activePump();
+    if (!_pump)
     {
         setError(qApp->translate("Calc error", "未提供输入光束。"));
         return false;

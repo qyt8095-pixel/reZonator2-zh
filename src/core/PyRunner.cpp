@@ -42,6 +42,10 @@ PyRunner::PyRunner()
     // create a standalone Python std lib nearby the executable
     // using `release/prepare_python.py`
     QString binDir = qApp->applicationDirPath();
+    // Set to false when no usable Python home directory exists below;
+    // config.home then stays unset and CPython locates the standard
+    // library next to the linked libpython instead.
+    bool useHome = true;
 #ifdef Q_OS_MAC
     QDir homeDir(binDir);
     if (!QDir(binDir + "/lib/python3.12").exists())
@@ -52,6 +56,13 @@ PyRunner::PyRunner()
     QDir homeDir(binDir);
     if (!QDir(binDir + "/lib/python3.12").exists())
         homeDir = QDir(binDir + "/../vcpkg_installed/x64-linux");
+    // Pointing the interpreter at a home directory that does not exist
+    // breaks initialization ("failed to get the Python codec of the
+    // filesystem encoding"). Leave config.home unset in that case so
+    // CPython finds the standard library next to the linked libpython
+    // (system Python on a Linux dev machine).
+    if (!homeDir.exists())
+        useHome = false;
 #endif
 #ifdef Q_OS_WINDOWS
     // Zip-packed lib is still available via `PYTHONHOME={binDir}/python`
@@ -62,17 +73,20 @@ PyRunner::PyRunner()
         homeDir = QDir(binDir + "/../vcpkg_installed/x64-windows/tools/python3");
 #endif
 
-    std::wstring homePath = homeDir.absolutePath().toStdWString();
-    // +1 byte for zero-terminator. PyMem_RawCalloc initializes memory to zeros
-    config.home = (wchar_t*)PyMem_RawCalloc(homePath.size() + 1, sizeof(wchar_t));
-    if (!config.home) {
-        qCritical() << "Unable to allocate memory for PYTHONHOME";
-        initError = "无法为 PYTHONHOME 分配内存";
-        errorLog << initError;
-        PyConfig_Clear(&config);
-        return;
+    if (useHome)
+    {
+        std::wstring homePath = homeDir.absolutePath().toStdWString();
+        // +1 byte for zero-terminator. PyMem_RawCalloc initializes memory to zeros
+        config.home = (wchar_t*)PyMem_RawCalloc(homePath.size() + 1, sizeof(wchar_t));
+        if (!config.home) {
+            qCritical() << "Unable to allocate memory for PYTHONHOME";
+            initError = "无法为 PYTHONHOME 分配内存";
+            errorLog << initError;
+            PyConfig_Clear(&config);
+            return;
+        }
+        memcpy(config.home, homePath.c_str(), homePath.size() * sizeof(wchar_t));
     }
-    memcpy(config.home, homePath.c_str(), homePath.size() * sizeof(wchar_t));
 
     ADD_MODULE(PyModule::Global)
     ADD_MODULE(PyModule::Schema)
@@ -86,7 +100,10 @@ PyRunner::PyRunner()
         return;
     }
 
-    qDebug() << "PYTHONHOME" << QString::fromStdWString(std::wstring(config.home));
+    if (config.home)
+        qDebug() << "PYTHONHOME" << QString::fromStdWString(std::wstring(config.home));
+    else
+        qDebug() << "PYTHONHOME" << "(auto-detected)";
     if (config.module_search_paths_set == 1)
         for (int i = 0; i < config.module_search_paths.length; i++)
             qDebug() << "PYTHONPATH" << QString::fromStdWString(std::wstring(config.module_search_paths.items[i]));

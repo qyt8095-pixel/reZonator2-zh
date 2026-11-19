@@ -61,7 +61,14 @@ TEST_METHOD(can_calculate_matrix)
     ADD_PARAM(c, 3)
     ADD_PARAM(d, 4)
 
-    CALC_TEST_MATRIX("At=a; Bt=b; Ct=c; Dt=d; As=10*a; Bs=10*b; Cs=10*c; Ds=10*d;")
+    CALC_TEST_MATRIX(
+        "from rezonator import Matrix\n"
+        "def calc_matrix(elem):\n"
+        "    a = elem.param('a')\n"
+        "    b = elem.param('b')\n"
+        "    c = elem.param('c')\n"
+        "    d = elem.param('d')\n"
+        "    return {'Mt': Matrix(a, b, c, d), 'Ms': Matrix(10*a, 10*b, 10*c, 10*d)}\n")
 
     ASSERT_MATRIX(t, 1, 2, 3, 4)
     ASSERT_MATRIX(s, 10, 20, 30, 40)
@@ -71,7 +78,7 @@ TEST_METHOD(matrix_must_be_unity_when_empty_formula)
 {
     ElemFormula elem;
     CALC_TEST_MATRIX("")
-    ASSERT_ERROR("Formula is empty")
+    ASSERT_ERROR("无法获取函数 calc_matrix")
     ASSERT_MATRIX_IS_UNITY(elem.Mt())
     ASSERT_MATRIX_IS_UNITY(elem.Ms())
 }
@@ -79,19 +86,30 @@ TEST_METHOD(matrix_must_be_unity_when_empty_formula)
 TEST_METHOD(matrix_must_be_unity_when_invalid_formula)
 {
     ElemFormula elem;
-    CALC_TEST_MATRIX("A=1; B=2; C=3; D=unknown_func(4);")
-    ASSERT_ERROR("Unknown function 'unknown_func'")
+    CALC_TEST_MATRIX(
+        "from rezonator import Matrix\n"
+        "def calc_matrix(elem):\n"
+        "    return {'Mt': Matrix(unknown_func(4), 0, 0, 1), 'Ms': Matrix(1, 0, 0, 1)}\n")
+    ASSERT_ERROR("调用函数失败（函数：calc_matrix）")
     ASSERT_MATRIX_IS_UNITY(elem.Mt())
     ASSERT_MATRIX_IS_UNITY(elem.Ms())
 }
 
 TEST_CASE_METHOD(matrix_must_be_unity_when_no_abcd, bool hasTS, const char* missedName)
 {
+    Q_UNUSED(hasTS)
     ElemFormula elem;
-    QString code("A=1; B=2; C=3; D=4; At=5; Bt=6; Ct=7; Dt=8; As=9; Bs=10; Cs=11; Ds=12;");
-    code.replace(missedName, "dummy");
+    // The formula builds both matrices from named variables;
+    // the missed one is not assigned, so calc_matrix fails with NameError.
+    QStringList assignments = { "At = 5", "Bt = 6", "Ct = 7", "Dt = 8",
+                                "As = 9", "Bs = 10", "Cs = 11", "Ds = 12" };
+    QString code = "from rezonator import Matrix\ndef calc_matrix(elem):\n";
+    for (const auto &a : assignments)
+        if (!a.startsWith(QString(missedName) + " ="))
+            code += "    " + a + "\n";
+    code += "    return {'Mt': Matrix(At, Bt, Ct, Dt), 'Ms': Matrix(As, Bs, Cs, Ds)}\n";
     CALC_TEST_MATRIX(code)
-    ASSERT_ERROR(QString("Formula doesn't contain an expression for '%1' or it is not a number").arg(missedName))
+    ASSERT_ERROR("调用函数失败（函数：calc_matrix）")
     ASSERT_MATRIX_IS_UNITY(elem.Mt())
     ASSERT_MATRIX_IS_UNITY(elem.Ms())
 }
@@ -110,7 +128,11 @@ TEST_METHOD(params_in_formula_must_be_in_si_units)
     auto p = new Z::Parameter(Z::Dims::linear(), "a");
     p->setValue(10_cm);
     elem.addParam(p);
-    CALC_TEST_MATRIX("At=a; Bt=a; Ct=a; Dt=a; As=a; Bs=a; Cs=a; Ds=a")
+    CALC_TEST_MATRIX(
+        "from rezonator import Matrix\n"
+        "def calc_matrix(elem):\n"
+        "    a = elem.param('a')\n"
+        "    return {'Mt': Matrix(a, a, a, a), 'Ms': Matrix(a, a, a, a)}\n")
     ASSERT_MATRIX(t, 0.1, 0.1, 0.1, 0.1)
 }
 

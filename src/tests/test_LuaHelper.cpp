@@ -205,9 +205,9 @@ TEST_METHOD(can_show_refined_error_messages)
 {
     OPEN_LUA(lua)
 
-    ASSERT_LUA_ERROR(lua, "a + a", "Unknown variable 'a'")
-    ASSERT_LUA_ERROR(lua, "a(2)", "Unknown function 'a'")
-    ASSERT_LUA_ERROR(lua, "sin(a)", "Invalid argument for 'sin': unknown variable")
+    ASSERT_LUA_ERROR(lua, "a + a", "未知变量 'a'")
+    ASSERT_LUA_ERROR(lua, "a(2)", "未知函数 'a'")
+    ASSERT_LUA_ERROR(lua, "sin(a)", "'sin' 的参数无效：未知变量")
 }
 
 //------------------------------------------------------------------------------
