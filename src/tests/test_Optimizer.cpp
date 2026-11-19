@@ -179,8 +179,8 @@ TEST_METHOD(run_converges_to_max_stability)
 
     const auto& res = func.lastResult();
     TEST_LOG_DOUBLE(res.bestMerit)
-    TEST_LOG_DOUBLE(res.iterations)
-    TEST_LOG_DOUBLE(res.evaluations)
+    TEST_LOG_VALUE(res.iterations)
+    TEST_LOG_VALUE(res.evaluations)
     TEST_LOG_DOUBLE(func.targets().at(0).currentSi)
     TEST_LOG_DOUBLE(res.bestValuesSi.at(0))
     TEST_LOG_DOUBLE(res.bestValuesSi.at(1))
