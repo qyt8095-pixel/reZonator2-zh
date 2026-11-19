@@ -85,7 +85,7 @@ private:
             *actnFuncRepRate, *actnFuncMatrixMult,
             *actnFuncCaustic, *actnFuncMultirangeCaustic, *actnFuncBeamVariation,
             *actnFuncMultibeamCaustic, *actnFuncBeamParamsAtElems, *actnFuncGenericPlot,
-            *actnFuncOptimizer;
+            *actnFuncOptimizer, *actnFuncEngineeringHub;
 
 #ifdef Z_USE_PYTHON
     QAction *actnFuncCustomCode, *actnFuncCustomTable, *actnFuncCustomPlot;

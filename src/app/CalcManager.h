@@ -34,6 +34,7 @@ public slots:
     void funcBeamVariation();
     void funcBeamParamsAtElems();
     void funcOptimizer();
+    void funcEngineeringHub();
     void funcCustomTable();
     void funcCustomPlot();
 

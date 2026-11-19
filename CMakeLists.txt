@@ -124,6 +124,8 @@ set(PROJECT_SOURCES
     src/funcs/MulticausticWindow.h src/funcs/MulticausticWindow.cpp
     src/funcs/MultirangeCausticWindow.h src/funcs/MultirangeCausticWindow.cpp
     src/funcs/OptimizerWindow.h src/funcs/OptimizerWindow.cpp
+    src/funcs/EngineeringBackend.h src/funcs/EngineeringBackend.cpp
+    src/funcs/EngineeringHubDialog.h src/funcs/EngineeringHubDialog.cpp
     src/funcs/PlotFuncWindow.h src/funcs/PlotFuncWindow.cpp
     src/funcs/PlotFuncWindowV2.h src/funcs/PlotFuncWindowV2.cpp
     src/funcs/PlotFuncWindowStorable.h src/funcs/PlotFuncWindowStorable.cpp
@@ -187,6 +189,7 @@ set(PROJECT_SOURCES
     src/tests/test_LuaHelper.cpp
     src/tests/test_Math.cpp
     src/tests/test_Misalignment.cpp
+    src/tests/test_EngineeringHub.cpp
     src/tests/test_Optimizer.cpp
     src/tests/test_ParamEditor.cpp
     src/tests/test_Parameters.cpp

@@ -11,6 +11,7 @@
 #include "../funcs/MultibeamCausticWindow.h"
 #include "../funcs/MultirangeCausticWindow.h"
 #include "../funcs/OptimizerWindow.h"
+#include "../funcs/EngineeringHubDialog.h"
 #include "../funcs/StabilityMapWindow.h"
 #include "../funcs/StabilityMap2DWindow.h"
 #include "../funcs/BeamParamsAtElemsWindow.h"
@@ -149,6 +150,17 @@ void CalcManager::funcOptimizer()
 
     WindowsManager::instance().show(wnd);
     optWnd->update();
+}
+
+void CalcManager::funcEngineeringHub()
+{
+    // The Engineering Hub is a modal dialog (not an MDI window): it
+    // drives the Python backend for the currently open schema file.
+    RETURN_IF_SCHEMA_EMPTY
+
+    auto* dlg = new EngineeringHubDialog(schema()->fileName(), _parent);
+    dlg->run();
+    delete dlg;
 }
 
 void CalcManager::funcCustomTable()

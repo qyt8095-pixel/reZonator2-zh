@@ -182,6 +182,7 @@ void ProjectWindow::createActions()
     actnFuncMultibeamCaustic = A_(tr("多光束焦散线…"), _calculations, SLOT(funcMultibeamCaustic()), ":/toolbar/func_multi_beam_caustic");
     actnFuncBeamVariation = A_(tr("光束尺寸变化…"), _calculations, SLOT(funcBeamVariation()), ":/toolbar/func_beam_variation");
     actnFuncOptimizer = A_(tr("谐振腔优化…"), _calculations, SLOT(funcOptimizer()), ":/toolbar/func_optimizer");
+    actnFuncEngineeringHub = A_(tr("工程中心…"), _calculations, SLOT(funcEngineeringHub()), ":/toolbar/python_framed");
     actnFuncBeamParamsAtElems = A_(tr("元件处光束参数"), _calculations, SLOT(funcBeamParamsAtElems()), ":/toolbar/func_beamdata");
     actnFuncGenericPlot = A_(tr("新建通用绘图窗口"), this, SLOT(newGenericPlotWindow()), ":/toolbar/gauss_far_zone");
 #ifdef Z_USE_PYTHON

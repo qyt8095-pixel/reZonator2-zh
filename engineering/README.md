@@ -2051,7 +2051,7 @@ ASCII 含在 `spot_ascii` 中）；`--thermal-power P` 从 M2
 
 ```sh
 cd engineering
-python3 -m unittest discover -s tests        # 全部测试（314 个）
+python3 -m unittest discover -s tests        # 全部测试（324 个）
 python3 run_optimizer.py --config config.json  # 优化器 / Snap（JSON 配置，打印 JSON 结果）
 python3 run_zones.py --rez /path/to/cavity.rez [--d-max 12] [--n-points 300] [--f-mm 230]  # 双稳区扫描
 python3 demo_optimizer.py                     # 优化器 + Snap + 双稳区全流程演示
@@ -2081,6 +2081,9 @@ python3 run_thermal.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--pump
 python3 demo_thermal.py                         # 用户真实腔体 TL1 + 示例参数的 2/5/10 W 热演示
 python3 run_foxli.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--max-rounds 60] [--thermal-power 5] [--thermal-eng <thermal.eng.json>] [--paraxial] [--png /tmp/spot.png]  # Fox-Li 衍射报告（JSON 输出到 stdout，含光斑 ASCII）
 python3 demo_foxli.py                           # 用户真实腔体交叉验证 + 2/5/10 W 热 M² 曲线演示
+python3 run_odr.py --rez /path/to/cavity.rez [--eng <file.eng.json>] [--out /tmp/cavity.odr.html] [--foxli] [--mc-n 1000] [--pump 2,5,10] [--real]  # ODR 评审报告（HTML + JSON 摘要到 stdout）
+python3 demo_odr.py                             # 用户真实腔体 + 四个示例 side-car 合并的 ODR 演示
+python3 mcp_server.py                           # MCP 服务端（stdio，供 Cursor / Claude Desktop 调用 7 个工具）
 ```
 
 示例数据：`tests/data/example.eng.json` 是给用户真实腔体
@@ -2122,3 +2125,142 @@ dn/dT 3e-6/K、K_c 5.1 W/mK、h 5000 W/m²K、杆半径 5 mm）
 60 圈、容差 1e-5、分步 4 片）也都是示例配置（见“FFT Fox-Li
 物理光学衍射引擎”一节）；无孔径、无 OPD，热 OPD 由演示
 调用 M2 热求解器现场算出，不在 side-car 里。
+## ODR 评审报告（Phase 4 M4）
+
+`rezeng/odr.py`（入口 `run_odr.py`、`demo_odr.py`）把前面各
+块的结果汇总成一份 HTML 评审报告：一键出光路包络、稳区轨迹、
+公差良率、热应力裕度、Fox-Li 衍射、鬼像、红光对照、镀膜 BOM
+与 CAD/Zemax 导出检查，共 9 节。
+
+```sh
+python3 run_odr.py --rez /path/to/cavity.rez [--eng <file.eng.json>] \
+    [--out /tmp/cavity.odr.html] [--foxli] [--mc-n 1000] \
+    [--pump 2,5,10] [--real]
+```
+
+- `--foxli`：默认不含 Fox-Li 节（跑衍射较慢）；加此开关才
+  跑 Fox-Li（需要 side-car 里有 `foxli` 节；`data["_rez_path"]`
+  由 `build_odr_report` 自动补上，供 Fox-Li 跑 headless CLI 取
+  初始高斯光束）。
+- `--mc-n`：蒙特卡洛样本数（默认 1000；演示常用 250）。
+- `--pump`：热分析泵浦功率档（逗号分隔，默认 `2,5,10` W）。
+- `--real`：去掉页眉的“示例值”横幅——只有参数确实是实测
+  值时才用；默认报告明确标注**参数为示例值，不是真实激光
+  参数**。
+- 每一节都标注数据来源（模块名）与示例/真实属性；某一节
+  失败时该节记为 `skipped`/`error`，报告其余部分照常生成，
+  绝不整份崩溃。stdout 另打印一份 JSON 摘要（各节 id /
+  status / note、n_ok、out_html 路径）。
+- 图表用 Matplotlib 画成 base64 PNG 内嵌进 HTML（光束包络、
+  稳区轨迹、公差直方图），无外部图片链接，单文件可离线打开；
+  不用 ReportLab 或 Sphinx。WeasyPrint 转 PDF 未装，不做；
+  需要 PDF 时用浏览器打开 HTML 后打印为 PDF。
+
+报告结构（9 节）：1. 腔体与高斯光束（g_T/g_S、总长、各元件
+光斑，来源：headless CLI） 2. 稳区轨迹（Zone I/II 与工作点，
+来源：zones.py） 3. 蒙特卡洛公差（失稳率 Wilson 95% CI、监
+测点中位数、灵敏度排序，来源：montecarlo.py） 4. 热与断裂
+（各泵浦档 T_max、鼓包、σ_c、断裂裕度，红线裕度 ≥ 50%，
+来源：thermal.py + fracture.py） 5. Fox-Li 衍射（收敛、L_diff、
+各元件 M²，来源：foxli.py；默认跳过） 6. 鬼像与标准具扫描
+（来源：ghosts.py） 7. 红光对照（来源：redlight.py）
+8. 镀膜 BOM 清单（来源：export.py 镀膜表） 9. CAD/Zemax
+导出检查（.zmx/.dxf 内存生成 + 结构自检，来源：export.py；
+.zmx 未在 OpticStudio 里验证过）。
+
+## MCP 服务端（Phase 4 M4）
+
+`mcp_server.py` 把同一套 Python 引擎以 MCP 服务端暴露给
+Cursor / Claude Desktop 等 AI 客户端：stdio 传输、粗粒度
+工具、底层直接 import `rezeng`，不接受任意 shell 命令。
+
+```sh
+python3 mcp_server.py          # stdio 服务端，直接跑
+```
+
+工具清单（7 个，输入输出均为 JSON Schema，由函数签名自动
+生成）：
+
+| 工具 | 作用 |
+| --- | --- |
+| `run_foxli` | Fox-Li 衍射（`max_rounds`、`thermal_power`、`paraxial`） |
+| `analyze_thermal_fracture` | 热传导 + 热断裂（泵浦功率档） |
+| `scan_ghosts` | 鬼像 / 标准具扫描 |
+| `redlight_compare` | 632.8 nm 红光对照 |
+| `export_cad_zmx` | 镀膜表 + .zmx + .dxf 写到 `out_dir` |
+| `run_montecarlo` | 蒙特卡洛公差（`n`、`seed`、`watch`） |
+| `generate_odr_report` | ODR HTML 报告（`include_foxli`、`mc_n`、`pump_powers`） |
+
+每个工具只接受 `.rez` 路径 + side-car 路径 + 明确参数；
+缺失文件、side-car 校验失败等预期错误以 MCP `ToolError`
+返回（客户端看到 `Error executing tool <name>: <原因>`，
+`isError=true`），服务端不崩溃、后续调用照常；非预期异常
+按 SDK 惯例只返回通用文本、详情只记服务端日志。
+
+依赖注意：`mcp` 包的版本是 **2.3.0**，其中的 FastMCP 已
+改名为 **`MCPServer`**（`from mcp.server.mcpserver import
+MCPServer`），用法与旧 FastMCP 相同；stdio 传输用
+**NDJSON**（每行一个 JSON 对象），不是 LSP 式的
+Content-Length 分帧——测试客户端 `tests/test_mcp_stdio.py`
+按 NDJSON 实现，旧分帧写法会无限挂起。MCP 工具不跑 Fox-Li
+与蒙特卡洛之外的慢调用测试（端到端测试覆盖 tools/list、
+scan_ghosts、redlight_compare、export_cad_zmx、缺失文件错
+误、错误后存活；Fox-Li 与蒙特卡洛已有各自的测试文件）。
+
+## C++ 原生集成：工程中心（Phase 4 M4）
+
+`src/funcs/EngineeringHubDialog.h/.cpp` + `src/funcs/
+EngineeringBackend.h/.cpp` 是 Phase 4 的 C++/Qt MVP 入口：
+主窗口菜单 `函数 --> 工程中心…`（`CalcManager::
+funcEngineeringHub`，参考 OptimizerWindow 的接入方式），
+打开一个模态多标签页对话框；每个标签页经 QProcess 调用
+对应的 Python 后端脚本，把 JSON 结果展示为摘要 + 数值表
+（结果图先以文本摘要 + 数值表呈现，图片嵌入留待后续）。
+
+| 标签页 | 后端脚本 | 结果 |
+| --- | --- | --- |
+| Fox-Li | `run_foxli.py --max-rounds 200` | 收敛、圈数、L_diff、M1 处 M² |
+| 热分析 | `run_thermal.py --pump 2,5,10` | 各泵浦档 T_max、鼓包、σ_c、裕度 |
+| 鬼像 | `run_ghosts.py <rez> <eng>` | ok/warn/fail/nodata、标准具个数 |
+| 红光 | `run_redlight.py <rez> <eng>` | 路径（cold/fallback）、冷腔 g_T/g_S |
+| 导出 / ODR | `run_export.py <rez> <eng> --coating --zmx … --dxf …`，随后 `run_odr.py --mc-n 250` | 镀膜表文本 + .zmx/.dxf 验证、ODR 报告路径；“打开 ODR 报告”按钮用浏览器打开 HTML |
+
+后端定位规则（`EngineeringBackend::locateEngineeringDir`，
+按顺序取第一个含 `run_foxli.py` 的目录）：
+
+1. 程序可执行文件所在目录旁的 `engineering/`；
+2. 环境变量 `REZONATOR_ENGINEERING_DIR`；
+3. 用户设置 `EngineeringHub/engineeringDir`（QSettings）。
+
+Python 解释器路径同样可配置（设置 `EngineeringHub/
+pythonExecutable`，默认 `python3`）。找不到后端时，对话框
+明确显示已查找的位置与安装说明，运行按钮禁用，**不崩溃、
+不静默失败**；后端退出非零时显示退出码与标准错误输出。
+对话框要求方案已保存（未保存的方案无法运行，须先保存）；
+工程参数全部来自方案文件旁的 side-car（`<方案>.rez.eng.json`），
+求解中间值不写进 `.rez`。
+
+未做的项（明确列出，不硬凑）：**LIDT 红框预警未接入主界面
+元件列表**（checks.py 的结果尚未以 QProcess 方式接入，仍
+是 `run_checks.py` 命令行）；**红光一键切换**只做到
+EngineeringHubDialog 内的红光标签页，未做主界面的一键切换
+按钮；Solves 实时滑块联动推迟到 Phase 4.5。
+
+C++ 测试：`src/tests/test_EngineeringHub.cpp`（9 个：后端定
+位三档、脚本解析、命令拼接、JSON 解析正/反、解释器缺失、
+真实后端 smoke——对用户真实腔体跑 `run_ghosts.py`，断言
+ok=6/warn=1），注册在 `src/tests/TestSuite.h`；帮助文本见
+`help/func_engineering_hub.rst`（已加入 `help/functions.rst`
+的函数列表）。
+
+## 依赖清单（Phase 4 M4 新增）
+
+除 Phase 1–3 已有的 numpy 1.26.4、scipy 1.11.4、ezdxf 1.4.5
+外，本块新增三个用户级 pip 依赖（`pip3 install --user
+--break-system-packages …`，与 ezdxf 同样的安装方式）：
+
+- `mcp` 2.3.0（MCP 服务端；注意 FastMCP 已改名 MCPServer）
+- `jinja2` 3.1.6（ODR 报告模板）
+- `matplotlib` 3.6.3（ODR 报告内嵌图；此前已装）
+
+C++ 侧无新增第三方依赖（Qt 5.15.2 + QProcess + QSettings）。
