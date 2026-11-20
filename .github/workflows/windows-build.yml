@@ -101,10 +101,29 @@ jobs:
           # re-download hundreds of MB of Qt on every clean runner.
           cache: true
 
+            # Set up MSVC without ilammy/msvc-dev-cmd: that action has no
+      # Node.js 24 release (latest v1.13.0 targets Node.js 20), so it
+      # was the last source of the Node.js 20 deprecation warning.
+      # This does the same thing inline: run vcvarsall.bat x64 and
+      # export the resulting environment to later steps.
       - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $installPath) { throw 'vswhere did not find a Visual Studio install with VC tools' }
+          $vcvarsall = Join-Path $installPath 'VC\Auxiliary\Build\vcvarsall.bat'
+          if (-not (Test-Path $vcvarsall)) { throw "vcvarsall.bat not found at $vcvarsall" }
+          cmd /c "`"$vcvarsall`" x64 && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)$') {
+              Add-Content -Path $env:GITHUB_ENV -Value "$($Matches[1])=$($Matches[2])"
+            }
+          }
+          if ($LASTEXITCODE -ne 0) { throw "vcvarsall.bat failed with exit code $LASTEXITCODE" }
+          $envFile = Get-Content $env:GITHUB_ENV -Raw
+          if ($envFile -notmatch 'VC\\Tools\\MSVC') { throw 'MSVC bin dir missing from exported environment' }
+          Write-Host "MSVC environment exported from $vcvarsall"
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
