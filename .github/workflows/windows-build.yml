@@ -258,6 +258,11 @@ jobs:
           foreach ($dll in 'Qt5Help.dll','Qt5Sql.dll','Qt5Network.dll') {
             if (Test-Path "$qtBin\$dll") { Copy-Item "$qtBin\$dll" deploy\ }
           }
+          # Bundle the Python engineering backend (rezeng + run_*.py + MCP
+          # server) so the Engineering Hub, LIDT check and red-light mode
+          # work out of the box: the app looks for engineering/ next to
+          # the exe, and the installer copies deploy/ wholesale.
+          Copy-Item engineering deploy\engineering -Recurse
           Get-ChildItem deploy | Select-Object Name, Length
 
       - name: Build installer with Inno Setup
