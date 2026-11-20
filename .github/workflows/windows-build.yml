@@ -266,11 +266,11 @@ jobs:
           $ErrorActionPreference = 'Stop'
           # The upstream install/win/rezonator.iss expects out/redist and
           # parses version.txt with a dash suffix, neither of which holds
-          # here (version is plain 3.2.0), so generate a dedicated script
+          # here (version is plain 3.2.1), so generate a dedicated script
           # for the Chinese build instead of reusing it verbatim.
           @'
           #define AppName "reZonator2"
-          #define AppVer "3.2.0"
+          #define AppVer "3.2.1"
           [Setup]
           AppId={{53C38934-A255-44E2-9BE8-84A81E245082}
           AppName={#AppName}
@@ -280,7 +280,7 @@ jobs:
           AppVerName={#AppName} {#AppVer} Chinese Edition
           AppVersion={#AppVer}
           AppPublisher=qyt8095-pixel
-          DefaultDirName={localappdata}\Programs\{#AppName}
+          DefaultDirName={autopf}\{#AppName}
           DefaultGroupName={#AppName}
           AllowNoIcons=yes
           LicenseFile=LICENSE
@@ -296,6 +296,7 @@ jobs:
           Compression=lzma2
           SolidCompression=yes
           PrivilegesRequired=lowest
+          PrivilegesRequiredOverridesAllowed=dialog
           ArchitecturesAllowed=x64
           ArchitecturesInstallIn64BitMode=x64
           [Languages]
@@ -316,11 +317,11 @@ jobs:
           [Icons]
           Name: "{group}\{#AppName}"; Filename: "{app}\rezonator.exe"
           Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
-          ; userdesktop, not commondesktop: the installer runs per-user
-          ; (PrivilegesRequired=lowest, no elevation), so it cannot write
-          ; to C:\Users\Public\Desktop and shortcut creation fails with
-          ; IPersistFile::Save 0x80070005 (access denied).
-          Name: "{userdesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
+          ; autodesktop follows the install mode chosen in the
+          ; PrivilegesRequiredOverridesAllowed dialog: per-user installs
+          ; write the shortcut to the current user's desktop, while
+          ; all-users installs (elevated) write it to the common desktop.
+          Name: "{autodesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
           [Run]
           Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
           '@ | Out-File -Encoding utf8 installer.iss
@@ -339,5 +340,5 @@ jobs:
           name: rezonator2-zh-windows
           path: |
             deploy
-            installer/reZonator2-zh-3.2.0-setup.exe
+            installer/reZonator2-zh-3.2.1-setup.exe
           if-no-files-found: error
