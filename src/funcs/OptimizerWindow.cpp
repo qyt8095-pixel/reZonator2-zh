@@ -22,12 +22,16 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMenu>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSet>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QToolBar>
+
+#include <algorithm>
 
 using namespace Ori::Gui::V0;
 
@@ -122,8 +126,13 @@ void OptimizerWindow::createContent()
     connect(_btnAddVar, &QPushButton::clicked, this, &OptimizerWindow::addVariable);
     _btnRemoveVar = new QPushButton(tr("删除变量"));
     connect(_btnRemoveVar, &QPushButton::clicked, this, &OptimizerWindow::removeVariable);
+    _btnLengthGroup = new QPushButton(tr("总长固定…"));
+    _btnLengthGroup->setToolTip(tr("把几个臂长变量编成一组，总长固定不变、只调整臂长之间的分配"));
+    connect(_btnLengthGroup, &QPushButton::clicked, this, &OptimizerWindow::editLengthGroup);
+    _lengthGroupLabel = new QLabel();
     auto varButtons = new QWidget();
-    Ori::Layouts::LayoutH({_btnAddVar, _btnRemoveVar, Ori::Layouts::Stretch()}).useFor(varButtons);
+    Ori::Layouts::LayoutH({_btnAddVar, _btnRemoveVar, _btnLengthGroup, _lengthGroupLabel, Ori::Layouts::Stretch()}).useFor(varButtons);
+    refreshLengthGroupLabel();
 
     _targetTable = new QTableWidget();
     _targetTable->setColumnCount(TGT_COLS_COUNT);
@@ -184,6 +193,7 @@ void OptimizerWindow::update()
 {
     rebuildVariableTable();
     rebuildTargetTable();
+    refreshLengthGroupLabel();
     refreshButtons();
 }
 
@@ -221,6 +231,7 @@ void OptimizerWindow::setControlsEnabled(bool enabled)
     _targetTable->setEnabled(enabled);
     _btnAddVar->setEnabled(enabled);
     _btnRemoveVar->setEnabled(enabled);
+    _btnLengthGroup->setEnabled(enabled);
     _btnAddTarget->setEnabled(enabled);
     _btnRemoveTarget->setEnabled(enabled);
     _btnStart->setEnabled(enabled);
@@ -667,9 +678,60 @@ void OptimizerWindow::removeVariable()
         Ori::Gui::PopupMessage::hint(tr("请先在变量表中选择一行。"));
         return;
     }
+    int groupsBefore = _function->lengthGroups().size();
+    _function->onVariableRemoved(row);
+    if (_function->lengthGroups().size() < groupsBefore)
+        Ori::Gui::PopupMessage::hint(tr("已删除包含该变量的总长固定组。"));
     _function->variables().removeAt(row);
     rebuildVariableTable();
+    refreshLengthGroupLabel();
     schema()->markModified("OptimizerWindow::removeVariable");
+}
+
+void OptimizerWindow::refreshLengthGroupLabel()
+{
+    if (_function->lengthGroups().isEmpty())
+    {
+        _lengthGroupLabel->setText(tr("未设置总长固定"));
+        return;
+    }
+    const auto& g = _function->lengthGroups().first();
+    QStringList names;
+    for (int mi : g.members)
+        if (mi >= 0 && mi < _function->variables().size())
+            names << _function->variables().at(mi).displayName();
+    int dep = _function->dependentVarIndex(g);
+    QString depName = (dep >= 0 && dep < _function->variables().size())
+        ? _function->variables().at(dep).displayName() : QStringLiteral("—");
+    _lengthGroupLabel->setText(tr("总长固定：%1 = %2 %3（从属：%4）")
+        .arg(names.join("+"))
+        .arg(Z::format(_lengthUnit->fromSi(g.totalSi)))
+        .arg(_lengthUnit->name())
+        .arg(depName));
+}
+
+void OptimizerWindow::editLengthGroup()
+{
+    OptimizerLengthGroupDlg dlg(_function, _lengthUnit);
+    if (!dlg.run())
+        return;
+    const auto& r = dlg.result();
+    if (r.clear)
+    {
+        if (!_function->lengthGroups().isEmpty())
+            _function->lengthGroups().removeFirst();
+    }
+    else
+    {
+        // This window edits only the first group; any further groups
+        // (e.g. from a file) are preserved untouched.
+        if (_function->lengthGroups().isEmpty())
+            _function->lengthGroups() << r.group;
+        else
+            _function->lengthGroups()[0] = r.group;
+    }
+    refreshLengthGroupLabel();
+    schema()->markModified("OptimizerWindow::editLengthGroup");
 }
 
 void OptimizerWindow::addTarget()
@@ -827,9 +889,33 @@ bool OptimizerWindow::storableWrite(QJsonObject& root, Z::Report*)
         targetJson["weight"] = t.weight;
         targetsJson << targetJson;
     }
+    QJsonArray groupsJson;
+    for (const auto& g : _function->lengthGroups())
+    {
+        QJsonObject groupJson;
+        groupJson["total"] = g.totalSi;
+        groupJson["enabled"] = g.enabled;
+        QJsonArray membersJson;
+        for (int mi : g.members)
+        {
+            if (mi < 0 || mi >= _function->variables().size())
+                continue;
+            const auto& v = _function->variables().at(mi);
+            if (!v.param || !v.element)
+                continue;
+            QJsonObject memberJson;
+            memberJson["global"] = v.isGlobalParam;
+            memberJson["elem"] = v.isGlobalParam ? QString() : v.element->label();
+            memberJson["param"] = v.param->alias();
+            membersJson << memberJson;
+        }
+        groupJson["members"] = membersJson;
+        groupsJson << groupJson;
+    }
     root["function"] = QJsonObject({
         { "variables", varsJson },
         { "targets", targetsJson },
+        { "lengthGroups", groupsJson },
         { "lengthUnit", _lengthUnit->alias() },
     });
     return true;
@@ -889,6 +975,69 @@ bool OptimizerWindow::storableRead(const QJsonObject& root, Z::Report* report)
         _function->variables() << var;
     }
 
+    auto groupsJson = funcJson["lengthGroups"].toArray();
+    for (const auto& groupValue : groupsJson)
+    {
+        auto groupJson = groupValue.toObject();
+        OptimizerFunction::LengthGroup g;
+        g.totalSi = groupJson["total"].toDouble(0);
+        g.enabled = groupJson["enabled"].toBool(true);
+        for (const auto& memberValue : groupJson["members"].toArray())
+        {
+            auto memberJson = memberValue.toObject();
+            bool isGlobal = memberJson["global"].toBool(false);
+            Element* elem = nullptr;
+            if (isGlobal)
+                elem = const_cast<Element*>(schema()->globalParamsAsElem());
+            else
+                elem = schema()->element(memberJson["elem"].toString());
+            if (!elem)
+            {
+                if (report)
+                    report->warning(tr("谐振腔优化：总长固定组找不到元件 %1，已跳过该成员。").arg(memberJson["elem"].toString()));
+                continue;
+            }
+            auto* param = elem->param(memberJson["param"].toString());
+            if (!param)
+            {
+                if (report)
+                    report->warning(tr("谐振腔优化：元件 %1 没有参数 %2，已跳过该总长固定组成员。")
+                        .arg(elem->label(), memberJson["param"].toString()));
+                continue;
+            }
+            int varIndex = -1;
+            for (int i = 0; i < _function->variables().size(); i++)
+            {
+                const auto& v = _function->variables().at(i);
+                if (v.element == elem && v.param == param)
+                {
+                    varIndex = i;
+                    break;
+                }
+            }
+            if (varIndex < 0)
+            {
+                if (report)
+                    report->warning(tr("谐振腔优化：参数 %1.%2 不在变量表中，已跳过该总长固定组成员。")
+                        .arg(elem->label(), param->alias()));
+                continue;
+            }
+            g.members << varIndex;
+        }
+        // Old files have no "lengthGroups" key (empty array above), so
+        // they simply load without a group. A stored group that no longer
+        // validates (e.g. a member was deleted from the variable table)
+        // is dropped with a warning instead of breaking the load.
+        QString gerr = _function->validateGroup(g);
+        if (!gerr.isEmpty())
+        {
+            if (report)
+                report->warning(tr("谐振腔优化：总长固定组无效（%1），已跳过。").arg(gerr));
+            continue;
+        }
+        _function->lengthGroups() << g;
+    }
+
     auto targetsJson = funcJson["targets"].toArray();
     for (const auto& targetValue : targetsJson)
     {
@@ -917,6 +1066,7 @@ bool OptimizerWindow::storableRead(const QJsonObject& root, Z::Report* report)
 
     rebuildVariableTable();
     rebuildTargetTable();
+    refreshLengthGroupLabel();
     return true;
 }
 
@@ -1104,5 +1254,174 @@ void OptimizerTargetDlg::collect()
     if (!okW || !(w > 0))
         return WidgetResult::fail(_weightEdit, tr("请输入大于 0 的权重。")).show(this);
     _result.weight = w;
+    accept();
+}
+
+//------------------------------------------------------------------------------
+//                              OptimizerLengthGroupDlg
+//------------------------------------------------------------------------------
+
+OptimizerLengthGroupDlg::OptimizerLengthGroupDlg(OptimizerFunction* function, Z::Unit lengthUnit)
+    : RezonatorDialog(DontDeleteOnClose | UseHelpButton), _function(function), _lengthUnit(lengthUnit)
+{
+    setWindowTitle(tr("总长固定"));
+    setObjectName("OptimizerLengthGroupDlg");
+
+    _memberList = new QListWidget();
+    const auto& vars = _function->variables();
+    const auto& groups = _function->lengthGroups();
+    QSet<int> currentMembers;
+    if (!groups.isEmpty())
+        for (int mi : groups.first().members)
+            currentMembers << mi;
+    // Members of further groups (if any) cannot be picked here: this
+    // dialog edits only the first group, and a variable may belong to at
+    // most one group.
+    QSet<int> otherGroupMembers;
+    for (int gi = 1; gi < groups.size(); gi++)
+        for (int mi : groups.at(gi).members)
+            otherGroupMembers << mi;
+    bool anyEligible = false;
+    for (int i = 0; i < vars.size(); i++)
+    {
+        const auto& v = vars.at(i);
+        if (!OptimizerFunction::isLengthGroupEligible(v) || otherGroupMembers.contains(i))
+            continue;
+        anyEligible = true;
+        auto* item = new QListWidgetItem(v.displayName(), _memberList);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
+        item->setData(Qt::UserRole, i);
+        // No group yet: pre-check every eligible variable -- the common
+        // case is "all arm lengths", and unchecking is cheaper than
+        // checking one by one.
+        bool checked = groups.isEmpty() ? true : currentMembers.contains(i);
+        item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    }
+    connect(_memberList, &QListWidget::itemChanged, this, &OptimizerLengthGroupDlg::onSelectionChanged);
+
+    _totalEdit = new QLineEdit();
+    connect(_totalEdit, &QLineEdit::textEdited, this, &OptimizerLengthGroupDlg::onTotalEdited);
+
+    auto clearBtn = new QPushButton(tr("清除约束"));
+    clearBtn->setEnabled(!groups.isEmpty());
+    connect(clearBtn, &QPushButton::clicked, this, &OptimizerLengthGroupDlg::clearGroup);
+
+    _hintLabel = new QLabel();
+    _hintLabel->setWordWrap(true);
+
+    auto form = new QFormLayout();
+    form->addRow(tr("固定总长 (%1)").arg(_lengthUnit->name()), _totalEdit);
+    form->addRow(tr(""), clearBtn);
+
+    auto info = new QLabel(tr("仅连续模式的长度参数可选（不含曲率 R / 焦距 F）。"
+        "组内最后一个勾选的变量为从属变量：优化时它的值自动取“总长 − 其余成员”，"
+        "从属变量超出范围时该次评估会被惩罚、搜索自动避开。"));
+    info->setWordWrap(true);
+
+    mainLayout()->addWidget(new QLabel(tr("选择要固定总长的变量：")));
+    mainLayout()->addWidget(_memberList);
+    mainLayout()->addLayout(form);
+    mainLayout()->addWidget(_hintLabel);
+    mainLayout()->addWidget(info);
+    mainLayout()->addStretch();
+
+    if (!anyEligible)
+    {
+        _hintLabel->setText(tr("没有可用的长度变量：请先在变量表中添加连续模式的长度参数。"));
+        _totalEdit->setEnabled(false);
+    }
+    else if (!groups.isEmpty())
+    {
+        // Editing an existing group: keep its total, do not recompute.
+        _totalEdit->setText(Z::format(_lengthUnit->fromSi(groups.first().totalSi)));
+        _totalEdited = true;
+        onSelectionChanged();
+    }
+    else
+        refreshTotalFromSelection();
+}
+
+void OptimizerLengthGroupDlg::refreshTotalFromSelection()
+{
+    if (_totalEdited)
+        return;
+    double sum = 0.0;
+    const auto& vars = _function->variables();
+    for (int row = 0; row < _memberList->count(); row++)
+    {
+        auto* item = _memberList->item(row);
+        if (item->checkState() != Qt::Checked)
+            continue;
+        int vi = item->data(Qt::UserRole).toInt();
+        if (vi >= 0 && vi < vars.size() && vars.at(vi).param)
+            sum += vars.at(vi).param->value().toSi();
+    }
+    QSignalBlocker blocker(_totalEdit);
+    _totalEdit->setText(Z::format(_lengthUnit->fromSi(sum)));
+}
+
+void OptimizerLengthGroupDlg::onSelectionChanged()
+{
+    refreshTotalFromSelection();
+    // The dependent variable is the last checked one, in table order.
+    QString depName;
+    for (int row = _memberList->count() - 1; row >= 0; row--)
+    {
+        auto* item = _memberList->item(row);
+        if (item->checkState() == Qt::Checked)
+        {
+            depName = item->text();
+            break;
+        }
+    }
+    _hintLabel->setText(depName.isEmpty()
+        ? tr("请至少勾选 2 个变量。")
+        : tr("从属变量：%1（优化时自动取“总长 − 其余成员”）。").arg(depName));
+}
+
+void OptimizerLengthGroupDlg::onTotalEdited()
+{
+    _totalEdited = true;
+}
+
+void OptimizerLengthGroupDlg::clearGroup()
+{
+    _result.clear = true;
+    accept();
+}
+
+void OptimizerLengthGroupDlg::collect()
+{
+    if (_result.clear)
+    {
+        accept();
+        return;
+    }
+    QVector<int> members;
+    for (int row = 0; row < _memberList->count(); row++)
+    {
+        auto* item = _memberList->item(row);
+        if (item->checkState() == Qt::Checked)
+            members << item->data(Qt::UserRole).toInt();
+    }
+    std::sort(members.begin(), members.end());
+
+    bool ok = false;
+    double total = _totalEdit->text().toDouble(&ok);
+    if (!ok)
+        return WidgetResult::fail(_totalEdit, tr("请输入有效的固定总长。")).show(this);
+
+    OptimizerFunction::LengthGroup group;
+    group.members = members;
+    group.totalSi = _lengthUnit->toSi(total);
+    group.enabled = true;
+    // When editing the existing first group, skip it in the overlap check.
+    int skip = _function->lengthGroups().isEmpty() ? -1 : 0;
+    QString err = _function->validateGroup(group, skip);
+    if (!err.isEmpty())
+        return WidgetResult::fail(_memberList, err).show(this);
+
+    _result.group = group;
+    _result.clear = false;
     accept();
 }

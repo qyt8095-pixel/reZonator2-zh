@@ -195,6 +195,7 @@ set(PROJECT_SOURCES
     src/tests/test_EngineeringHub.cpp
     src/tests/test_LidtRedlight.cpp
     src/tests/test_Optimizer.cpp
+    src/tests/test_OptimizerLengthGroup.cpp
     src/tests/test_ParamEditor.cpp
     src/tests/test_Parameters.cpp
     src/tests/test_ParamsEditor.cpp

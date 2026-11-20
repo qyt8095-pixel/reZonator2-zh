@@ -45,6 +45,17 @@ public:
     static constexpr double UNSTABLE_BASE = 1e4;
     static constexpr double UNSTABLE_SLOPE = 1e5;
 
+    /// Penalty for a fixed-total-length group whose dependent variable is
+    /// pushed out of its [min, max] range: same constants and same shape
+    /// as the instability penalty (a constant plus a slope times the
+    /// squared overshoot), so it sits on the same merit scale -- above any
+    /// merit reachable with the constraint satisfied. The overshoot is
+    /// normalized by the dependent variable's range span (dimensionless,
+    /// like |g| - 1 for the instability penalty), otherwise a length
+    /// overshoot in meters would square to a negligible number.
+    static constexpr double GROUP_PENALTY_BASE = UNSTABLE_BASE;
+    static constexpr double GROUP_PENALTY_SLOPE = UNSTABLE_SLOPE;
+
     /// Max number of discrete candidate combinations in the outer loop.
     static constexpr int MAX_DISCRETE_COMBINATIONS_PURE = 50000;
     static constexpr int MAX_DISCRETE_COMBINATIONS_MIXED = 2048;
@@ -71,6 +82,31 @@ public:
     };
 
     enum class TargetKind { BeamRadiusT, BeamRadiusS, Astigmatism, StabilityCenter };
+
+    /**
+        Fixed-total-length group: a set of length variables whose sum is
+        held constant while the individual lengths are optimized.
+
+        The LAST enabled member (in variable-table order) is the dependent
+        variable: it is not a free search dimension, its value is always
+        computed as totalSi minus the other members (enabled members take
+        their current search values, disabled members keep their current
+        schema values). The Nelder-Mead vector therefore contains only the
+        remaining enabled members. If the computed dependent value falls
+        outside its [minSi, maxSi] range, the evaluation returns the group
+        penalty (see GROUP_PENALTY_BASE), so the search steers away from
+        the infeasible region instead of going blind on a flat plateau.
+
+        Members must be continuous-mode length variables (linear
+        dimension, not a curvature R or focal length F); the same variable
+        may belong to at most one group. See validateGroup().
+    */
+    struct LengthGroup
+    {
+        QVector<int> members;   ///< Indices into _vars, in table order.
+        double totalSi = 0;     ///< Fixed total length (SI, meters).
+        bool enabled = true;
+    };
 
     struct Target
     {
@@ -104,6 +140,33 @@ public:
     const QVector<Variable>& variables() const { return _vars; }
     QVector<Target>& targets() { return _targets; }
     const QVector<Target>& targets() const { return _targets; }
+    QVector<LengthGroup>& lengthGroups() { return _groups; }
+    const QVector<LengthGroup>& lengthGroups() const { return _groups; }
+
+    /// Validates one length group; returns an error message or empty string.
+    /// The same rules are enforced by the UI when a group is created and by
+    /// validate() at run entry. `skipGroupIndex` excludes one stored group
+    /// from the overlap check (used when the UI validates an edited
+    /// replacement for the group at that index); -1 checks against all.
+    QString validateGroup(const LengthGroup& group, int skipGroupIndex = -1) const;
+
+    /// True when the variable is the dependent of some enabled group
+    /// (i.e. it is not a free search dimension).
+    bool isGroupDependent(int varIndex) const;
+
+    /// Index of the group's dependent variable (last enabled member), or -1
+    /// when the group has no enabled member. Defensive: returns -1 for
+    /// out-of-range member indices or null parameters.
+    int dependentVarIndex(const LengthGroup& group) const;
+
+    /// True when the variable may join a length group: continuous mode,
+    /// linear dimension, and not a curvature R or focal length F.
+    static bool isLengthGroupEligible(const Variable& v);
+
+    /// Drops every group containing the variable at `index` and shifts
+    /// member indices above it down by one. Must be called when a variable
+    /// is removed from the table, otherwise group member indices dangle.
+    void onVariableRemoved(int index);
 
     bool hasResult() const { return _hasResult; }
     const RunResult& lastResult() const { return _last; }
@@ -111,8 +174,11 @@ public:
     /// Validates the current variables/targets; returns an error message or empty string.
     QString validate() const;
 
-    /// Evaluates the merit function for the given parameter values (SI, one per variable).
-    /// Safe to call outside run(): a temporary evaluation session is created if needed.
+    /// Evaluates the merit function for the given parameter values (SI, one
+    /// per variable, in variable-table order). The slot of a
+    /// group-dependent variable is ignored: its value is recomputed from
+    /// the group's fixed total. Safe to call outside run(): a temporary
+    /// evaluation session is created if needed.
     double evaluate(const QVector<double>& valuesSi);
 
     /// Runs the optimization. On return, schema parameters are restored to
@@ -133,6 +199,7 @@ private:
 
     QVector<Variable> _vars;
     QVector<Target> _targets;
+    QVector<LengthGroup> _groups;
     RunResult _last;
     bool _hasResult = false;
     std::unique_ptr<OptimizationSession> _session;
@@ -140,6 +207,15 @@ private:
     void beginSession();
     void endSession();
     double evaluateInternal(const QVector<double>& valuesSi);
+    /// Writes the dependent values of all enabled groups into `valuesSi`
+    /// (one entry per variable, in variable-table order). Returns false
+    /// when some dependent value falls outside its [minSi, maxSi] range,
+    /// setting `penalty` to the group penalty (largest violation wins).
+    /// Disabled group members are read from their current schema values,
+    /// not from `valuesSi`. Invalid groups (bad indices, null parameters,
+    /// discrete members) are skipped defensively; validateGroup() is the
+    /// user-facing gate that rejects them at run entry.
+    bool resolveGroupDependents(QVector<double>& valuesSi, double& penalty) const;
     double beamRadiusAt(Element* elem, Z::WorkPlane plane);
     void resetTargetCurrents();
     double normValue(int varIndex, double valueSi) const;

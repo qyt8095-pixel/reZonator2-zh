@@ -50,6 +50,216 @@ QString OptimizerFunction::Target::displayName() const
 }
 
 //------------------------------------------------------------------------------
+//                              Length group
+//------------------------------------------------------------------------------
+
+int OptimizerFunction::dependentVarIndex(const LengthGroup& group) const
+{
+    // Members are kept in variable-table order, so the last enabled member
+    // encountered is the dependent variable.
+    int dep = -1;
+    for (int mi : group.members)
+    {
+        if (mi < 0 || mi >= _vars.size())
+            continue;
+        const auto& v = _vars.at(mi);
+        if (v.enabled && v.param)
+            dep = mi;
+    }
+    return dep;
+}
+
+bool OptimizerFunction::isGroupDependent(int varIndex) const
+{
+    for (const auto& g : _groups)
+    {
+        if (!g.enabled)
+            continue;
+        if (dependentVarIndex(g) == varIndex)
+            return true;
+    }
+    return false;
+}
+
+bool OptimizerFunction::isLengthGroupEligible(const Variable& v)
+{
+    // Only additive lengths belong in a total-length group: curvature R
+    // and focal length F share the linear dimension but are not cavity
+    // lengths. Discrete variables cannot be group members either: their
+    // values come from a fixed candidate list, not from the total.
+    return v.param
+        && v.mode == VarMode::Continuous
+        && v.param->dim() == Z::Dims::linear()
+        && v.param->alias() != QStringLiteral("R")
+        && v.param->alias() != QStringLiteral("F");
+}
+
+void OptimizerFunction::onVariableRemoved(int index)
+{
+    for (int gi = _groups.size() - 1; gi >= 0; gi--)
+    {
+        auto& g = _groups[gi];
+        if (g.members.contains(index))
+        {
+            // The group lost a member: drop the whole group rather than
+            // keeping a broken constraint behind the user's back.
+            _groups.removeAt(gi);
+            continue;
+        }
+        for (int& mi : g.members)
+            if (mi > index)
+                mi--;
+    }
+}
+
+QString OptimizerFunction::validateGroup(const LengthGroup& group, int skipGroupIndex) const
+{
+    if (!group.enabled)
+        return QString();
+    if (group.members.size() < 2)
+        return qApp->translate("Optimizer", "总长固定组至少需要 2 个成员。");
+
+    for (int i = 0; i < group.members.size(); i++)
+    {
+        int mi = group.members.at(i);
+        if (mi < 0 || mi >= _vars.size())
+            return qApp->translate("Optimizer", "总长固定组包含无效的变量。");
+        for (int j = i + 1; j < group.members.size(); j++)
+            if (group.members.at(j) == mi)
+                return qApp->translate("Optimizer", "变量 %1 在总长固定组中重复。")
+                    .arg(_vars.at(mi).displayName());
+    }
+    for (int gi = 0; gi < _groups.size(); gi++)
+    {
+        if (gi == skipGroupIndex || !_groups.at(gi).enabled)
+            continue;
+        for (int mi : group.members)
+            if (_groups.at(gi).members.contains(mi))
+                return qApp->translate("Optimizer", "变量 %1 已在另一个总长固定组中。")
+                    .arg(_vars.at(mi).displayName());
+    }
+
+    int enabledCount = 0;
+    double fixedSum = 0.0;  // Disabled members count at their current values.
+    double minSum = 0.0, maxSum = 0.0;
+    for (int mi : group.members)
+    {
+        const auto& v = _vars.at(mi);
+        if (!v.param || !v.element)
+            return qApp->translate("Optimizer", "总长固定组包含无效的变量。");
+        if (v.mode != VarMode::Continuous)
+            return qApp->translate("Optimizer", "变量 %1 是离散模式，不能加入总长固定组。")
+                .arg(v.displayName());
+        // Only additive lengths belong here: curvature R and focal length F
+        // share the linear dimension but are not cavity lengths.
+        if (v.param->dim() != Z::Dims::linear()
+            || v.param->alias() == QStringLiteral("R")
+            || v.param->alias() == QStringLiteral("F"))
+            return qApp->translate("Optimizer", "变量 %1 不是长度参数，不能加入总长固定组。")
+                .arg(v.displayName());
+        if (v.enabled)
+        {
+            enabledCount++;
+            minSum += v.minSi;
+            maxSum += v.maxSi;
+        }
+        else
+            fixedSum += v.param->value().toSi();
+    }
+    if (enabledCount < 2)
+        return qApp->translate("Optimizer", "总长固定组至少需要 2 个启用的成员（一个自由变量和一个从属变量）。");
+    if (!(group.totalSi > 0))
+        return qApp->translate("Optimizer", "固定总长必须大于 0。");
+
+    // Feasibility: the free part of the total must leave room for the
+    // dependent variable strictly inside its [min, max]. At either
+    // boundary the group degenerates to a single point (no freedom left),
+    // so the boundary itself is rejected as well.
+    double freeTotal = group.totalSi - fixedSum;
+    auto fmtMm = [](double v) { return QString::number(v * 1e3, 'g', 6); };
+    if (freeTotal <= minSum)
+        return qApp->translate("Optimizer", "固定总长（%1 mm）必须大于各成员下限之和（%2 mm），否则从属变量没有取值空间。")
+            .arg(fmtMm(group.totalSi)).arg(fmtMm(fixedSum + minSum));
+    if (freeTotal >= maxSum)
+        return qApp->translate("Optimizer", "固定总长（%1 mm）必须小于各成员上限之和（%2 mm），否则从属变量没有取值空间。")
+            .arg(fmtMm(group.totalSi)).arg(fmtMm(fixedSum + maxSum));
+    return QString();
+}
+
+bool OptimizerFunction::resolveGroupDependents(QVector<double>& valuesSi, double& penalty) const
+{
+    penalty = 0.0;
+    bool ok = true;
+    for (const auto& g : _groups)
+    {
+        if (!g.enabled)
+            continue;
+        int dep = dependentVarIndex(g);
+        if (dep < 0 || dep >= valuesSi.size())
+            continue;
+        const auto& depVar = _vars.at(dep);
+        if (!depVar.param || depVar.mode != VarMode::Continuous)
+            continue;
+        double sum = 0.0;
+        bool usable = true;
+        for (int mi : g.members)
+        {
+            if (mi < 0 || mi >= _vars.size())
+            {
+                usable = false;
+                break;
+            }
+            const auto& v = _vars.at(mi);
+            if (!v.param)
+            {
+                usable = false;
+                break;
+            }
+            if (mi == dep)
+                continue;
+            if (v.enabled && v.mode == VarMode::Continuous)
+            {
+                if (mi >= valuesSi.size())
+                {
+                    usable = false;
+                    break;
+                }
+                sum += valuesSi.at(mi);
+            }
+            else if (v.enabled)
+            {
+                // A discrete enabled member: rejected by validateGroup(),
+                // skipped defensively here (the group is not applied).
+                usable = false;
+                break;
+            }
+            else
+                sum += v.param->value().toSi();
+        }
+        if (!usable)
+            continue;
+        double depValue = g.totalSi - sum;
+        valuesSi[dep] = depValue;
+        double span = depVar.maxSi - depVar.minSi;
+        if (span <= 0)
+            continue;
+        double over = 0.0;
+        if (depValue < depVar.minSi)
+            over = (depVar.minSi - depValue) / span;
+        else if (depValue > depVar.maxSi)
+            over = (depValue - depVar.maxSi) / span;
+        if (over > 0)
+        {
+            ok = false;
+            double p = GROUP_PENALTY_BASE + GROUP_PENALTY_SLOPE * over * over;
+            if (p > penalty)
+                penalty = p;
+        }
+    }
+    return ok;
+}
+
+//------------------------------------------------------------------------------
 //                              EvalSession
 //------------------------------------------------------------------------------
 
@@ -170,6 +380,13 @@ QString OptimizerFunction::validate() const
         return qApp->translate("Optimizer", "离散变量的候选组合数（%1）超过上限 %2，请减少候选值。")
             .arg(discreteCombos).arg(comboLimit);
 
+    for (int gi = 0; gi < _groups.size(); gi++)
+    {
+        QString gerr = validateGroup(_groups.at(gi), gi);
+        if (!gerr.isEmpty())
+            return gerr;
+    }
+
     for (const auto& t : _targets)
     {
         if (t.kind == TargetKind::BeamRadiusT || t.kind == TargetKind::BeamRadiusS)
@@ -276,14 +493,33 @@ double OptimizerFunction::evaluateInternal(const QVector<double>& valuesSi)
     if (!_session || !_session->stabCalc || !_session->stabCalc->ok())
         return PENALTY_UNSTABLE;
 
-    int vi = 0;
-    for (auto& v : _vars)
+    // Fixed-total-length groups first: dependent values are algebraic
+    // functions of the free values, recomputed on every evaluation (never
+    // iterated). An out-of-range dependent returns the group penalty
+    // before any parameter is touched, so the beam calculation never sees
+    // an invalid length.
+    QVector<double> resolved = valuesSi;
+    double groupPenalty = 0.0;
+    if (!resolveGroupDependents(resolved, groupPenalty))
     {
+        resetTargetCurrents();
+        return std::isfinite(groupPenalty) ? groupPenalty : PENALTY_UNSTABLE;
+    }
+
+    // Values are read by variable-table index, NOT sequentially: disabled
+    // variables keep their schema values, so the i-th entry of `resolved`
+    // always belongs to the i-th variable. A sequential read would
+    // misassign values whenever a disabled variable precedes an enabled
+    // one (the i-th enabled variable would read the slot of the i-th
+    // variable overall).
+    for (int i = 0; i < _vars.size(); i++)
+    {
+        const auto& v = _vars.at(i);
         if (!v.enabled || !v.param)
             continue;
-        if (vi >= valuesSi.size())
+        if (i >= resolved.size())
             return PENALTY_UNSTABLE;
-        Z::Param::setSi(v.param, valuesSi.at(vi++));
+        Z::Param::setSi(v.param, resolved.at(i));
     }
 
     auto* stab = _session->stabCalc.get();
@@ -515,6 +751,11 @@ OptimizerFunction::RunResult OptimizerFunction::runNelderMead(
     res.stopped = nm.stopped && stopFlag && *stopFlag;
     for (size_t i = 0; i < contIdx.size(); i++)
         res.bestValuesSi[contIdx[i]] = denormValue(contIdx[i], nm.x[i]);
+    // The search never wrote the group-dependent slots (they are not free
+    // dimensions); recompute them from the free values so that apply(),
+    // the result table and the tie-break distance see the true optimum.
+    double dummyPenalty = 0.0;
+    resolveGroupDependents(res.bestValuesSi, dummyPenalty);
     return res;
 }
 
@@ -603,6 +844,10 @@ OptimizerFunction::RunResult OptimizerFunction::run(int maxIter, const bool* sto
     for (int i = 0; i < _vars.size(); i++)
     {
         if (!_vars[i].enabled)
+            continue;
+        // Group dependents are not free search dimensions: their values
+        // are recomputed from the group total on every evaluation.
+        if (_vars[i].mode == VarMode::Continuous && isGroupDependent(i))
             continue;
         if (_vars[i].mode == VarMode::Continuous)
             contIdx << i;

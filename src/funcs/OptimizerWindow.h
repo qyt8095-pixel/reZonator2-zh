@@ -13,6 +13,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
 class QLineEdit;
+class QListWidget;
 class QPushButton;
 class QSpinBox;
 QT_END_NAMESPACE
@@ -29,6 +30,15 @@ class ElemSelectorWidget;
     Optimizer tool window: two editable tables (variables and merit targets)
     plus a bottom control bar (Start / Stop, max iterations, live Merit
     value, Apply / Revert). The calculation itself lives in OptimizerFunction.
+
+    The "总长固定…" button next to the variable table opens a dialog that
+    builds one fixed-total-length group (see OptimizerFunction::LengthGroup):
+    pick length variables (e.g. d1.L … d4.L) and a fixed total; the last
+    enabled member becomes the dependent variable and is recomputed as
+    total minus the others on every evaluation and on Apply. The group is
+    saved with the window in the .she file. The function layer supports
+    several groups, but this window edits only the first one (others, if
+    any, are preserved untouched).
 */
 class OptimizerWindow : public SchemaMdiChild, public ISchemaWindowStorable
 {
@@ -69,6 +79,7 @@ private slots:
     void removeVariable();
     void addTarget();
     void removeTarget();
+    void editLengthGroup();
     void onVariableCellChanged(int row, int col);
     void onTargetCellChanged(int row, int col);
     void onLengthUnitChanged(int index);
@@ -117,6 +128,8 @@ private:
     QPushButton* _btnRevert;
     QPushButton* _btnAddVar;
     QPushButton* _btnRemoveVar;
+    QPushButton* _btnLengthGroup;
+    QLabel* _lengthGroupLabel;
     QPushButton* _btnAddTarget;
     QPushButton* _btnRemoveTarget;
     QSpinBox* _maxIter;
@@ -149,6 +162,7 @@ protected:
     void refreshCurrentValues();
     void refreshTargetResults();
     void refreshResultValues();
+    void refreshLengthGroupLabel();
     void refreshButtons();
     void showResultSummary();
     void setControlsEnabled(bool enabled);
@@ -254,6 +268,56 @@ private:
     QComboBox* _kind;
     QLineEdit* _targetEdit;
     QLineEdit* _weightEdit;
+};
+
+//------------------------------------------------------------------------------
+
+/**
+    Dialog for building (or clearing) the fixed-total-length group:
+    a checklist of the eligible length variables plus the fixed total.
+
+    The total defaults to the sum of the checked members' current values
+    and is recomputed when the selection changes, until the user edits it
+    by hand. On accept the group is validated with
+    OptimizerFunction::validateGroup(); an invalid group keeps the dialog
+    open with a warning instead of being silently accepted.
+*/
+class OptimizerLengthGroupDlg : public RezonatorDialog
+{
+    Q_OBJECT
+
+public:
+    struct Result
+    {
+        bool clear = false;                     ///< True: remove the group.
+        OptimizerFunction::LengthGroup group;   ///< Valid when !clear.
+    };
+
+    explicit OptimizerLengthGroupDlg(OptimizerFunction* function, Z::Unit lengthUnit);
+
+    const Result& result() const { return _result; }
+
+protected:
+    QString helpTopic() const override { return OptimizerFunction::help_topic(); }
+
+protected slots:
+    void collect() override;
+
+private slots:
+    void onSelectionChanged();
+    void onTotalEdited();
+    void clearGroup();
+
+private:
+    OptimizerFunction* _function;
+    Result _result;
+    Z::Unit _lengthUnit;
+    QListWidget* _memberList;
+    QLineEdit* _totalEdit;
+    QLabel* _hintLabel;
+    bool _totalEdited = false;
+
+    void refreshTotalFromSelection();
 };
 
 #endif // OPTIMIZER_WINDOW_H

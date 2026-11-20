@@ -36,6 +36,7 @@ USE_GROUP(ElementSelectorWidgetTests)              // test_ElemSelectorWidget.cp
 USE_GROUP(PumpWindowTests)                         // test_PumpWindow.cpp
 USE_GROUP(LuaHelperTests)                          // test_LuaHelper.cpp
 USE_GROUP(OptimizerTests)                          // test_Optimizer.cpp
+USE_GROUP(OptimizerLengthGroupTests)               // test_OptimizerLengthGroup.cpp
 USE_GROUP(MisalignmentTests)                       // test_Misalignment.cpp
 USE_GROUP(EngineeringHubTests)                     // test_EngineeringHub.cpp
 USE_GROUP(LidtRedlightTests)                       // test_LidtRedlight.cpp
@@ -78,6 +79,7 @@ TEST_SUITE(
     ADD_GROUP(PumpWindowTests),
     ADD_GROUP(LuaHelperTests),
     ADD_GROUP(OptimizerTests),
+    ADD_GROUP(OptimizerLengthGroupTests),
     ADD_GROUP(MisalignmentTests),
     ADD_GROUP(EngineeringHubTests),
     ADD_GROUP(LidtRedlightTests),
