@@ -1,5 +1,4 @@
 #include "app/Appearance.h"
-#include "app/HeadlessRunner.h"
 #include "core/Format.h"
 #include "core/Protocol.h"
 #include "tests/TestSuite.h"
@@ -53,12 +52,11 @@ int main(int argc, char* argv[])
     auto optionVersion = parser.addVersionOption();
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     QCommandLineOption optionTest("test", "Run unit-test session.");
-    QCommandLineOption optionHeadless("headless", "Run headless batch evaluation: read a JSON request from stdin and write JSON results to stdout.");
     QCommandLineOption optionTool("tool", "Run a tool: gauss, calc, elems, funcs, grin, lens", "name");
     QCommandLineOption optionDevMode("dev"); optionDevMode.setFlags(QCommandLineOption::HiddenFromHelp);
     QCommandLineOption optionConsole("console"); optionConsole.setFlags(QCommandLineOption::HiddenFromHelp);
     QCommandLineOption optionExample("example"); optionExample.setFlags(QCommandLineOption::HiddenFromHelp);
-    parser.addOptions({optionTest, optionHeadless, optionTool, optionDevMode, optionConsole, optionExample});
+    parser.addOptions({optionTest, optionTool, optionDevMode, optionConsole, optionExample});
 
     if (!parser.parse(QApplication::arguments()))
     {
@@ -84,10 +82,6 @@ int main(int argc, char* argv[])
     // Run test session if requested
     if (parser.isSet(optionTest))
         return Ori::Testing::run(app, { ADD_SUITE(Z::Tests) });
-
-    // Headless batch evaluation: no GUI, no settings load, stdin -> stdout.
-    if (parser.isSet(optionHeadless))
-        return runHeadless();
 
     // Load application settings before any command start
     AppSettings::instance().isDevMode = parser.isSet(optionDevMode);

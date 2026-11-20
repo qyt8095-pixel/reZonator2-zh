@@ -70,7 +70,6 @@ set(PROJECT_SOURCES
     src/app/CustomElemsManager.h src/app/CustomElemsManager.cpp
     src/app/CustomFuncsLib.h src/app/CustomFuncsLib.cpp
     src/app/HelpSystem.h src/app/HelpSystem.cpp
-    src/app/HeadlessRunner.h src/app/HeadlessRunner.cpp
     src/app/MessageBus.h src/app/MessageBus.cpp
     src/app/PersistentState.h src/app/PersistentState.cpp
     src/app/ProjectOperations.h src/app/ProjectOperations.cpp
@@ -124,11 +123,6 @@ set(PROJECT_SOURCES
     src/funcs/MulticausticWindow.h src/funcs/MulticausticWindow.cpp
     src/funcs/MultirangeCausticWindow.h src/funcs/MultirangeCausticWindow.cpp
     src/funcs/OptimizerWindow.h src/funcs/OptimizerWindow.cpp
-    src/funcs/EngineeringBackend.h src/funcs/EngineeringBackend.cpp
-    src/funcs/EngineeringHubDialog.h src/funcs/EngineeringHubDialog.cpp
-    src/funcs/LidtCheckRunner.h src/funcs/LidtCheckRunner.cpp
-    src/funcs/LidtMarks.h src/funcs/LidtMarks.cpp
-    src/funcs/RedlightData.h src/funcs/RedlightData.cpp
     src/funcs/PlotFuncWindow.h src/funcs/PlotFuncWindow.cpp
     src/funcs/PlotFuncWindowV2.h src/funcs/PlotFuncWindowV2.cpp
     src/funcs/PlotFuncWindowStorable.h src/funcs/PlotFuncWindowStorable.cpp
@@ -159,7 +153,6 @@ set(PROJECT_SOURCES
     src/math/GrinCalculator.h src/math/GrinCalculator.cpp
     src/math/InfoFunctions.h src/math/InfoFunctions.cpp
     src/math/LensCalculator.h
-    src/math/MisalignmentCalculator.h src/math/MisalignmentCalculator.cpp
     src/math/MultibeamCausticFunction.h src/math/MultibeamCausticFunction.cpp
     src/math/MultirangeCausticFunction.h src/math/MultirangeCausticFunction.cpp
     src/math/PlotFuncRoundTripFunction.h src/math/PlotFuncRoundTripFunction.cpp
@@ -191,9 +184,6 @@ set(PROJECT_SOURCES
     src/tests/test_InfoFunctions.cpp
     src/tests/test_LuaHelper.cpp
     src/tests/test_Math.cpp
-    src/tests/test_Misalignment.cpp
-    src/tests/test_EngineeringHub.cpp
-    src/tests/test_LidtRedlight.cpp
     src/tests/test_Optimizer.cpp
     src/tests/test_OptimizerLengthGroup.cpp
     src/tests/test_ParamEditor.cpp

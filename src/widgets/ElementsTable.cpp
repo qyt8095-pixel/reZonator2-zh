@@ -2,11 +2,9 @@
 
 #include "RichTextItemDelegate.h"
 #include "../app/Appearance.h"
-#include "../funcs/LidtMarks.h"
 #include "../math/FormatInfo.h"
 
 #include <QAbstractTableModel>
-#include <QBrush>
 #include <QHeaderView>
 #include <QMenu>
 #include <QPainter>
@@ -58,17 +56,6 @@ public:
     ElementsTableModel(Schema* schema, QTableView* view): QAbstractTableModel(nullptr), _schema(schema), _view(view)
     {
     }
-
-    /// LIDT marks (Phase 4 follow-up): per-element damage warning
-    /// from the last ``run_checks.py`` run, keyed by element label.
-    /// Replaces the previous marks and refreshes all rows.
-    void setLidtMarks(const QMap<QString, LidtMark>& marks)
-    {
-        _lidtMarks = marks;
-        emit dataChanged(index(0, 0), index(_schema->count(), COL_COUNT-1));
-    }
-
-    void clearLidtMarks() { setLidtMarks({}); }
 
     int rowCount(const QModelIndex&) const override { return _schema->count()+1; }
     int columnCount(const QModelIndex&) const override { return COL_COUNT; }
@@ -129,27 +116,6 @@ public:
                     return tr("元件已禁用");
                 if (elem && elem->failed())
                     return elem->failReason();
-            }
-            else
-            {
-                // LIDT mark tooltip (fail/warn) on the data columns.
-                auto elem = _schema->element(row);
-                if (elem && _lidtMarks.contains(elem->label()))
-                    return _lidtMarks.value(elem->label()).tooltip();
-            }
-        }
-        else if (role == Qt::BackgroundRole)
-        {
-            // LIDT mark: fail -> red, warn -> amber. Selection
-            // highlight still wins over the background role.
-            auto elem = _schema->element(row);
-            if (elem && _lidtMarks.contains(elem->label()))
-            {
-                const LidtMark& mark = _lidtMarks[elem->label()];
-                if (mark.isFail())
-                    return QBrush(QColor(0xffc9c9));
-                if (mark.isWarn())
-                    return QBrush(QColor(0xffe4a8));
             }
         }
         else if (role == Qt::FontRole)
@@ -243,7 +209,6 @@ public:
 private:
     Schema* _schema;
     QTableView* _view;
-    QMap<QString, LidtMark> _lidtMarks;
     QPixmap _addElemIcon = QIcon(":/toolbar/elem_add").pixmap(Z::Utils::elemIconSize());
     QPixmap _disabledIcon = QIcon(":/toolbar/stop").pixmap(Z::Utils::elemIconSize());
     QPixmap _errorIcon = QIcon(":/toolbar/warning").pixmap(Z::Utils::elemIconSize());
@@ -306,16 +271,6 @@ Elements ElementsTable::selection() const
         if (elem) elems << elem;
     }
     return elems;
-}
-
-void ElementsTable::setLidtMarks(const QMap<QString, LidtMark>& marks)
-{
-    _model->setLidtMarks(marks);
-}
-
-void ElementsTable::clearLidtMarks()
-{
-    _model->clearLidtMarks();
 }
 
 void ElementsTable::selectElems(const Elements& elems)

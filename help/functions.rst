@@ -19,7 +19,6 @@
   func_stabmap
   func_stabmap_2d
   func_optimizer
-  func_engineering_hub
   func_beam_var
   func_caustic
   func_caustic_mr

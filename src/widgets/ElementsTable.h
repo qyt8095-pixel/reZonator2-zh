@@ -3,9 +3,7 @@
 
 #include "../core/Schema.h"
 #include "../core/Element.h"
-#include "../funcs/LidtMarks.h"
 
-#include <QMap>
 #include <QTableView>
 
 class ElementsTableModel;
@@ -27,12 +25,6 @@ public:
     Element* currentElem() const;
     void setCurrentElem(Element*);
     int currentRow() const;
-
-    /// LIDT marks for the element list (Phase 4 follow-up):
-    /// fail rows get a red background, warn rows an amber one,
-    /// with a fluence/ratio tooltip. An empty map clears the marks.
-    void setLidtMarks(const QMap<QString, LidtMark>& marks);
-    void clearLidtMarks();
 
     QMenu *elementContextMenu = nullptr;
     QMenu *lastRowContextMenu = nullptr;

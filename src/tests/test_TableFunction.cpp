@@ -262,7 +262,7 @@ TEST_CASE_METHOD(complare_between_elems, QString fileName)
     func.setParams(params);
     CALC_FUNC(ResultsCount(-1))
     
-    const int valCount = 4;
+    const int valCount = 3;
     using Pos = TableFunction::ResultPosition;
     
     auto areSameResults = [](const Z::PointTS &v1, const Z::PointTS &v2) {
@@ -434,11 +434,9 @@ TEST_CASE_METHOD(complare_between_elems, QString fileName)
             const auto &sizeLeft = leftVals.at(0);
             const auto &frontLeft = leftVals.at(1);
             const auto &angleLeft = leftVals.at(2);
-            const auto &offsetLeft = leftVals.at(3);
             const auto &sizeRight = rightVals.at(0);
             const auto &frontRight = rightVals.at(1);
             const auto &angleRight = rightVals.at(2);
-            const auto &offsetRight = rightVals.at(3);
             if (compareSizeT) {
                 TEST_LOG(QString("Wt: %1 == %2").arg(sizeLeft.T).arg(sizeRight.T))
                 ASSERT_NEAR_DBL(sizeLeft.T, sizeRight.T, 1e-16)
@@ -463,12 +461,6 @@ TEST_CASE_METHOD(complare_between_elems, QString fileName)
                 TEST_LOG(QString("Vs: %1 == %2").arg(angleLeft.S).arg(angleRight.S))
                 ASSERT_NEAR_DBL(angleLeft.S, angleRight.S, 1e-16)
             }
-            // The axis offset is zero in normal mode (hot eigenmode
-            // is the reference), so both sides must agree exactly.
-            TEST_LOG(QString("Xt: %1 == %2").arg(offsetLeft.T).arg(offsetRight.T))
-            ASSERT_NEAR_DBL(offsetLeft.T, offsetRight.T, 1e-16)
-            TEST_LOG(QString("Xs: %1 == %2").arg(offsetLeft.S).arg(offsetRight.S))
-            ASSERT_NEAR_DBL(offsetLeft.S, offsetRight.S, 1e-16)
         }
         if (comparePrev)
         {
