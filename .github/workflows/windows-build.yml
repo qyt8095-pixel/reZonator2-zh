@@ -327,7 +327,8 @@ jobs:
           $msi = (Resolve-Path "installer/$env:MSI_NAME").Path
           $installer = New-Object -ComObject WindowsInstaller.Installer
           $db = $installer.OpenDatabase($msi, 0)
-          $view = $db.OpenView("SELECT Property, Value FROM Property WHERE Property IN ('ProductVersion','UpgradeCode','ALLUSERS','MSIINSTALLPERUSER')")
+          # MSI SQL has no IN operator (only =, <>, AND, OR, parens) -- use ORs.
+          $view = $db.OpenView("SELECT Property, Value FROM Property WHERE Property = 'ProductVersion' OR Property = 'UpgradeCode' OR Property = 'ALLUSERS' OR Property = 'MSIINSTALLPERUSER'")
           $view.Execute()
           $props = @{}
           while ($rec = $view.Fetch()) { $props[$rec.StringData(1)] = $rec.StringData(2); Write-Host "$($rec.StringData(1)) = $($rec.StringData(2))" }
@@ -336,7 +337,7 @@ jobs:
           if ($props['ProductVersion'] -ne $ver) { throw "ProductVersion mismatch: $($props['ProductVersion']) vs $ver" }
           if ($props['ALLUSERS'] -ne '2') { throw "ALLUSERS is not 2 (dual-purpose default): $($props['ALLUSERS'])" }
           if ($props['MSIINSTALLPERUSER'] -ne '1') { throw "MSIINSTALLPERUSER is not 1 (per-user default): $($props['MSIINSTALLPERUSER'])" }
-          $view = $db.OpenView("SELECT Dialog_, Control_, Event, Argument FROM ControlEvent WHERE Event = 'NewDialog' AND Dialog_ IN ('LicenseAgreementDlg','InstallScopeDlg','InstallDirDlg') AND Control_ IN ('Next','Back')")
+          $view = $db.OpenView("SELECT Dialog_, Control_, Event, Argument FROM ControlEvent WHERE Event = 'NewDialog' AND (Dialog_ = 'LicenseAgreementDlg' OR Dialog_ = 'InstallScopeDlg' OR Dialog_ = 'InstallDirDlg') AND (Control_ = 'Next' OR Control_ = 'Back')")
           $view.Execute()
           $nav = @()
           while ($rec = $view.Fetch()) { $nav += "$($rec.StringData(1)).$($rec.StringData(2)) -> $($rec.StringData(4))"; Write-Host "Nav: $($nav[-1])" }
