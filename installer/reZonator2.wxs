@@ -54,7 +54,11 @@
       <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="reZonator2" Description="谐振腔设计与高斯光束分析" Target="[INSTALLFOLDER]rezonator.exe" WorkingDirectory="INSTALLFOLDER" />
       <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="reZonator2" Description="谐振腔设计与高斯光束分析" Target="[INSTALLFOLDER]rezonator.exe" WorkingDirectory="INSTALLFOLDER" />
       <RegistryValue Root="HKMU" Key="Software\reZonator2" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
-      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <!-- 注意：RemoveFolder 的 Directory 必须显式写成 ApplicationProgramsFolder；
+           不写时默认删组件所在的目录（INSTALLFOLDER），开始菜单文件夹就删不掉。
+           另：ICE57/ICE64 对双模式包是误报（开始菜单目录与 HKMU 注册表都随安装
+           模式一起重定向，见工作流 Validate 步骤的 -sice 注释），不要为此改结构。 -->
+      <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
     </Component>
 
     <Icon Id="AppIcon" SourceFile="$(var.RepoDir)\img\icon\main_2.ico" />
