@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  reZonator2 Windows 安装程序（WiX Toolset 5，MSI）。
+  由 installer/gen-files-wxs.py 生成 files.wxs（deploy/ 文件清单）后，
+  在 CI 中构建：
+    wix build installer/reZonator2.wxs installer/files.wxs ^
+      -arch x64 -culture zh-CN ^
+      -d ProductVersion=<release/version.txt> -d DeployDir=deploy -d RepoDir=. ^
+      -o installer/reZonator2-zh-<version>.msi
+
+  行为：
+  - 双模式安装（Scope="perUserOrMachine"）：安装时弹出“安装范围”对话框
+    （官方 InstallScopeDlg，简体中文），默认“只为您安装”（无需管理员，
+    装到 %LocalAppData%\Programs\reZonator2）；选“为此计算机的所有用户安装”
+    则提权装到 %ProgramFiles%\reZonator2。目录用 ProgramFiles64Folder，
+    Windows Installer 会按安装模式自动重定向。
+  - 升级：MajorUpgrade。MSI 版本之间、同模式升级时自动卸载旧版再安装。
+    换模式升级时旧版不会被自动找到（MSI 限制），需先手动卸载一次。
+  - 迁移注意：MSI 认不出旧的 Inno Setup 版（2.3.x–3.2.1，用 AppId 注册），
+    所以第一次装 3.2.2 的 MSI 之前，必须先手动卸载旧版一次；此后
+    MSI 版本之间升级就是全自动的了。
+  - 界面：WixUI_InstallDir（欢迎 → 许可 → 安装范围 → 安装目录 → 确认），
+    简体中文（-culture zh-CN）。许可文本由 gen-files-wxs.py 从 LICENSE 生成。
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="reZonator2"
+           Manufacturer="qyt8095-pixel"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="53C38934-A255-44E2-9BE8-84A81E245082"
+           Scope="perUserOrMachine"
+           Compressed="yes"
+           InstallerVersion="500"
+           Language="2052">
+    <!-- 升级：同模式自动卸载旧版；已装更新版本时报错退出。 -->
+    <MajorUpgrade DowngradeErrorMessage="已安装更新版本的 reZonator2。" />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="reZonator2" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="Shortcuts" />
+    </Feature>
+
+    <!-- ProgramFiles64Folder 会按安装模式自动重定向：所有用户 → Program Files，
+         仅当前用户 → %LocalAppData%\Programs。 -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="reZonator2" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="reZonator2" />
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Component Id="Shortcuts" Directory="INSTALLFOLDER" Guid="*" Bitness="always64">
+      <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="reZonator2" Description="谐振腔设计与高斯光束分析" Target="[INSTALLFOLDER]rezonator.exe" WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="reZonator2" Description="谐振腔设计与高斯光束分析" Target="[INSTALLFOLDER]rezonator.exe" WorkingDirectory="INSTALLFOLDER" />
+      <RegistryValue Root="HKMU" Key="Software\reZonator2" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+    </Component>
+
+    <Icon Id="AppIcon" SourceFile="$(var.RepoDir)\img\icon\main_2.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <!-- 默认安装范围：仅当前用户（与 Scope 的 MSIINSTALLPERUSER=1 一致）。 -->
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+    <WixVariable Id="WixUISupportPerUser" Value="1" />
+    <WixVariable Id="WixUISupportPerMachine" Value="1" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.RepoDir)\installer\license.rtf" />
+
+    <UI>
+      <DialogRef Id="InstallScopeDlg" />
+      <!-- 在许可页与安装目录页之间插入“安装范围”选择页。
+           下面几条 Publish 的写法照搬官方 WixUI_Advanced 的做法：
+           非管理员强制仅当前用户；否则按所选单选框设置 ALLUSERS
+           （空 = 仅当前用户，1 = 所有用户）。 -->
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg" Condition="LicenseAccepted = &quot;1&quot;" />
+      <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg" />
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="WixAppFolder" Value="WixPerUserFolder" Order="1" Condition="!(wix.WixUISupportPerUser) AND NOT Privileged" />
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}" Order="2" Condition="WixAppFolder = &quot;WixPerUserFolder&quot;" />
+      <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3" Condition="WixAppFolder = &quot;WixPerMachineFolder&quot;" />
+      <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="4" />
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg" />
+    </UI>
+    <UIRef Id="WixUI_InstallDir" />
+  </Package>
+</Wix>
