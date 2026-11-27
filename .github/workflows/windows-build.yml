@@ -297,8 +297,7 @@ jobs:
           # license RTF from LICENSE; both are build-time inputs.
           python installer/gen-files-wxs.py .
           $ver = (Get-Content release/version.txt -Raw).Trim()
-          
-          # Version comes from release/version.txt (single source of
+                    # Version comes from release/version.txt (single source of
           # truth, no hardcoded version in this file). x64 MSI with a
           # Simplified Chinese UI.
           wix build installer/reZonator2.wxs installer/files.wxs `
