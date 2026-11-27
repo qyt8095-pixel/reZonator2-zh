@@ -337,15 +337,20 @@ jobs:
           if ($props['ProductVersion'] -ne $ver) { throw "ProductVersion mismatch: $($props['ProductVersion']) vs $ver" }
           if ($props['ALLUSERS'] -ne '2') { throw "ALLUSERS is not 2 (dual-purpose default): $($props['ALLUSERS'])" }
           if ($props['MSIINSTALLPERUSER'] -ne '1') { throw "MSIINSTALLPERUSER is not 1 (per-user default): $($props['MSIINSTALLPERUSER'])" }
-          $view = $db.OpenView("SELECT Dialog_, Control_, Event, Argument FROM ControlEvent WHERE Event = 'NewDialog' AND (Dialog_ = 'LicenseAgreementDlg' OR Dialog_ = 'InstallScopeDlg' OR Dialog_ = 'InstallDirDlg') AND (Control_ = 'Next' OR Control_ = 'Back')")
+          $view = $db.OpenView("SELECT Dialog_, Control_, Event, Argument, Ordering FROM ControlEvent WHERE Event = 'NewDialog' AND (Dialog_ = 'LicenseAgreementDlg' OR Dialog_ = 'InstallScopeDlg' OR Dialog_ = 'InstallDirDlg') AND (Control_ = 'Next' OR Control_ = 'Back')")
           $view.Execute()
           $nav = @()
-          while ($rec = $view.Fetch()) { $nav += "$($rec.StringData(1)).$($rec.StringData(2)) -> $($rec.StringData(4))"; Write-Host "Nav: $($nav[-1])" }
+          $ord = @{}
+          while ($rec = $view.Fetch()) { $n = "$($rec.StringData(1)).$($rec.StringData(2)) -> $($rec.StringData(4))"; $nav += $n; $ord[$n] = $rec.IntegerData(5); Write-Host "Nav: $n [Order $($ord[$n])]" }
           $view.Close()
           if ($nav -notcontains 'LicenseAgreementDlg.Next -> InstallScopeDlg') { throw 'Scope dialog is not wired after the license dialog' }
-          if ($nav -contains 'LicenseAgreementDlg.Next -> InstallDirDlg') { throw 'Stock navigation (license -> install dir) is still present; scope dialog would be skipped' }
+          # MSI publishes only the NewDialog with the largest Ordering when
+          # several are selected, so the stock rows stay in the table: our
+          # overrides must simply outrank them (Order 2 vs stock Order 1).
+          if ($ord['LicenseAgreementDlg.Next -> InstallScopeDlg'] -le $ord['LicenseAgreementDlg.Next -> InstallDirDlg']) { throw 'Scope dialog does not outrank the stock navigation (Ordering)' }
           if ($nav -notcontains 'InstallScopeDlg.Next -> InstallDirDlg') { throw 'Scope dialog does not lead to the install dir dialog' }
           if ($nav -notcontains 'InstallDirDlg.Back -> InstallScopeDlg') { throw 'Install dir dialog does not go back to the scope dialog' }
+          if ($ord['InstallDirDlg.Back -> InstallScopeDlg'] -le $ord['InstallDirDlg.Back -> LicenseAgreementDlg']) { throw 'Install dir Back does not return to the scope dialog (Ordering)' }
 
       - name: Upload exe package
         uses: actions/upload-artifact@v6
