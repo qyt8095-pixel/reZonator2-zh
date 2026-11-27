@@ -4,7 +4,7 @@
   由 installer/gen-files-wxs.py 生成 files.wxs（deploy/ 文件清单）后，
   在 CI 中构建：
     wix build installer/reZonator2.wxs installer/files.wxs ^
-      -arch x64 -culture zh-CN ^
+      -arch x64 -culture zh-CN -ext WixToolset.UI.wixext ^
       -d ProductVersion=<release/version.txt> -d DeployDir=deploy -d RepoDir=. ^
       -o installer/reZonator2-zh-<version>.msi
 
@@ -22,7 +22,7 @@
   - 界面：WixUI_InstallDir（欢迎 → 许可 → 安装范围 → 安装目录 → 确认），
     简体中文（-culture zh-CN）。许可文本由 gen-files-wxs.py 从 LICENSE 生成。
 -->
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="reZonator2"
            Manufacturer="qyt8095-pixel"
            Version="$(var.ProductVersion)"
@@ -59,7 +59,6 @@
 
     <Icon Id="AppIcon" SourceFile="$(var.RepoDir)\img\icon\main_2.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <!-- 默认安装范围：仅当前用户（与 Scope 的 MSIINSTALLPERUSER=1 一致）。 -->
     <Property Id="WixAppFolder" Value="WixPerUserFolder" />
     <WixVariable Id="WixUISupportPerUser" Value="1" />
@@ -80,6 +79,10 @@
       <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="4" />
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg" />
     </UI>
-    <UIRef Id="WixUI_InstallDir" />
+    <!-- WiX v4+ 引用对话框集必须用扩展元素 ui:WixUI（UIRef 会报 WIX0094，
+         因为平台中立的 WixUI_InstallDir 在扩展库里是 file 作用域、不可直接引用）。
+         InstallDirectory 属性会全局设置 WIXUI_INSTALLDIR，所以上面不再单独
+         写 <Property Id="WIXUI_INSTALLDIR" .../>。 -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
   </Package>
 </Wix>
