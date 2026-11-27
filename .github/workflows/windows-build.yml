@@ -285,11 +285,11 @@ jobs:
           $ErrorActionPreference = 'Stop'
           # The upstream install/win/rezonator.iss expects out/redist and
           # parses version.txt with a dash suffix, neither of which holds
-          # here (version is plain 3.2.1), so generate a dedicated script
+          # here (version is plain 3.2.2), so generate a dedicated script
           # for the Chinese build instead of reusing it verbatim.
           @'
           #define AppName "reZonator2"
-          #define AppVer "3.2.1"
+          #define AppVer "3.2.2"
           [Setup]
           AppId={{53C38934-A255-44E2-9BE8-84A81E245082}
           AppName={#AppName}
@@ -316,6 +316,7 @@ jobs:
           SolidCompression=yes
           PrivilegesRequired=lowest
           PrivilegesRequiredOverridesAllowed=dialog
+          UsePreviousPrivileges=no
           ArchitecturesAllowed=x64
           ArchitecturesInstallIn64BitMode=x64
           [Languages]
@@ -359,5 +360,5 @@ jobs:
           name: rezonator2-zh-windows
           path: |
             deploy
-            installer/reZonator2-zh-3.2.1-setup.exe
+            installer/reZonator2-zh-3.2.2-setup.exe
           if-no-files-found: error
