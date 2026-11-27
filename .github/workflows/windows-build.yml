@@ -291,7 +291,7 @@ jobs:
           $tools = Join-Path $env:USERPROFILE '.dotnet\tools'
           $env:Path = "$tools;$env:Path"
           echo $tools | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          wix extension add -g WixToolset.UI.wixext
+          wix extension add -g WixToolset.UI.wixext --version 5.0.2
           # Generate the file list (files.wxs) from deploy/ and the
           # license RTF from LICENSE; both are build-time inputs.
           python installer/gen-files-wxs.py .
