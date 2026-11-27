@@ -344,6 +344,60 @@ jobs:
           Name: "{autodesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
           [Run]
           Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+          [Code]
+          // Auto-uninstall the previous version on upgrade: before the install
+          // starts, detect whether the same AppId is already installed. If so,
+          // run the old uninstaller silently (/VERYSILENT) and wait until it
+          // really finishes before continuing, so switching install mode
+          // (per-user / all-users) never leaves two copies behind.
+          function GetOldUninstallString(): String;
+          var
+            UninstallString: String;
+          begin
+            Result := '';
+            if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString) then
+              Result := UninstallString
+            else if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString) then
+              Result := UninstallString;
+          end;
+
+          function OldUninstallKeyExists(): Boolean;
+          var
+            UninstallString: String;
+          begin
+            Result := RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString)
+              or RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString);
+          end;
+
+          function InitializeSetup(): Boolean;
+          var
+            UninstallExe: String;
+            ResultCode: Integer;
+            Waited: Integer;
+          begin
+            Result := True;
+            UninstallExe := GetOldUninstallString();
+            if UninstallExe = '' then
+              Exit;
+            Log('Previous install detected, uninstalling silently: ' + UninstallExe);
+            UninstallExe := RemoveQuotes(UninstallExe);
+            if Exec(UninstallExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+            begin
+              // The uninstaller copies itself to a temp folder and re-runs from
+              // there, so Exec may return before the uninstall is actually done.
+              // Poll the uninstall registry key until it disappears (max 60
+              // seconds); a timeout never blocks the install.
+              Waited := 0;
+              while OldUninstallKeyExists() and (Waited < 120) do
+              begin
+                Sleep(500);
+                Waited := Waited + 1;
+              end;
+              Log('Previous uninstall finished after ' + IntToStr(Waited * 500) + ' ms, continuing install');
+            end
+            else
+              Log('Failed to run the previous uninstaller, error code: ' + IntToStr(ResultCode) + ', continuing install');
+          end;
           '@ | Out-File -Encoding utf8 installer.iss
           choco install innosetup -y --no-progress
           # Official Chinese language file for the installer UI (see
