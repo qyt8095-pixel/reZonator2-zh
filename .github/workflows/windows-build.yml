@@ -311,11 +311,18 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          wix msi validate "installer/$env:MSI_NAME"
+          # ICE57/ICE64 are known false positives for dual-purpose
+          # (perUserOrMachine) packages: the Start Menu folders and the
+          # HKMU registry keypath redirect together with the install
+          # context, but these pre-dual-purpose ICEs treat "might be
+          # user-profile" as user-profile. Microsoft's single-package
+          # authoring guidance requires ICE105, which still runs.
+          wix msi validate "installer/$env:MSI_NAME" -sice ICE57 -sice ICE64
+          if ($LASTEXITCODE -ne 0) { throw "wix msi validate failed with exit code $LASTEXITCODE" }
           # Confirm the dual-purpose package defaults and that the
           # install-scope dialog is really wired into the UI: dump the
           # key properties and the navigation rows, and fail if the
-          # stock navigation (license -> install dir, skipping the scope
+
           # dialog) is still present.
           $msi = (Resolve-Path "installer/$env:MSI_NAME").Path
           $installer = New-Object -ComObject WindowsInstaller.Installer
