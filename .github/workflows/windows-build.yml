@@ -279,134 +279,64 @@ jobs:
           }
           Get-ChildItem deploy | Select-Object Name, Length
 
-      - name: Build installer with Inno Setup
+      - name: Build installer with WiX Toolset (MSI)
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          # The upstream install/win/rezonator.iss expects out/redist and
-          # parses version.txt with a dash suffix, neither of which holds
-          # here (version is plain 3.2.2), so generate a dedicated script
-          # for the Chinese build instead of reusing it verbatim.
-          @'
-          #define AppName "reZonator2"
-          #define AppVer "3.2.2"
-          [Setup]
-          AppId={{53C38934-A255-44E2-9BE8-84A81E245082}
-          AppName={#AppName}
-          ; Use ASCII-only AppVerName: non-ASCII in the generated script
-          ; came out garbled in the installer title bar (script written
-          ; without a BOM is read as ANSI by ISCC).
-          AppVerName={#AppName} {#AppVer} Chinese Edition
-          AppVersion={#AppVer}
-          AppPublisher=qyt8095-pixel
-          DefaultDirName={autopf}\{#AppName}
-          DefaultGroupName={#AppName}
-          AllowNoIcons=yes
-          LicenseFile=LICENSE
-          OutputDir=installer
-          OutputBaseFilename=reZonator2-zh-{#AppVer}-setup
-          ; Installer file icon = the application's own icon, the same
-          ; img/icon/main_2.ico that rezonator.exe itself uses (see
-          ; src/app.rc). That file is a binary asset missing from the
-          ; repo, but the workflow's restore step copies it from the
-          ; upstream tarball before this step runs.
-          SetupIconFile=img\icon\main_2.ico
-          UninstallDisplayIcon={app}\rezonator.exe
-          Compression=lzma2
-          SolidCompression=yes
-          PrivilegesRequired=lowest
-          PrivilegesRequiredOverridesAllowed=dialog
-          UsePreviousPrivileges=no
-          ArchitecturesAllowed=x64
-          ArchitecturesInstallIn64BitMode=x64
-          [Languages]
-          ; Chinese installer UI: the runner's Inno install ships only
-          ; Default.isl, but the official ChineseSimplified.isl is a
-          ; plain file in the jrsoftware/issrc repo, so download it into
-          ; the compiler's Languages dir before building. The generated
-          ; script itself stays ASCII-only (only the language name is
-          ; referenced here); all Chinese text comes from the .isl file,
-          ; so the earlier AppVerName garbling issue does not apply.
-          ; Chinese is listed first, so it is the default language.
-          Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
-          Name: "english"; MessagesFile: "compiler:Default.isl"
-          [Tasks]
-          Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
-          [Files]
-          Source: "deploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-          [Icons]
-          Name: "{group}\{#AppName}"; Filename: "{app}\rezonator.exe"
-          Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
-          ; autodesktop follows the install mode chosen in the
-          ; PrivilegesRequiredOverridesAllowed dialog: per-user installs
-          ; write the shortcut to the current user's desktop, while
-          ; all-users installs (elevated) write it to the common desktop.
-          Name: "{autodesktop}\{#AppName}"; Filename: "{app}\rezonator.exe"; Tasks: desktopicon
-          [Run]
-          Filename: "{app}\rezonator.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
-          [Code]
-          // Auto-uninstall the previous version on upgrade: before the install
-          // starts, detect whether the same AppId is already installed. If so,
-          // run the old uninstaller silently (/VERYSILENT) and wait until it
-          // really finishes before continuing, so switching install mode
-          // (per-user / all-users) never leaves two copies behind.
-          function GetOldUninstallString(): String;
-          var
-            UninstallString: String;
-          begin
-            Result := '';
-            if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString) then
-              Result := UninstallString
-            else if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString) then
-              Result := UninstallString;
-          end;
-
-          function OldUninstallKeyExists(): Boolean;
-          var
-            UninstallString: String;
-          begin
-            Result := RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString)
-              or RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{53C38934-A255-44E2-9BE8-84A81E245082}_is1', 'UninstallString', UninstallString);
-          end;
-
-          function InitializeSetup(): Boolean;
-          var
-            UninstallExe: String;
-            ResultCode: Integer;
-            Waited: Integer;
-          begin
-            Result := True;
-            UninstallExe := GetOldUninstallString();
-            if UninstallExe = '' then
-              Exit;
-            Log('Previous install detected, uninstalling silently: ' + UninstallExe);
-            UninstallExe := RemoveQuotes(UninstallExe);
-            if Exec(UninstallExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-            begin
-              // The uninstaller copies itself to a temp folder and re-runs from
-              // there, so Exec may return before the uninstall is actually done.
-              // Poll the uninstall registry key until it disappears (max 60
-              // seconds); a timeout never blocks the install.
-              Waited := 0;
-              while OldUninstallKeyExists() and (Waited < 120) do
-              begin
-                Sleep(500);
-                Waited := Waited + 1;
-              end;
-              Log('Previous uninstall finished after ' + IntToStr(Waited * 500) + ' ms, continuing install');
-            end
-            else
-              Log('Failed to run the previous uninstaller, error code: ' + IntToStr(ResultCode) + ', continuing install');
-          end;
-          '@ | Out-File -Encoding utf8 installer.iss
-          choco install innosetup -y --no-progress
-          # Official Chinese language file for the installer UI (see
-          # [Languages] above); verified reachable at this URL.
-          $innoDir = 'C:\Program Files (x86)\Inno Setup 6'
-          Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/ChineseSimplified.isl' -OutFile "$innoDir\Languages\ChineseSimplified.isl"
-          if (-not (Test-Path "$innoDir\Languages\ChineseSimplified.isl")) { throw 'ChineseSimplified.isl download failed' }
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss
+          # WiX Toolset 5 (pinned): a .NET global tool; dotnet is
+          # preinstalled on the windows-2022 runner. The WixUI dialog
+          # set (WixUI_InstallDir + InstallScopeDlg) lives in the UI
+          # extension.
+          dotnet tool install --global wix --version 5.0.2
+          $tools = Join-Path $env:USERPROFILE '.dotnet\tools'
+          $env:Path = "$tools;$env:Path"
+          echo $tools | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          wix extension add -g WixToolset.UI.wixext
+          # Generate the file list (files.wxs) from deploy/ and the
+          # license RTF from LICENSE; both are build-time inputs.
+          python installer/gen-files-wxs.py .
+          $ver = (Get-Content release/version.txt -Raw).Trim()
+          # Version comes from release/version.txt (single source of
+          # truth, no hardcoded version in this file). x64 MSI with a
+          # Simplified Chinese UI.
+          wix build installer/reZonator2.wxs installer/files.wxs `
+            -arch x64 -culture zh-CN `
+            -d ProductVersion=$ver -d DeployDir=deploy -d RepoDir=. `
+            -o "installer/reZonator2-zh-$ver.msi"
+          echo "MSI_NAME=reZonator2-zh-$ver.msi" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Get-ChildItem installer | Select-Object Name, Length
+
+      - name: Validate MSI (ICE + scope wiring)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          wix msi validate "installer/$env:MSI_NAME"
+          # Confirm the dual-purpose package defaults and that the
+          # install-scope dialog is really wired into the UI: dump the
+          # key properties and the navigation rows, and fail if the
+          # stock navigation (license -> install dir, skipping the scope
+          # dialog) is still present.
+          $msi = (Resolve-Path "installer/$env:MSI_NAME").Path
+          $installer = New-Object -ComObject WindowsInstaller.Installer
+          $db = $installer.OpenDatabase($msi, 0)
+          $view = $db.OpenView("SELECT Property, Value FROM Property WHERE Property IN ('ProductVersion','UpgradeCode','ALLUSERS','MSIINSTALLPERUSER')")
+          $view.Execute()
+          $props = @{}
+          while ($rec = $view.Fetch()) { $props[$rec.StringData(1)] = $rec.StringData(2); Write-Host "$($rec.StringData(1)) = $($rec.StringData(2))" }
+          $view.Close()
+          $ver = (Get-Content release/version.txt -Raw).Trim()
+          if ($props['ProductVersion'] -ne $ver) { throw "ProductVersion mismatch: $($props['ProductVersion']) vs $ver" }
+          if ($props['ALLUSERS'] -ne '2') { throw "ALLUSERS is not 2 (dual-purpose default): $($props['ALLUSERS'])" }
+          if ($props['MSIINSTALLPERUSER'] -ne '1') { throw "MSIINSTALLPERUSER is not 1 (per-user default): $($props['MSIINSTALLPERUSER'])" }
+          $view = $db.OpenView("SELECT Dialog_, Control_, Event, Argument FROM ControlEvent WHERE Event = 'NewDialog' AND Dialog_ IN ('LicenseAgreementDlg','InstallScopeDlg','InstallDirDlg') AND Control_ IN ('Next','Back')")
+          $view.Execute()
+          $nav = @()
+          while ($rec = $view.Fetch()) { $nav += "$($rec.StringData(1)).$($rec.StringData(2)) -> $($rec.StringData(4))"; Write-Host "Nav: $($nav[-1])" }
+          $view.Close()
+          if ($nav -notcontains 'LicenseAgreementDlg.Next -> InstallScopeDlg') { throw 'Scope dialog is not wired after the license dialog' }
+          if ($nav -contains 'LicenseAgreementDlg.Next -> InstallDirDlg') { throw 'Stock navigation (license -> install dir) is still present; scope dialog would be skipped' }
+          if ($nav -notcontains 'InstallScopeDlg.Next -> InstallDirDlg') { throw 'Scope dialog does not lead to the install dir dialog' }
+          if ($nav -notcontains 'InstallDirDlg.Back -> InstallScopeDlg') { throw 'Install dir dialog does not go back to the scope dialog' }
 
       - name: Upload exe package
         uses: actions/upload-artifact@v6
@@ -414,5 +344,5 @@ jobs:
           name: rezonator2-zh-windows
           path: |
             deploy
-            installer/reZonator2-zh-3.2.2-setup.exe
+            installer/${{ env.MSI_NAME }}
           if-no-files-found: error
