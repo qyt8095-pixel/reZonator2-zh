@@ -74,14 +74,18 @@
       <!-- 在许可页与安装目录页之间插入“安装范围”选择页。
            下面几条 Publish 的写法照搬官方 WixUI_Advanced 的做法：
            非管理员强制仅当前用户；否则按所选单选框设置 ALLUSERS
-           （空 = 仅当前用户，1 = 所有用户）。 -->
-      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg" Condition="LicenseAccepted = &quot;1&quot;" />
+           （空 = 仅当前用户，1 = 所有用户）。
+           注意：新增的 Publish 不会替换官方同名行，两行会同时留在
+           ControlEvent 表里；MSI 只发布其中 Ordering 最大的那个
+           NewDialog，官方行默认 Order 是 1，所以下面两条改道用的
+           Publish 必须显式写 Order="2" 才能胜出。 -->
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg" Order="2" Condition="LicenseAccepted = &quot;1&quot;" />
       <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg" />
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="WixAppFolder" Value="WixPerUserFolder" Order="1" Condition="!(wix.WixUISupportPerUser) AND NOT Privileged" />
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}" Order="2" Condition="WixAppFolder = &quot;WixPerUserFolder&quot;" />
       <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3" Condition="WixAppFolder = &quot;WixPerMachineFolder&quot;" />
       <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="4" />
-      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg" />
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg" Order="2" />
     </UI>
     <!-- WiX v4+ 引用对话框集必须用扩展元素 ui:WixUI（UIRef 会报 WIX0094，
          因为平台中立的 WixUI_InstallDir 在扩展库里是 file 作用域、不可直接引用）。
