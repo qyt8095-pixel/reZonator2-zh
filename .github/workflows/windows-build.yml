@@ -322,7 +322,7 @@ jobs:
           # Confirm the dual-purpose package defaults and that the
           # install-scope dialog is really wired into the UI: dump the
           # key properties and the navigation rows, and fail if the
-
+          # stock navigation (license -> install dir, skipping the scope
           # dialog) is still present.
           $msi = (Resolve-Path "installer/$env:MSI_NAME").Path
           $installer = New-Object -ComObject WindowsInstaller.Installer
